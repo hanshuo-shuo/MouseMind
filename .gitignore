@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+/out/
+/build/
+/dist/
+/*.egg-info/
+
+# Private mouse-policy inputs and derived artifacts. Keep aggregate figures only.
+/mouse_data*.csv
+/dataset/mouse_*.jsonl
+/mouse_llm/.local/
+/mouse_llm/artifacts/
+/mouse_llm/reports/private/
+/mouse_llm/reports/**/closed_loop_episodes.csv
+/mouse_llm/reports/**/failure_replay_manifest.json
+/checkpoints/
+*.ckpt
+*.pt
+*.pth
+*.safetensors

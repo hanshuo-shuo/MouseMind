@@ -1,0 +1,561 @@
+{
+  "experiment": "mousemind_seeded_closed_loop",
+  "failure_taxonomy": {
+    "definitions": {
+      "capture_near_occlusion": "capture while the prey is near an occlusion",
+      "capture_other": "capture without a more specific spatial/temporal label",
+      "goal_overshoot": "approached within 0.15 then ended at least 0.08 farther away",
+      "late_predator_response": "capture within four steps of first predator visibility",
+      "navigation_oscillation": "timeout with A/B/A action alternation score >= 0.45",
+      "open_space_capture": "capture away from walls and occlusions",
+      "stuck_timeout": "timeout with <= 0.03 path length over the final 20 steps",
+      "timeout_other": "timeout not matched by another deterministic rule",
+      "wrong_way_navigation": "final goal distance at least 0.10 worse than start"
+    },
+    "definitions_version": 1
+  },
+  "metadata": {
+    "control_budget_seconds": 0.25,
+    "decode_mode": "json-constrained",
+    "environment": "BotEvadeEnv",
+    "episode_count": 100,
+    "execution_note": "local macOS CPU; latency is not cross-hardware comparable to Quest GPU",
+    "fallback_action": 0,
+    "hierarchical_policy": {
+      "evade_distance": 0.35,
+      "instruction": "Reach the goal while prioritizing survival and avoiding the predator.",
+      "planner": "InstructionSkillPlanner",
+      "planner_horizon": 4,
+      "status": "auditable language baseline; MiniMind skill planner pending"
+    },
+    "max_steps": 300,
+    "merged_policy_runs": [
+      "mousemind-random-100-v2",
+      "mousemind-mlp-100-v2",
+      "mousemind-hierarchical-100-h4"
+    ],
+    "observation_adapter": {
+      "gym_indices": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        14,
+        10,
+        11,
+        12
+      ],
+      "runtime_encoder": "BotEvadeEnv.legacy_policy_observation",
+      "semantic_equivalence_to_legacy_exporter_verified": true,
+      "target_schema": "legacy_mouse_vector_10d_v1",
+      "wrapped_angle_target_indices": [
+        2,
+        5
+      ]
+    },
+    "observation_contract_audit": {
+      "artifact": "observation_contract_audit.json",
+      "dataset_rows": 118861,
+      "sha256": "ca684def2c733c5684d3d6bc5152b69e18369ce40dd4cf68a42cedef22935683",
+      "source_commit": "67e769fd410b325b5d2c517d9d5966e5e80fac23",
+      "source_sha256": "775d672ecfb518584005558a2ae635981bdacac29b68ed2fba754579e79bee3f",
+      "state_replay_coverage": {
+        "hidden": 16,
+        "visible": 16
+      },
+      "verified": true
+    },
+    "reference_policy": "random",
+    "research_evidence": true,
+    "research_evidence_blockers": [],
+    "seed_sha256": "ce486627b4f6b0aa7fb284ab1824955f59fe6b38d519f14ac7b6b254eda62e8a",
+    "seed_start": 1000,
+    "synthetic": false,
+    "torch_threads": 1,
+    "world": "21_05"
+  },
+  "paired_comparisons": {
+    "hierarchical-mlp_minus_mlp-bc": {
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.07,
+        "ci_low": -0.22,
+        "mean": -0.14
+      },
+      "captures": {
+        "ci_high": -72.97975000000001,
+        "ci_low": -88.88024999999999,
+        "mean": -80.99
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.12062142574910707,
+        "ci_low": 0.0524161582646865,
+        "mean": 0.08497964939690555
+      },
+      "oscillation_score": {
+        "ci_high": -0.07636334502868944,
+        "ci_low": -0.12229354494293,
+        "mean": -0.09795815884867061
+      },
+      "path_efficiency": {
+        "ci_high": 0.25272398655538525,
+        "ci_low": 0.12471452000996172,
+        "mean": 0.1883732409344329
+      },
+      "path_length": {
+        "ci_high": 0.3624565294638056,
+        "ci_low": -2.479611569896799,
+        "mean": -1.0174092181508352
+      },
+      "planner_call_rate": {
+        "ci_high": 0.2761292242374581,
+        "ci_low": 0.2720650958823527,
+        "mean": 0.27400031143506565
+      },
+      "return": {
+        "ci_high": 89.2805,
+        "ci_low": 73.26975,
+        "mean": 81.56
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08545601117207989,
+        "ci_low": 0.07250037478628465,
+        "mean": 0.07888136588568932
+      },
+      "steps": {
+        "ci_high": -78.66900000000001,
+        "ci_low": -126.55149999999999,
+        "mean": -102.41
+      },
+      "success_rate": {
+        "ci_high": 0.69,
+        "ci_low": 0.43975000000000003,
+        "mean": 0.57
+      },
+      "survival_rate": {
+        "ci_high": 0.22,
+        "ci_low": 0.07,
+        "mean": 0.14
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "hierarchical-mlp_minus_random": {
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.08,
+        "ci_low": -0.22,
+        "mean": -0.15
+      },
+      "captures": {
+        "ci_high": -55.669500000000006,
+        "ci_low": -60.86,
+        "mean": -58.27
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.1511504573547609,
+        "ci_low": -0.20585798025909072,
+        "mean": -0.1797248663034774
+      },
+      "oscillation_score": {
+        "ci_high": 0.03544678983356094,
+        "ci_low": 0.0190411041149117,
+        "mean": 0.026345214634546563
+      },
+      "path_efficiency": {
+        "ci_high": 0.30865707140609516,
+        "ci_low": 0.2131007777469099,
+        "mean": 0.26125989247223436
+      },
+      "path_length": {
+        "ci_high": -16.866676814926816,
+        "ci_low": -18.72409947800065,
+        "mean": -17.826778158639964
+      },
+      "planner_call_rate": {
+        "ci_high": 0.2760091724892754,
+        "ci_low": 0.2719859821606269,
+        "mean": 0.27400031143506565
+      },
+      "return": {
+        "ci_high": 61.680499999999995,
+        "ci_low": 56.45975,
+        "mean": 59.01
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08542538747926544,
+        "ci_low": 0.07251464238353601,
+        "mean": 0.07888136588568932
+      },
+      "steps": {
+        "ci_high": -109.11875,
+        "ci_low": -146.87550000000002,
+        "mean": -128.73
+      },
+      "success_rate": {
+        "ci_high": 0.82,
+        "ci_low": 0.65,
+        "mean": 0.74
+      },
+      "survival_rate": {
+        "ci_high": 0.22,
+        "ci_low": 0.08,
+        "mean": 0.15
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "mlp-bc_minus_random": {
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "captures": {
+        "ci_high": 30.6705,
+        "ci_low": 14.13875,
+        "mean": 22.72
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.24127589674936534,
+        "ci_low": -0.2846335153304243,
+        "mean": -0.264704515700383
+      },
+      "oscillation_score": {
+        "ci_high": 0.14662561074163213,
+        "ci_low": 0.10321043259372181,
+        "mean": 0.1243033734832172
+      },
+      "path_efficiency": {
+        "ci_high": 0.11218708836310667,
+        "ci_low": 0.03697792868358097,
+        "mean": 0.07288665153780138
+      },
+      "path_length": {
+        "ci_high": -15.572987096018803,
+        "ci_low": -18.02804956211369,
+        "mean": -16.809368940489136
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -14.436500000000018,
+        "ci_low": -30.66025,
+        "mean": -22.55
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": -14.358250000000009,
+        "ci_low": -39.760749999999994,
+        "mean": -26.32
+      },
+      "success_rate": {
+        "ci_high": 0.24,
+        "ci_low": 0.1,
+        "mean": 0.17
+      },
+      "survival_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    }
+  },
+  "policies": {
+    "hierarchical-mlp": {
+      "capture_rate": {
+        "ci_high": 0.92,
+        "ci_low": 0.78,
+        "mean": 0.85
+      },
+      "captures": {
+        "ci_high": 11.7,
+        "ci_low": 8.309750000000001,
+        "mean": 9.96
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 56,
+          "capture_other": 19,
+          "late_predator_response": 6,
+          "open_space_capture": 4
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 85,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.6588235294117647,
+          "capture_other": 0.2235294117647059,
+          "late_predator_response": 0.07058823529411765,
+          "open_space_capture": 0.047058823529411764
+        }
+      },
+      "latency_seconds": {
+        "mean": 8.974988993438551e-05,
+        "mean_action_hz": 11142.074945507806,
+        "p50": 5.775000317953527e-05,
+        "p95": 0.0001789579982869327,
+        "p99": 0.00021293357276590608
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.18843724538170026,
+        "ci_low": 0.13466986124381944,
+        "mean": 0.15943882673764553
+      },
+      "oscillation_score": {
+        "ci_high": 0.03806301904345928,
+        "ci_low": 0.02272531018276558,
+        "mean": 0.029835147520452607
+      },
+      "path_efficiency": {
+        "ci_high": 0.3096373569035676,
+        "ci_low": 0.2145094035020581,
+        "mean": 0.26125989247223436
+      },
+      "path_length": {
+        "ci_high": 7.278464321629993,
+        "ci_low": 5.435531282896078,
+        "mean": 6.340740391974694
+      },
+      "planner_call_rate": {
+        "ci_high": 0.27599708362992725,
+        "ci_low": 0.27197609819919644,
+        "mean": 0.27400031143506565
+      },
+      "return": {
+        "ci_high": -7.519750000000001,
+        "ci_low": -11.05025,
+        "mean": -9.22
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08567308722338222,
+        "ci_low": 0.07218721827843225,
+        "mean": 0.07888136588568932
+      },
+      "steps": {
+        "ci_high": 190.2155,
+        "ci_low": 152.95974999999999,
+        "mean": 171.27
+      },
+      "success_rate": {
+        "ci_high": 0.82,
+        "ci_low": 0.65,
+        "mean": 0.74
+      },
+      "survival_rate": {
+        "ci_high": 0.22,
+        "ci_low": 0.08,
+        "mean": 0.15
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      }
+    },
+    "mlp-bc": {
+      "capture_rate": {
+        "ci_high": 1.0,
+        "ci_low": 0.97,
+        "mean": 0.99
+      },
+      "captures": {
+        "ci_high": 98.63024999999999,
+        "ci_low": 83.11,
+        "mean": 90.95
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 91,
+          "capture_other": 2,
+          "late_predator_response": 5,
+          "open_space_capture": 1
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 99,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.9191919191919192,
+          "capture_other": 0.020202020202020204,
+          "late_predator_response": 0.050505050505050504,
+          "open_space_capture": 0.010101010101010102
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.00014296614019632738,
+        "mean_action_hz": 6994.663202257235,
+        "p50": 0.00013775000115856528,
+        "p95": 0.00018019364579231469,
+        "p99": 0.000222680853185011
+      },
+      "path_efficiency": {
+        "ci_high": 0.11359353335922992,
+        "ci_low": 0.03842524846222232,
+        "mean": 0.07288665153780138
+      },
+      "path_length": {
+        "ci_high": 8.622563290201155,
+        "ci_low": 6.231211017626977,
+        "mean": 7.358149610125529
+      },
+      "return": {
+        "ci_high": -82.75925000000001,
+        "ci_low": -98.63175,
+        "mean": -90.78
+      },
+      "steps": {
+        "ci_high": 285.28074999999995,
+        "ci_low": 260.2095,
+        "mean": 273.68
+      },
+      "success_rate": {
+        "ci_high": 0.25,
+        "ci_low": 0.1,
+        "mean": 0.17
+      },
+      "survival_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      }
+    },
+    "random": {
+      "capture_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "captures": {
+        "ci_high": 70.01025,
+        "ci_low": 66.44,
+        "mean": 68.23
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 88,
+          "late_predator_response": 12
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 100,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.88,
+          "late_predator_response": 0.12
+        }
+      },
+      "latency_seconds": {
+        "mean": 1.5086726359731984e-05,
+        "mean_action_hz": 66283.43194910079,
+        "p50": 1.4499993994832039e-05,
+        "p95": 1.9457991584204137e-05,
+        "p99": 2.750083120190525e-05
+      },
+      "path_efficiency": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "path_length": {
+        "ci_high": 24.521477437582167,
+        "ci_low": 23.786287517079785,
+        "mean": 24.167518550614663
+      },
+      "return": {
+        "ci_high": -66.42975000000001,
+        "ci_low": -70.02024999999999,
+        "mean": -68.23
+      },
+      "steps": {
+        "ci_high": 300.0,
+        "ci_low": 300.0,
+        "mean": 300.0
+      },
+      "success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      }
+    }
+  },
+  "schema_version": 1,
+  "system_by_run": {
+    "mousemind-hierarchical-100-h4": {
+      "peak_process_rss_bytes": 7564951552
+    },
+    "mousemind-mlp-100-v2": {
+      "peak_process_rss_bytes": 9547694080
+    },
+    "mousemind-random-100-v2": {
+      "peak_process_rss_bytes": 6643138560
+    }
+  }
+}

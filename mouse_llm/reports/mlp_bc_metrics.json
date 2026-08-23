@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "experiment": "mouse_policy_mlp_bc",
+  "synthetic": false,
+  "research_evidence": true,
+  "seed": 42,
+  "architecture": {
+    "observation_size": 10,
+    "hidden_sizes": [256, 256],
+    "action_count": 295,
+    "parameter_count": 145447
+  },
+  "training": {
+    "train_samples": 60000,
+    "validation_samples": 5000,
+    "best_epoch": 30,
+    "best_validation_accuracy": 0.5578
+  },
+  "evaluation": {
+    "split": "held-out episodes",
+    "sample_count": 512,
+    "deterministic_subset_seed": 42,
+    "selection_contract": "identical sample-ID hash selection as MiniMind evaluation"
+  },
+  "test": {
+    "exact_action_accuracy": {
+      "mean": 0.556640625,
+      "ci_low": 0.513671875,
+      "ci_high": 0.599609375
+    },
+    "normalized_destination_error": {
+      "mean": 0.022255109866506872,
+      "ci_low": 0.01972599549133593,
+      "ci_high": 0.02494321709043955
+    },
+    "latency_seconds": {
+      "mean": 0.00004478595710111222,
+      "p50": 0.00004445800732355565,
+      "p95": 0.00004612079428625293,
+      "p99": 0.00005251360984402708,
+      "scope": "local CPU smoke; not a cross-hardware MiniMind comparison"
+    }
+  }
+}

@@ -1,0 +1,249 @@
+{
+  "audit": "legacy_mouse_observation_contract",
+  "contract": {
+    "audited_dataset": {
+      "rows": 118861,
+      "sha256": "fdb93c5a874bf2587d9f0be5b3d1dd0739224eeb78bbacfbb410c5e912de39ea"
+    },
+    "current_runtime_encoder": "BotEvadeEnv.legacy_policy_observation",
+    "dtype": "float32",
+    "fields": [
+      {
+        "expression": "model.prey.state.location[0]",
+        "legacy_index": 0,
+        "name": "prey_x"
+      },
+      {
+        "expression": "model.prey.state.location[1]",
+        "legacy_index": 1,
+        "name": "prey_y"
+      },
+      {
+        "convention": "signed radians; preserve the simulator state's -pi/pi boundary",
+        "expression": "math.radians(model.prey.state.direction)",
+        "legacy_index": 2,
+        "name": "prey_direction"
+      },
+      {
+        "expression": "model.predator.state.location[0] if prey_data.predator_visible else 0",
+        "legacy_index": 3,
+        "name": "predator_x"
+      },
+      {
+        "expression": "model.predator.state.location[1] if prey_data.predator_visible else 0",
+        "legacy_index": 4,
+        "name": "predator_y"
+      },
+      {
+        "convention": "signed radians",
+        "expression": "math.radians(model.predator.state.direction) if prey_data.predator_visible else 0",
+        "legacy_index": 5,
+        "name": "predator_direction"
+      },
+      {
+        "expression": "model.prey_data.prey_goal_distance",
+        "legacy_index": 6,
+        "name": "prey_goal_distance"
+      },
+      {
+        "expression": "model.prey_data.puffed",
+        "legacy_index": 7,
+        "name": "puffed"
+      },
+      {
+        "expression": "model.puff_cool_down",
+        "legacy_index": 8,
+        "name": "puff_cooled_down"
+      },
+      {
+        "expression": "not model.running",
+        "legacy_index": 9,
+        "name": "finished"
+      }
+    ],
+    "schema_name": "legacy_mouse_vector_10d_v1",
+    "schema_version": 1,
+    "source": {
+      "commit": "67e769fd410b325b5d2c517d9d5966e5e80fac23",
+      "committed_at": "2025-07-26T23:50:47-05:00",
+      "path": "env.py",
+      "repository": "https://github.com/hanshuo-shuo/Mice",
+      "sha256": "775d672ecfb518584005558a2ae635981bdacac29b68ed2fba754579e79bee3f"
+    }
+  },
+  "dataset_distribution": {
+    "checks": {
+      "audited_dataset_row_count_matches": true,
+      "audited_dataset_sha256_matches": true,
+      "cooldown_range": true,
+      "finished_binary": true,
+      "goal_distance_range": true,
+      "predator_hidden_zero_sentinel": true,
+      "prey_position_unit_arena": true,
+      "puffed_binary": true,
+      "signed_angle_range": true,
+      "ten_finite_fields": true,
+      "visible_and_hidden_coverage": true
+    },
+    "field_aggregates": [
+      {
+        "index": 0,
+        "max": 0.9812759757041931,
+        "min": 0.00763884000480175,
+        "zero_rate": 0.0
+      },
+      {
+        "index": 1,
+        "max": 0.9333329796791077,
+        "min": 0.0672840029001236,
+        "zero_rate": 0.0
+      },
+      {
+        "index": 2,
+        "max": 3.1415927410125732,
+        "min": -3.1410720348358154,
+        "zero_rate": 0.07812486854392946
+      },
+      {
+        "index": 3,
+        "max": 0.9379720091819763,
+        "min": 0.0,
+        "zero_rate": 0.9424453773735708
+      },
+      {
+        "index": 4,
+        "max": 0.9102849960327148,
+        "min": 0.0,
+        "zero_rate": 0.9424453773735708
+      },
+      {
+        "index": 5,
+        "max": 3.1415927410125732,
+        "min": -3.1403708457946777,
+        "zero_rate": 0.9424537905620851
+      },
+      {
+        "index": 6,
+        "max": 0.9924158453941345,
+        "min": 0.01883676089346409,
+        "zero_rate": 0.0
+      },
+      {
+        "index": 7,
+        "max": 1.0,
+        "min": 0.0,
+        "zero_rate": 0.9988053272309673
+      },
+      {
+        "index": 8,
+        "max": 0.5,
+        "min": 0.0,
+        "zero_rate": 0.9987885008539387
+      },
+      {
+        "index": 9,
+        "max": 1.0,
+        "min": 0.0,
+        "zero_rate": 0.9999831736229714
+      }
+    ],
+    "predator_visibility": {
+      "hidden_rows": 112020,
+      "visible_rows": 6841
+    },
+    "row_count": 118861,
+    "source_sha256": "fdb93c5a874bf2587d9f0be5b3d1dd0739224eeb78bbacfbb410c5e912de39ea",
+    "status": "PASS"
+  },
+  "research_evidence": true,
+  "schema_version": 1,
+  "source_integrity": {
+    "checks": {
+      "committed_blob_sha256_matches": true,
+      "field_order_matches": true,
+      "working_copy_sha256_matches": true
+    },
+    "commit": "67e769fd410b325b5d2c517d9d5966e5e80fac23",
+    "committed_blob_sha256": "775d672ecfb518584005558a2ae635981bdacac29b68ed2fba754579e79bee3f",
+    "field_order": [
+      "prey_x",
+      "prey_y",
+      "prey_direction",
+      "predator_x",
+      "predator_y",
+      "predator_direction",
+      "prey_goal_distance",
+      "puffed",
+      "puff_cooled_down",
+      "finished"
+    ],
+    "source_sha256": "775d672ecfb518584005558a2ae635981bdacac29b68ed2fba754579e79bee3f",
+    "status": "PASS"
+  },
+  "state_replay": {
+    "checks": {
+      "all_fields_exact": true,
+      "hidden_state_coverage": true,
+      "signed_pi_boundary_coverage": true,
+      "visible_state_coverage": true
+    },
+    "coverage": {
+      "hidden": 16,
+      "visible": 16
+    },
+    "fields": {
+      "finished": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "predator_direction": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "predator_x": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "predator_y": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "prey_direction": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "prey_goal_distance": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "prey_x": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "prey_y": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "puff_cooled_down": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      },
+      "puffed": {
+        "case_count": 32,
+        "max_abs_error": 0.0,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS"
+  },
+  "verified": true
+}

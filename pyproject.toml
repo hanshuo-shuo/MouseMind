@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mousemind"
+version = "0.1.0"
+description = "A hierarchical language-conditioned Cellworld policy stack"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [{name = "Hanshuo Shuo"}]
+dependencies = [
+  "datasets>=3.6,<4",
+  "numpy>=1.26,<3",
+  "pillow>=10",
+  "torch>=2.2",
+  "transformers>=4.57,<5",
+]
+
+[project.optional-dependencies]
+env = [
+  "cellworld==0.0.381",
+  "gymnasium==0.28.1",
+  "pulsekit==0.0.3",
+  "pygame>=2.5",
+  "shapely>=2",
+]
+test = ["pytest>=8"]
+
+[project.scripts]
+mousemind-demo = "mouse_llm.demo:main"
+mousemind-benchmark = "mouse_llm.evaluation.closed_loop:main"
+
+[tool.setuptools.packages.find]
+include = ["mouse_llm*", "model*", "trainer*", "dataset*"]
+
+[tool.setuptools.package-data]
+model = ["*.json"]
+mouse_llm = [
+  "reports/*.json",
+  "reports/figures/*.png",
+  "reports/figures/*.svg",
+]
+"mouse_llm.data" = ["*.json"]
+"mouse_llm.envs.mice" = [
+  "assets/*.json",
+  "assets/*.npy",
+  "_vendor/LICENSE",
+  "_vendor/cellworld_game/files/*.png",
+]

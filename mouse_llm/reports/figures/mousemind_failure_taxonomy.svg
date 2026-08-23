@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="644" viewBox="0 0 1500 644">
+<rect width="100%" height="100%" fill="white"/>
+<text x="750" y="58" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#111827">MouseMind Closed-Loop Outcome Taxonomy</text>
+<text x="750" y="91" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" fill="#4B5563">N=100 paired seeds per policy · success means goal + zero captures</text>
+<line x1="245.0" y1="130" x2="245.0" y2="450" stroke="#D1D5DB"/>
+<text x="245.0" y="120" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#4B5563">0%</text>
+<line x1="540.0" y1="130" x2="540.0" y2="450" stroke="#D1D5DB"/>
+<text x="540.0" y="120" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#4B5563">25%</text>
+<line x1="835.0" y1="130" x2="835.0" y2="450" stroke="#D1D5DB"/>
+<text x="835.0" y="120" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#4B5563">50%</text>
+<line x1="1130.0" y1="130" x2="1130.0" y2="450" stroke="#D1D5DB"/>
+<text x="1130.0" y="120" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#4B5563">75%</text>
+<line x1="1425.0" y1="130" x2="1425.0" y2="450" stroke="#D1D5DB"/>
+<text x="1425.0" y="120" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#4B5563">100%</text>
+<text x="225" y="179.0" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#111827">hierarchical-mlp</text>
+<rect x="245" y="145" width="177.0" height="56" fill="#059669"/>
+<text x="333.5" y="179.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="white">15%</text>
+<rect x="422.0" y="145" width="660.8000000000001" height="56" fill="#EA580C"/>
+<text x="752.4000000000001" y="179.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="white">56%</text>
+<rect x="1082.8000000000002" y="145" width="70.8" height="56" fill="#DC2626"/>
+<text x="1118.2000000000003" y="179.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="white">6%</text>
+<rect x="1153.6000000000001" y="145" width="224.2" height="56" fill="#F97316"/>
+<text x="1265.7" y="179.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="white">19%</text>
+<rect x="1377.8000000000002" y="145" width="47.2" height="56" fill="#F59E0B"/>
+<text x="225" y="279.0" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#111827">mlp-bc</text>
+<rect x="245" y="245" width="11.8" height="56" fill="#059669"/>
+<rect x="256.8" y="245" width="1073.8" height="56" fill="#EA580C"/>
+<text x="793.7" y="279.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="white">91%</text>
+<rect x="1330.6" y="245" width="59.0" height="56" fill="#DC2626"/>
+<rect x="1389.6" y="245" width="23.6" height="56" fill="#F97316"/>
+<rect x="1413.1999999999998" y="245" width="11.8" height="56" fill="#F59E0B"/>
+<text x="225" y="379.0" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#111827">random</text>
+<rect x="245" y="345" width="1038.4" height="56" fill="#EA580C"/>
+<text x="764.2" y="379.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="white">88%</text>
+<rect x="1283.4" y="345" width="141.6" height="56" fill="#DC2626"/>
+<text x="1354.2" y="379.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="white">12%</text>
+<rect x="120" y="475" width="24" height="20" fill="#059669"/>
+<text x="154" y="490" font-family="Arial,sans-serif" font-size="14" fill="#111827">Capture Free Success</text>
+<rect x="560" y="475" width="24" height="20" fill="#EA580C"/>
+<text x="594" y="490" font-family="Arial,sans-serif" font-size="14" fill="#111827">Capture Near Occlusion</text>
+<rect x="1000" y="475" width="24" height="20" fill="#DC2626"/>
+<text x="1034" y="490" font-family="Arial,sans-serif" font-size="14" fill="#111827">Late Predator Response</text>
+<rect x="120" y="517" width="24" height="20" fill="#F97316"/>
+<text x="154" y="532" font-family="Arial,sans-serif" font-size="14" fill="#111827">Capture Other</text>
+<rect x="560" y="517" width="24" height="20" fill="#F59E0B"/>
+<text x="594" y="532" font-family="Arial,sans-serif" font-size="14" fill="#111827">Open Space Capture</text>
+</svg>

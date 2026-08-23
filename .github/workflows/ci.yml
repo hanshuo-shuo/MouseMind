@@ -1,0 +1,42 @@
+name: MouseMind CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-code-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+      - name: Install test-only dependencies
+        run: python -m pip install numpy pillow pytest
+      - name: Run synthetic unit tests
+        run: python -m pytest mouse_llm/tests -q
+      - name: Run public closed-loop smoke demo
+        run: python demo.py --episodes 3 --output-dir /tmp/mousemind-public-demo
+      - name: Rebuild portfolio summary figure
+        run: >-
+          python -m mouse_llm.evaluation.plot_portfolio_summary
+          --lora-metrics mouse_llm/reports/minimind_lora_metrics.json
+          --mlp-metrics mouse_llm/reports/mlp_bc_metrics.json
+          --output-dir /tmp/mousemind-figures
+      - name: Rebuild failure taxonomy figure
+        run: >-
+          python -m mouse_llm.evaluation.plot_failure_taxonomy
+          --metrics mouse_llm/reports/closed_loop_policies_100.json
+          --output-dir /tmp/mousemind-failure-figures
+      - name: Rebuild closed-loop summary figure
+        run: >-
+          python -m mouse_llm.evaluation.plot_closed_loop_summary
+          --metrics mouse_llm/reports/closed_loop_policies_100.json
+          --output-dir /tmp/mousemind-closed-loop-figures
+      - name: Verify private artifacts are not tracked
+        run: python -m mouse_llm.privacy_guard

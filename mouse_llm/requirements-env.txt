@@ -1,0 +1,9 @@
+# Optional dependencies for running the extracted Mice environments.
+cellworld==0.0.381
+gymnasium==0.28.1
+pulsekit==0.0.3
+pygame
+shapely
+
+# The MLP, MiniMind, and closed-loop policy adapters also use the repository's
+# existing PyTorch/Transformers environment from requirements.txt.

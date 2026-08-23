@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="720" viewBox="0 0 1800 720">
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="900" y="52" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="32" font-weight="700" fill="#111827">MiniMind Mouse Policy - Held-out Episode Evaluation</text>
+<text x="269.0" y="106" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" font-weight="700" fill="#111827">Valid JSON output</text>
+<text x="269.0" y="133" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">Higher is better | %</text>
+<line x1="123.0" y1="555.0" x2="450.0" y2="555.0" stroke="#D1D5DB" stroke-width="1"/>
+<text x="115.0" y="560.0" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">0</text>
+<line x1="123.0" y1="453.8" x2="450.0" y2="453.8" stroke="#D1D5DB" stroke-width="1"/>
+<text x="115.0" y="458.8" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">25</text>
+<line x1="123.0" y1="352.5" x2="450.0" y2="352.5" stroke="#D1D5DB" stroke-width="1"/>
+<text x="115.0" y="357.5" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">50</text>
+<line x1="123.0" y1="251.2" x2="450.0" y2="251.2" stroke="#D1D5DB" stroke-width="1"/>
+<text x="115.0" y="256.2" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">75</text>
+<line x1="123.0" y1="150.0" x2="450.0" y2="150.0" stroke="#D1D5DB" stroke-width="1"/>
+<text x="115.0" y="155.0" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">100</text>
+<path d="M 123.0 150 V 555 H 450.0" fill="none" stroke="#111827" stroke-width="2"/>
+<rect x="188.4" y="555.0" width="78.5" height="0.0" fill="#6B7280"/>
+<line x1="227.6" y1="555.0" x2="227.6" y2="555.0" stroke="#111827" stroke-width="3"/>
+<line x1="217.6" y1="555.0" x2="237.6" y2="555.0" stroke="#111827" stroke-width="3"/>
+<line x1="217.6" y1="555.0" x2="237.6" y2="555.0" stroke="#111827" stroke-width="3"/>
+<text x="227.6" y="545.0" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" font-weight="700" fill="#111827">0.0</text>
+<text x="227.6" y="586" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">Base</text>
+<rect x="319.2" y="150.0" width="78.5" height="405.0" fill="#2563EB"/>
+<line x1="358.4" y1="150.0" x2="358.4" y2="150.0" stroke="#111827" stroke-width="3"/>
+<line x1="348.4" y1="150.0" x2="368.4" y2="150.0" stroke="#111827" stroke-width="3"/>
+<line x1="348.4" y1="150.0" x2="368.4" y2="150.0" stroke="#111827" stroke-width="3"/>
+<text x="358.4" y="168.0" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" font-weight="700" fill="#111827">100.0</text>
+<text x="358.4" y="586" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">LoRA</text>
+<text x="269.0" y="606" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">LoRA change: +100.0</text>
+<text x="699.0" y="106" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" font-weight="700" fill="#111827">Exact action accuracy</text>
+<text x="699.0" y="133" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">Higher is better | %</text>
+<line x1="553.0" y1="555.0" x2="880.0" y2="555.0" stroke="#D1D5DB" stroke-width="1"/>
+<text x="545.0" y="560.0" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">0</text>
+<line x1="553.0" y1="453.8" x2="880.0" y2="453.8" stroke="#D1D5DB" stroke-width="1"/>
+<text x="545.0" y="458.8" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">25</text>
+<line x1="553.0" y1="352.5" x2="880.0" y2="352.5" stroke="#D1D5DB" stroke-width="1"/>
+<text x="545.0" y="357.5" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">50</text>
+<line x1="553.0" y1="251.2" x2="880.0" y2="251.2" stroke="#D1D5DB" stroke-width="1"/>
+<text x="545.0" y="256.2" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">75</text>
+<line x1="553.0" y1="150.0" x2="880.0" y2="150.0" stroke="#D1D5DB" stroke-width="1"/>
+<text x="545.0" y="155.0" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">100</text>
+<path d="M 553.0 150 V 555 H 880.0" fill="none" stroke="#111827" stroke-width="2"/>
+<rect x="618.4" y="555.0" width="78.5" height="0.0" fill="#6B7280"/>
+<line x1="657.6" y1="555.0" x2="657.6" y2="555.0" stroke="#111827" stroke-width="3"/>
+<line x1="647.6" y1="555.0" x2="667.6" y2="555.0" stroke="#111827" stroke-width="3"/>
+<line x1="647.6" y1="555.0" x2="667.6" y2="555.0" stroke="#111827" stroke-width="3"/>
+<text x="657.6" y="545.0" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" font-weight="700" fill="#111827">0.0</text>
+<text x="657.6" y="586" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">Base</text>
+<rect x="749.2" y="388.9" width="78.5" height="166.1" fill="#2563EB"/>
+<line x1="788.4" y1="371.5" x2="788.4" y2="405.5" stroke="#111827" stroke-width="3"/>
+<line x1="778.4" y1="371.5" x2="798.4" y2="371.5" stroke="#111827" stroke-width="3"/>
+<line x1="778.4" y1="405.5" x2="798.4" y2="405.5" stroke="#111827" stroke-width="3"/>
+<text x="788.4" y="361.5" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" font-weight="700" fill="#111827">41.0</text>
+<text x="788.4" y="586" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">LoRA</text>
+<text x="699.0" y="606" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">LoRA change: +41.0</text>
+<text x="1129.0" y="106" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" font-weight="700" fill="#111827">Action-response NLL</text>
+<text x="1129.0" y="133" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">Lower is better | nats/token</text>
+<line x1="983.0" y1="555.0" x2="1310.0" y2="555.0" stroke="#D1D5DB" stroke-width="1"/>
+<text x="975.0" y="560.0" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">0.0</text>
+<line x1="983.0" y1="453.8" x2="1310.0" y2="453.8" stroke="#D1D5DB" stroke-width="1"/>
+<text x="975.0" y="458.8" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">0.8</text>
+<line x1="983.0" y1="352.5" x2="1310.0" y2="352.5" stroke="#D1D5DB" stroke-width="1"/>
+<text x="975.0" y="357.5" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">1.5</text>
+<line x1="983.0" y1="251.2" x2="1310.0" y2="251.2" stroke="#D1D5DB" stroke-width="1"/>
+<text x="975.0" y="256.2" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">2.3</text>
+<line x1="983.0" y1="150.0" x2="1310.0" y2="150.0" stroke="#D1D5DB" stroke-width="1"/>
+<text x="975.0" y="155.0" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">3.1</text>
+<path d="M 983.0 150 V 555 H 1310.0" fill="none" stroke="#111827" stroke-width="2"/>
+<rect x="1048.4" y="234.2" width="78.5" height="320.8" fill="#6B7280"/>
+<line x1="1087.6" y1="231.0" x2="1087.6" y2="237.5" stroke="#111827" stroke-width="3"/>
+<line x1="1077.6" y1="231.0" x2="1097.6" y2="231.0" stroke="#111827" stroke-width="3"/>
+<line x1="1077.6" y1="237.5" x2="1097.6" y2="237.5" stroke="#111827" stroke-width="3"/>
+<text x="1087.6" y="221.0" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" font-weight="700" fill="#111827">2.447</text>
+<text x="1087.6" y="586" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">Base</text>
+<rect x="1179.2" y="516.2" width="78.5" height="38.8" fill="#2563EB"/>
+<line x1="1218.4" y1="513.6" x2="1218.4" y2="518.7" stroke="#111827" stroke-width="3"/>
+<line x1="1208.4" y1="513.6" x2="1228.4" y2="513.6" stroke="#111827" stroke-width="3"/>
+<line x1="1208.4" y1="518.7" x2="1228.4" y2="518.7" stroke="#111827" stroke-width="3"/>
+<text x="1218.4" y="503.6" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" font-weight="700" fill="#111827">0.296</text>
+<text x="1218.4" y="586" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">LoRA</text>
+<text x="1129.0" y="606" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">LoRA change: -2.151</text>
+<text x="1559.0" y="106" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" font-weight="700" fill="#111827">Destination error</text>
+<text x="1559.0" y="133" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">Lower is better | % of arena diagonal</text>
+<line x1="1413.0" y1="555.0" x2="1740.0" y2="555.0" stroke="#D1D5DB" stroke-width="1"/>
+<text x="1405.0" y="560.0" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">0</text>
+<line x1="1413.0" y1="453.8" x2="1740.0" y2="453.8" stroke="#D1D5DB" stroke-width="1"/>
+<text x="1405.0" y="458.8" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">25</text>
+<line x1="1413.0" y1="352.5" x2="1740.0" y2="352.5" stroke="#D1D5DB" stroke-width="1"/>
+<text x="1405.0" y="357.5" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">50</text>
+<line x1="1413.0" y1="251.2" x2="1740.0" y2="251.2" stroke="#D1D5DB" stroke-width="1"/>
+<text x="1405.0" y="256.2" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">75</text>
+<line x1="1413.0" y1="150.0" x2="1740.0" y2="150.0" stroke="#D1D5DB" stroke-width="1"/>
+<text x="1405.0" y="155.0" text-anchor="end" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">100</text>
+<path d="M 1413.0 150 V 555 H 1740.0" fill="none" stroke="#111827" stroke-width="2"/>
+<rect x="1478.4" y="150.0" width="78.5" height="405.0" fill="#6B7280"/>
+<line x1="1517.6" y1="150.0" x2="1517.6" y2="150.0" stroke="#111827" stroke-width="3"/>
+<line x1="1507.6" y1="150.0" x2="1527.6" y2="150.0" stroke="#111827" stroke-width="3"/>
+<line x1="1507.6" y1="150.0" x2="1527.6" y2="150.0" stroke="#111827" stroke-width="3"/>
+<text x="1517.6" y="168.0" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" font-weight="700" fill="#111827">100.0</text>
+<text x="1517.6" y="586" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">Base</text>
+<rect x="1609.2" y="517.0" width="78.5" height="38.0" fill="#2563EB"/>
+<line x1="1648.4" y1="512.0" x2="1648.4" y2="521.8" stroke="#111827" stroke-width="3"/>
+<line x1="1638.4" y1="512.0" x2="1658.4" y2="512.0" stroke="#111827" stroke-width="3"/>
+<line x1="1638.4" y1="521.8" x2="1658.4" y2="521.8" stroke="#111827" stroke-width="3"/>
+<text x="1648.4" y="502.0" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" font-weight="700" fill="#111827">9.4</text>
+<text x="1648.4" y="586" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">LoRA</text>
+<text x="1559.0" y="606" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">LoRA change: -90.6</text>
+<rect x="620" y="645" width="24" height="18" fill="#6B7280"/>
+<text x="654" y="660" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">Before: base MiniMind</text>
+<rect x="925" y="645" width="24" height="18" fill="#2563EB"/>
+<text x="959" y="660" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#111827">After: mouse-policy LoRA</text>
+<text x="900" y="698" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="14" fill="#4B5563">N=512 transitions from held-out episodes | 95% bootstrap CIs | invalid generations receive maximum spatial error</text>
+</svg>
