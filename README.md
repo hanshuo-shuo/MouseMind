@@ -1,34 +1,47 @@
-# MouseMind — A Tiny Language-Model Control Stack
+# MouseMind — Learning Strategy Under Closed-Loop Risk
 
-[![CI](https://github.com/hanshuo-shuo/MouseMind/actions/workflows/ci.yml/badge.svg)](https://github.com/hanshuo-shuo/MouseMind/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Upstream](https://img.shields.io/badge/model%20upstream-MiniMind-orange.svg)](https://github.com/jingyaogong/minimind)
+**Offline imitation did not predict closed-loop control.**
 
-**A language-conditioned hierarchical Cellworld policy: verified legacy data,
-a fast MLP controller, high-level safety planning, seeded closed-loop evaluation,
-failure mining, latency profiling, and reproducible Slurm deployment.**
+A 145K behavior-cloning specialist achieved **55.7% held-out action accuracy**
+but only **17% historical closed-loop task success**. A hand-coded hierarchical
+controller raised that to 74%, revealing that the missing abstraction was
+strategy rather than low-level capacity. MouseMind P2 then learned the
+high-level policy from 1,920 exact-replay counterfactual branches and evaluated
+it once on 100 untouched final seeds.
 
-MouseMind turns a 64M-parameter MiniMind model into a 295-action mouse policy.
-The point is not that an LLM must beat a specialist controller. The point is to
-build and measure the complete ML system—data, model, evaluation, deployment
-constraints, and the next data iteration—without hiding unfavorable baselines.
+The selected 17.9K-parameter numeric planner reached **100% task success and
+38% clean success**, versus 79% / 14% for the P1 rule hierarchy. The paired
+improvement was +21 task points (95% CI +13…+29), +24 clean points (+12…+36),
+and -24 capture points. A calibrated risk critic scored 0.959 AUROC offline but
+made every swept closed-loop operating point worse, so it was not promoted.
 
-This is the standalone MouseMind repository, not a branch of the MiniMind
-fork. Only the small, explicitly attributed MiniMind dependency closure needed
-for reproduction is included.
+[Technical guide](mouse_llm/README.md) · [P2 results](P2_RESULTS.md) · [Public smoke demo](#run-the-public-demo)
 
-[Technical documentation](mouse_llm/README.md) · [Public smoke demo](#run-the-public-demo) · [Verified result](#verified-offline-result)
+![Fresh-ID safety and task-success frontier](mouse_llm/reports/figures/p2_safety_frontier.png)
 
-![MouseMind 100-seed closed-loop policy summary](mouse_llm/reports/figures/mousemind_closed_loop_summary.png)
+| Fresh ID, 100 paired seeds | Task success | Clean success | Capture rate | Captures / episode |
+| --- | ---: | ---: | ---: | ---: |
+| **Numeric learned planner, K=8** | **100%** | **38%** | **62%** | **2.66** |
+| MiniMind learned planner | 97% | 12% | 88% | 7.37 |
+| P1 rule hierarchy | 79% | 14% | 86% | 11.20 |
+| Direct 145K MLP | 20% | 5% | 94% | 87.90 |
 
-| 74% hierarchical success | 80.99 fewer captures/episode vs MLP | 0.179 ms p95 policy latency |
-| ---: | ---: | ---: |
-| 95% CI 65–82% | paired over the same 100 seeds | local CPU, 0 deadline misses |
+![Fresh ID and OOD robustness](mouse_llm/reports/figures/p2_ood_generalization.png)
 
-> The negative result is part of the design story: offline accuracy favored the
-> 145K MLP, but 100-seed deployment exposed unsafe closed-loop behavior. That
-> evidence motivated a hierarchical redesign instead of trying to make a 64M
-> language model imitate a low-level numeric classifier.
+| Selected numeric planner | ID | Predator 0.20 | Predator 0.25 | Shorter LOS | Unseen language |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Task success | 100% | 100% | 100% | 100% | 100% |
+| Clean success | 38% | 34% | 35% | 42% | 38% |
+
+The numeric planner does not consume language strings, so unseen-language
+performance is unchanged by construction. MiniMind is the language test: its
+task / clean success fell from 97% / 12% on ID to 71% / 4% on unseen language,
+despite 62.2% offline unseen-paraphrase skill accuracy.
+
+> Thirty-second takeaway: hierarchical strategy solved task completion;
+> counterfactual learning made the strategy adaptive and substantially cleaner;
+> language conditioning helped, but the numeric temporal planner was stronger;
+> offline risk calibration did not translate into useful runtime overrides.
 
 ## What I built
 
@@ -51,6 +64,17 @@ for reproduction is included.
 - Added an instruction-conditioned high-level planner over the MLP goal
   specialist, with a temporal-history interface, replanning cadence, safety
   interrupts, and planner/controller latency accounting.
+- Froze disjoint collection/development/final seed pools and added clean success
+  without changing the historical task-success definition.
+- Collected 320 strategic anchors from rule, direct-MLP, and perturbed-skill
+  trajectories; exact replay verified all 1,920 skill/horizon branches.
+- Trained a 17.9K numeric planner, MiniMind skill LoRA, and a calibrated 17.7K
+  capture-risk critic over the same semantic eight-step temporal context.
+- Swept planner horizons and verifier thresholds on development only, rejected
+  the verifier when it worsened every operating point, and evaluated the frozen
+  system once on fresh ID and OOD conditions.
+- Closed one P2.1 failure-data iteration; hard-failure upweighting worsened clean
+  success from 52.5% to 45.0%, so the iteration was not selected.
 - Added deterministic failure taxonomy and replay-queue mining for targeted
   corrective demonstrations.
 - Built private-data guards, synthetic CI, a public one-command demo, and Slurm
@@ -68,12 +92,6 @@ local packaging changes.
 This attribution boundary is intentional: MouseMind owns the policy-system
 work listed above; it does not claim authorship of MiniMind.
 
-The exact path-to-commit mapping and licenses are recorded in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). In this standalone repository,
-`model/`, `trainer/`, and `dataset/lm_dataset.py` are the deliberately small
-MiniMind dependency closure; the MouseMind system itself lives under
-`mouse_llm/`.
-
 ## System
 
 ```mermaid
@@ -82,8 +100,10 @@ flowchart LR
     B --> C["Leakage-safe JSONL splits"]
     C --> D["MiniMind direct-action BC"]
     C --> E["145K MLP goal specialist"]
-    I["Instruction + history"] --> P["High-level skill planner"]
-    P --> Q["Goal / evade / hold skill"]
+    I["Instruction + semantic history"] --> P["Learned skill proposal"]
+    X["Exact replay + counterfactual branches"] --> P
+    P --> V["Calibrated risk critic"]
+    V --> Q["Goal / evade / hold skill"]
     E --> Q
     Q --> G["Seeded BotEvade rollouts"]
     D --> G
@@ -97,10 +117,12 @@ flowchart LR
 
 | Version | Evidence and decision |
 | --- | --- |
-| V0 — MiniMind BC | A 64M SLM can imitate held-out mouse actions: 41.0%. |
-| V1 — Fair baseline + deployment | A 145K MLP wins offline at 55.7%, but reaches only 17% closed-loop success and averages 90.95 captures. |
-| P1 — Hierarchical control | Keep the MLP as goal specialist; instruction-conditioned safety planning reaches 74% success and 9.96 captures. |
-| V3 — Corrective data flywheel | Failure taxonomy and ranked replay manifests are ready; expert corrective labeling/retraining is next. |
+| V0 — Direct MiniMind BC | LoRA reaches 41.0% offline accuracy, but only 23% historical task / 1% clean success under valid constrained decoding. |
+| V1 — Specialist deployment | A 145K MLP wins offline at 55.7%, but reaches only 17% historical closed-loop success. |
+| P1 — Rule hierarchy | Keep the MLP as goal specialist; strategic abstraction reaches 74% historical success. |
+| P2 — Learned hierarchy | Counterfactual numeric planning reaches 100% task / 38% clean success on 100 untouched final seeds. |
+| P2 Verify | The critic is well calibrated offline but all runtime threshold points are worse; verifier not promoted. |
+| P2.1 | Corrective hard-failure upweighting reduces development clean success; iteration rejected. |
 
 ## Run the public demo
 
@@ -109,9 +131,6 @@ arena and the real 295-action catalog. It needs no private data, checkpoint, or
 Cellworld download:
 
 ```bash
-git clone https://github.com/hanshuo-shuo/MouseMind.git
-cd MouseMind
-python -m pip install numpy pillow pytest
 python demo.py
 ```
 
@@ -128,7 +147,8 @@ python -m mouse_llm.privacy_guard
 
 ## Verified offline result
 
-Quest job `19489` finished successfully in 5 minutes 44 seconds. It trained
+Northwestern BCS516 Slurm job `19489` finished successfully in 5 minutes 44
+seconds. It trained
 0.393M LoRA parameters for two epochs / 3,750 optimizer steps on 60,000 private
 training transitions. The 145,447-parameter MLP used the same 60K train split,
 5K validation split, and deterministic 512-sample held-out subset.
@@ -142,33 +162,32 @@ training transitions. The 145,447-parameter MLP used the same 60K train split,
 | Action-response NLL | 2.447 | **0.296** (95% CI 0.277–0.316) | N/A |
 | Normalized destination error | 100.0% | 9.39% (95% CI 8.21–10.61%) | **2.23%** (95% CI 1.97–2.49%) |
 
-The base model received maximum destination error because none of its free
-generations satisfied the strict JSON contract. To address that credibility
-confound, the evaluator now supports `--decode-mode json-constrained`; that
-MiniMind rerun is still pending. The MLP result is the useful honest outcome:
-for this single numeric task, the 145K-parameter specialist currently beats the
-64M language-model policy on both exact action and destination error.
+The table preserves the original free-decoding run. A repaired explicit trie
+decoder then made both MiniMind models 100% JSON-valid on the same 512 samples:
+base reached 1.17% exact accuracy / 29.13% destination error, while LoRA retained
+41.02% / 9.45%. Formatting therefore did not explain the policy-quality gap.
+For this numeric task, the 145K specialist remained the stronger offline model.
 
 ## Closed-loop benchmark contract
 
 The online benchmark defaults to 100 paired seeds. Every policy is evaluated
 under the same environment configuration and seed list.
 
-| Policy | Offline action acc. | Survival | Capture rate | Success | Return | Path efficiency | p50 / p95 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Random | — | 0.0% | 100.0% | 0.0% | -68.23 | 0.0% | 0.014 / 0.019 ms |
-| MLP BC | **55.7%** | 1.0% | 99.0% | 17.0% | -90.78 | 7.29% | 0.138 / 0.180 ms |
-| Hierarchical MLP, safety instruction | MLP controller | **15.0%** | **85.0%** | **74.0%** | **-9.22** | **26.13%** | 0.058 / 0.179 ms |
-| MiniMind base, constrained | pending | pending | pending | pending | pending | pending | pending |
-| MiniMind LoRA, constrained | pending | pending | pending | pending | pending | pending | pending |
+| Historical policy, seeds 1000..1099 | Task success | Clean success | Capture rate | Captures / episode |
+| --- | ---: | ---: | ---: | ---: |
+| Direct MiniMind base, constrained | 0% | 0% | 100% | 111.49 |
+| Direct MiniMind LoRA, constrained | 23% | 1% | 99% | 96.92 |
+| Direct MLP | 17% | pending recomputation | 99% | 90.95 |
+| P1 rule hierarchy | 74% | pending recomputation | 85% | 9.96 |
 
 The random/MLP rows are verified over the identical 100 local BotEvade seeds;
 the hierarchical row uses those same seeds and the verified observation audit.
 Against direct MLP, it improved success by 57 points (paired 95% CI 44–69),
 reduced captures by 80.99 per episode (72.98–88.88), and improved return by
-81.56 (73.27–89.28). This planner is the auditable instruction/rule baseline;
-MiniMind planner and direct-action rows still require the existing Quest GPU
-weights. Per-episode records remain private.
+81.56 (73.27–89.28). Historical clean success for direct MLP and P1 is
+intentionally pending because their old private episode rows are unavailable;
+no value was inferred from separate success and capture marginals. Per-episode
+records remain private.
 
 ## Why use a language model?
 
@@ -178,35 +197,30 @@ progress while repeatedly entering unsafe states. MouseMind therefore keeps the
 MLP at the low-level controller and moves language/context to high-level skill
 selection and replanning.
 
-The intended comparison is therefore:
-
-> a compact MLP specialist versus a small language-model generalist that can
-> follow strategy instructions and share context across BotEvade and Oasis.
-
-The checked-in P1 planner is an auditable instruction/paraphrase baseline, not a
-claim that MiniMind already performs skill planning. It establishes the planner
-API, history, safety interrupts, cadence, metrics, and training target. The next
-model milestone is to post-train MiniMind on that verified skill-level contract.
+The language model is therefore evaluated at the strategic layer, not used as a
+needlessly expensive coordinate classifier. Skill LoRA improved offline planner
+accuracy from 25.0% to 63.5% and reached 62.2% on frozen unseen paraphrases;
+removing history reduced accuracy to 57.4%, and removing the instruction reduced
+it to 50.7%. In fresh closed loop it reached 97% task success, demonstrating
+useful learned strategy, but only 12% clean success. The numeric planner reached
+38% clean success with sub-millisecond p95 latency. Language conditioning added
+capability at this scale, but it did not win the control benchmark.
 
 ## Repository map
 
 ```text
-MouseMind/
-├── mouse_llm/             original MouseMind policy/data/evaluation system
-│   ├── baselines/         MLP behavior-cloning specialist
-│   ├── data/              episode reconstruction and verified schema
-│   ├── envs/mice/         BotEvade/Oasis runtime and provenance
-│   ├── evaluation/        offline, closed-loop, audit, and failure mining
-│   ├── hierarchical/      instruction planner + specialist controller
-│   ├── northwestern/      reproducible Slurm jobs
-│   ├── reports/           aggregate Git-safe evidence
-│   └── tests/             synthetic contracts and privacy checks
-├── model/                 upstream-derived MiniMind model + tokenizer
-├── trainer/               upstream-derived MiniMind LoRA trainer
-├── dataset/lm_dataset.py  upstream-derived SFT dataset adapter
-├── THIRD_PARTY_NOTICES.md exact provenance and licenses
-├── CITATION.cff           citation metadata
-└── demo.py                dependency-light public evaluator demo
+mouse_llm/
+├── baselines/             action BC and numeric temporal planner
+├── data/                  reconstruction, anchors, counterfactual skill labels
+├── envs/mice/             BotEvade/Oasis Gymnasium environments + provenance
+├── evaluation/            offline, constrained-decoding, and closed-loop eval
+├── hierarchical/          semantic context, planners, skills, risk verification
+├── training/              skill-LoRA and compact risk-critic training
+├── northwestern/p2/       reproducible collection/training/ID/OOD Slurm jobs
+├── reports/figures/       aggregate, Git-safe evidence only
+├── tests/                 synthetic contracts and privacy checks
+├── demo.py                dependency-light public evaluator demo
+└── privacy_guard.py       rejects tracked data/checkpoints/weights
 ```
 
 The detailed commands, storage layout, metric definitions, and limitations are
@@ -219,35 +233,17 @@ MouseMind 是一个完整的 Cellworld policy 工程项目，而不只是一次 
 基线、受约束动作解码、seeded closed-loop 评估、延迟/控制周期分析、Slurm
 和隐私 CI。
 
-目前已验证的离线结果中，LoRA 在相同的 512 条 held-out transition 上达到
-41.0% exact action accuracy，而仅 145K 参数的 MLP 达到 55.7%。这不是坏结果，
-而是公平 baseline 的价值：单一数值控制任务上 specialist 更合适。随后在完全
-相同的 100 个 closed-loop seeds 上，direct MLP 只有 17% success 且平均每局
-90.95 次 capture；加入 instruction-conditioned safety planner 后，success 提升到
-74%，capture 降到 9.96，p95 latency 仍为 0.179 ms。当前 planner 是可审计的
-language/rule baseline，MiniMind skill planner 仍待 post-training，不会混为一谈。
-
-## Citation and acknowledgements
-
-If you use the MiniMind-derived model components, please cite the upstream
-project using its requested citation:
-
-```bibtex
-@misc{minimind,
-  title = {MiniMind: Train a Tiny LLM from Scratch},
-  author = {Jingyao Gong},
-  year = {2024},
-  url = {https://github.com/jingyaogong/minimind},
-  note = {GitHub repository}
-}
-```
-
-To cite MouseMind itself, use the metadata in [CITATION.cff](CITATION.cff).
-See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the exact MiniMind and
-Cellworld provenance boundary.
+项目最重要的发现是：离线 imitation accuracy 无法预测 closed-loop control。
+145K MLP 的离线准确率为 55.7%，但历史 closed-loop success 只有 17%；P1
+层级策略将其提高到 74%。P2 使用 320 个 anchor、1,920 个 exact-replay
+counterfactual branches 学习高层策略，并在未使用过的 100 个 final seeds 上
+一次评估。Numeric planner 达到 100% task success、38% clean success；P1 为
+79% / 14%，direct MLP 为 20% / 5%。MiniMind skill planner 达到 97% task
+success，但 clean success 只有 12%，因此语言策略有能力增益，却没有胜过
+numeric temporal planner。Risk critic 的离线 AUROC 为 0.959，但所有 runtime
+threshold 都使 closed-loop 表现变差，所以没有被包装成“安全”功能上线。
 
 ## License
 
-MouseMind is released under Apache License 2.0. Upstream-derived MiniMind files
-remain under Apache License 2.0; the vendored Cellworld runtime retains its MIT
-notice in `mouse_llm/envs/mice/_vendor/LICENSE`.
+The repository retains MiniMind's Apache 2.0 license. Vendored Cellworld runtime
+code retains its MIT notice in `mouse_llm/envs/mice/_vendor/LICENSE`.

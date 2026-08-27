@@ -6,6 +6,10 @@ __pycache__/
 /build/
 /dist/
 /*.egg-info/
+out
+website/
+docs-minimind/
+NORTHWESTERN_REMOTE_SETUP.md
 
 # Private mouse-policy inputs and derived artifacts. Keep aggregate figures only.
 /mouse_data*.csv
@@ -15,6 +19,12 @@ __pycache__/
 /mouse_llm/reports/private/
 /mouse_llm/reports/**/closed_loop_episodes.csv
 /mouse_llm/reports/**/failure_replay_manifest.json
+/mouse_llm/reports/**/predictions_private.jsonl
+/mouse_llm/reports/**/anchors_private.jsonl
+/mouse_llm/reports/**/counterfactuals_private.jsonl
+/mouse_llm/reports/**/planner_*.jsonl
+/mouse_llm/reports/**/risk_*.jsonl
+*private*.jsonl
 /checkpoints/
 *.ckpt
 *.pt

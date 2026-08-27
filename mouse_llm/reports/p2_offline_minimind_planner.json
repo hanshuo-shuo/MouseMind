@@ -1,0 +1,345 @@
+{
+  "artifact": "p2_offline_minimind_skill_planner",
+  "decode_mode": "skill-json-constrained",
+  "models": {
+    "minimind_base": {
+      "seen_instruction": {
+        "accuracy": 0.25,
+        "confusion_matrix": [
+          [
+            0,
+            0,
+            36
+          ],
+          [
+            0,
+            0,
+            75
+          ],
+          [
+            0,
+            0,
+            37
+          ]
+        ],
+        "counterfactual_regret_chosen_minus_oracle": -104.44638390095969,
+        "latency_seconds": {
+          "p50": 0.11441768310032785,
+          "p95": 0.11765791615471244,
+          "p99": 0.12150816227775067
+        },
+        "macro_f1": 0.13333333333333333,
+        "per_skill": {
+          "evade_predator": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 75
+          },
+          "go_to_goal": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 36
+          },
+          "hold_position": {
+            "f1": 0.4,
+            "precision": 0.25,
+            "recall": 1.0,
+            "support": 37
+          }
+        },
+        "sample_count": 148,
+        "skill_order": [
+          "go_to_goal",
+          "evade_predator",
+          "hold_position"
+        ],
+        "task_nll": 1.2150285050675675,
+        "valid_skill_rate": 1.0
+      },
+      "unseen_paraphrase": {
+        "accuracy": 0.25,
+        "confusion_matrix": [
+          [
+            0,
+            0,
+            36
+          ],
+          [
+            0,
+            0,
+            75
+          ],
+          [
+            0,
+            0,
+            37
+          ]
+        ],
+        "counterfactual_regret_chosen_minus_oracle": -104.44638390095969,
+        "latency_seconds": {
+          "p50": 0.11411907454021275,
+          "p95": 0.11640037845354527,
+          "p99": 0.1204507966618985
+        },
+        "macro_f1": 0.13333333333333333,
+        "per_skill": {
+          "evade_predator": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 75
+          },
+          "go_to_goal": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 36
+          },
+          "hold_position": {
+            "f1": 0.4,
+            "precision": 0.25,
+            "recall": 1.0,
+            "support": 37
+          }
+        },
+        "sample_count": 148,
+        "skill_order": [
+          "go_to_goal",
+          "evade_predator",
+          "hold_position"
+        ],
+        "task_nll": 1.227954761402027,
+        "valid_skill_rate": 1.0
+      }
+    },
+    "minimind_skill_lora": {
+      "ablations": {
+        "instruction_removed": {
+          "accuracy": 0.5067567567567568,
+          "confusion_matrix": [
+            [
+              0,
+              36,
+              0
+            ],
+            [
+              0,
+              75,
+              0
+            ],
+            [
+              0,
+              37,
+              0
+            ]
+          ],
+          "counterfactual_regret_chosen_minus_oracle": -19.94919502965924,
+          "latency_seconds": {
+            "p50": 0.14967588451690972,
+            "p95": 0.15348787980619819,
+            "p99": 0.15825066132936627
+          },
+          "macro_f1": 0.2242152466367713,
+          "per_skill": {
+            "evade_predator": {
+              "f1": 0.672645739910314,
+              "precision": 0.5067567567567568,
+              "recall": 1.0,
+              "support": 75
+            },
+            "go_to_goal": {
+              "f1": 0.0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "support": 36
+            },
+            "hold_position": {
+              "f1": 0.0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "support": 37
+            }
+          },
+          "sample_count": 148,
+          "skill_order": [
+            "go_to_goal",
+            "evade_predator",
+            "hold_position"
+          ],
+          "task_nll": 0.07568060385214316,
+          "valid_skill_rate": 1.0
+        },
+        "no_temporal_history": {
+          "accuracy": 0.5743243243243243,
+          "confusion_matrix": [
+            [
+              0,
+              36,
+              0
+            ],
+            [
+              0,
+              75,
+              0
+            ],
+            [
+              0,
+              27,
+              10
+            ]
+          ],
+          "counterfactual_regret_chosen_minus_oracle": -19.88162746209167,
+          "latency_seconds": {
+            "p50": 0.14698774879798293,
+            "p95": 0.14821311347186567,
+            "p99": 0.1497819648589939
+          },
+          "macro_f1": 0.3765857556687644,
+          "per_skill": {
+            "evade_predator": {
+              "f1": 0.704225352112676,
+              "precision": 0.5434782608695652,
+              "recall": 1.0,
+              "support": 75
+            },
+            "go_to_goal": {
+              "f1": 0.0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "support": 36
+            },
+            "hold_position": {
+              "f1": 0.4255319148936171,
+              "precision": 1.0,
+              "recall": 0.2702702702702703,
+              "support": 37
+            }
+          },
+          "sample_count": 148,
+          "skill_order": [
+            "go_to_goal",
+            "evade_predator",
+            "hold_position"
+          ],
+          "task_nll": 0.07170744200010558,
+          "valid_skill_rate": 1.0
+        }
+      },
+      "seen_instruction": {
+        "accuracy": 0.6351351351351351,
+        "confusion_matrix": [
+          [
+            11,
+            25,
+            0
+          ],
+          [
+            22,
+            53,
+            0
+          ],
+          [
+            0,
+            7,
+            30
+          ]
+        ],
+        "counterfactual_regret_chosen_minus_oracle": -36.97991349363585,
+        "latency_seconds": {
+          "p50": 0.14660495077259839,
+          "p95": 0.15108650939073415,
+          "p99": 0.155353086120449
+        },
+        "macro_f1": 0.6256209892566155,
+        "per_skill": {
+          "evade_predator": {
+            "f1": 0.6625,
+            "precision": 0.6235294117647059,
+            "recall": 0.7066666666666667,
+            "support": 75
+          },
+          "go_to_goal": {
+            "f1": 0.31884057971014496,
+            "precision": 0.3333333333333333,
+            "recall": 0.3055555555555556,
+            "support": 36
+          },
+          "hold_position": {
+            "f1": 0.8955223880597014,
+            "precision": 1.0,
+            "recall": 0.8108108108108109,
+            "support": 37
+          }
+        },
+        "sample_count": 148,
+        "skill_order": [
+          "go_to_goal",
+          "evade_predator",
+          "hold_position"
+        ],
+        "task_nll": 0.05203174900364231,
+        "valid_skill_rate": 1.0
+      },
+      "unseen_paraphrase": {
+        "accuracy": 0.6216216216216216,
+        "confusion_matrix": [
+          [
+            6,
+            30,
+            0
+          ],
+          [
+            13,
+            62,
+            0
+          ],
+          [
+            0,
+            13,
+            24
+          ]
+        ],
+        "counterfactual_regret_chosen_minus_oracle": -20.01076049401756,
+        "latency_seconds": {
+          "p50": 0.14687480218708515,
+          "p95": 0.15010628432501108,
+          "p99": 0.1524528835201636
+        },
+        "macro_f1": 0.5646519843241155,
+        "per_skill": {
+          "evade_predator": {
+            "f1": 0.6888888888888889,
+            "precision": 0.5904761904761905,
+            "recall": 0.8266666666666667,
+            "support": 75
+          },
+          "go_to_goal": {
+            "f1": 0.2181818181818182,
+            "precision": 0.3157894736842105,
+            "recall": 0.16666666666666666,
+            "support": 36
+          },
+          "hold_position": {
+            "f1": 0.7868852459016393,
+            "precision": 1.0,
+            "recall": 0.6486486486486487,
+            "support": 37
+          }
+        },
+        "sample_count": 148,
+        "skill_order": [
+          "go_to_goal",
+          "evade_predator",
+          "hold_position"
+        ],
+        "task_nll": 0.054222416233372046,
+        "valid_skill_rate": 1.0
+      }
+    }
+  },
+  "research_evidence": true,
+  "research_evidence_blockers": [],
+  "schema_version": 1
+}

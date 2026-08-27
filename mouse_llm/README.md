@@ -18,6 +18,9 @@ The project separates three evidence levels:
 
 - **Verified:** offline MiniMind base/LoRA and MLP evaluation on the identical
   deterministic 512-transition subset from episode-isolated test data.
+- **Verified:** explicit trie-masked JSON decoding makes both direct MiniMind
+  models 100% format-valid; base reaches 1.17% exact action accuracy and LoRA
+  reaches 41.02%, separating output protocol from policy quality.
 - **Verified:** 100-seed real BotEvade random/MLP rollout with paired bootstrap
   intervals, per-episode records, and failure taxonomy.
 - **Verified:** the legacy observation contract against the committed 2025
@@ -27,8 +30,25 @@ The project separates three evidence levels:
   independently executable/mergeable policy jobs.
 - **Verified:** the hierarchical safety baseline on the same 100 seeds, raising
   success from 17% to 74% while cutting captures from 90.95 to 9.96 per episode.
-- **Pending:** constrained base/LoRA closed-loop numbers on Quest and MiniMind
-  skill-planner post-training.
+- **Verified:** repaired constrained direct MiniMind on historical seeds
+  `1000..1099`: base reached 0% task / 0% clean success with 111.49 captures;
+  direct-action LoRA reached 23% task / 1% clean success with 96.92 captures.
+  Format validity was 100% for both, so formatting did not explain deployment.
+- **Implemented:** frozen P2 seed contract, clean-success accounting, semantic
+  temporal context, exact replay and counterfactual skill branches, numeric and
+  MiniMind learned planners, calibrated risk critic, propose-verify control,
+  development-only operating-point selection, P2.1 corrective data, ID/OOD
+  evaluation, sharded merge checks, plots, and Northwestern Slurm jobs.
+- **Verified:** 320 collection anchors, 1,920 exact-replay counterfactual
+  branches, numeric and MiniMind learned planners, calibrated risk critic,
+  development-only K/threshold sweeps, and one rejected P2.1 iteration.
+- **Verified:** on 100 untouched final ID seeds, numeric K=8 reached 100% task /
+  38% clean success, versus P1 at 79% / 14% and direct MLP at 20% / 5%.
+- **Verified:** numeric K=8 retained 100% task success and 34–42% clean success
+  across faster-predator, shorter-LOS, and unseen-language OOD conditions.
+  MiniMind unseen-language task / clean success fell to 71% / 4%.
+  Historical P1 clean success remains explicitly pending because its private
+  episode CSV is unavailable; no value was inferred from marginals.
 
 ## Ownership and provenance
 
@@ -45,8 +65,10 @@ The project separates three evidence levels:
 - seeded closed-loop evaluation and paired bootstrap statistics;
 - deterministic failure taxonomy and corrective replay manifests;
 - hierarchical skill planner/controller and instruction paraphrase contracts;
+- outcome-grounded counterfactual skill labeling and compact learned planners;
+- calibrated candidate-skill risk verification and auditable overrides;
 - latency, action-frequency, and control-deadline metrics;
-- synthetic CI/demo and Northwestern Quest jobs.
+- synthetic CI/demo and Northwestern BCS516 Slurm jobs.
 
 ### Upstream
 
@@ -55,10 +77,6 @@ The project separates three evidence levels:
 - Extracted Cellworld runtime: exact source and packaging changes are recorded
   in [envs/mice/SOURCE.md](envs/mice/SOURCE.md); the vendored runtime keeps its
   MIT notice in `envs/mice/_vendor/LICENSE`.
-
-The standalone repository includes only the minimal upstream dependency closure.
-Exact file-level commits, licenses, and MiniMind's requested BibTeX are recorded
-in [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
 
 ## Architecture
 
@@ -69,8 +87,10 @@ flowchart LR
     C --> D["Episode-isolated train / val / test"]
     D --> E["MiniMind direct-action BC"]
     D --> F["MLP goal specialist"]
-    I["Instruction + temporal history"] --> P["High-level skill planner"]
-    P --> Q["Goal / evade / hold"]
+    I["Instruction + semantic temporal history"] --> P["Learned skill proposal"]
+    C2["Exact replay + counterfactual branches"] --> P
+    P --> V["Calibrated risk verifier"]
+    V --> Q["Goal / evade / hold"]
     F --> Q
     G["Random policy"] --> H["Paired seeded BotEvade rollouts"]
     E --> H
@@ -252,7 +272,8 @@ Both modes report p50, p95, p99, and mean inference latency.
 
 ### Verified offline result
 
-Quest job `19489` completed with exit code `0:0` in 5 minutes 44 seconds. It
+Northwestern BCS516 Slurm job `19489` completed with exit code `0:0` in 5
+minutes 44 seconds. It
 trained 0.393M parameters (0.61% of 64.3M) for two epochs / 3,750 optimizer steps
 on 60,000 private transitions, then evaluated 512 held-out transitions.
 
@@ -269,6 +290,12 @@ The MiniMind columns use free decoding. They do not establish live survival or
 success. On the current single numeric objective, the MLP is decisively more
 parameter-efficient and has the stronger offline result; MouseMind reports that
 outcome rather than treating the LLM as the default winner.
+
+The repaired explicit trie decoder was then run on the same 512 examples. Both
+models became 100% JSON-valid, while base MiniMind reached only 1.17% exact
+action accuracy / 29.13% normalized destination error and LoRA retained 41.02%
+/ 9.45%. Constraining the protocol therefore did not explain the learned policy
+gap. See `reports/minimind_direct_constrained_metrics.json`.
 
 ## Closed-loop benchmark
 
@@ -436,7 +463,7 @@ For capture failures it requests expert labels from first predator visibility
 through capture; timeout failures request the final recovery window. Retraining
 and paired V1→V2 evaluation still require a provenance-clean expert policy.
 
-## Northwestern Quest
+## Northwestern BCS516 Slurm
 
 Expected storage layout:
 
@@ -482,16 +509,11 @@ figures intended for publication belong in Git.
 
 ## Known limitations and next milestones
 
-1. Fill the constrained-decoding base/LoRA closed-loop rows on Quest.
-2. Build skill-level instruction/history data and replace the auditable rule
-   planner with a post-trained MiniMind planner.
-3. Measure planner horizons 1/4/8/16 as a quality/latency/control trade-off.
-4. Add an expert/original-policy adapter once its checkpoint provenance is
+1. Add an expert/original-policy adapter once its checkpoint provenance is
    clean enough for a fair comparison.
-5. Use the generated replay queue to collect corrective expert labels and
-   measure policy iteration 0 → 1 on the original paired seeds.
-6. Extend instruction/history conditioning across BotEvade and Oasis.
-7. Record a real 20–30 second side-by-side rollout after the result is verified.
+2. Extend instruction/history conditioning across BotEvade and Oasis.
+3. Establish an action/geometry compatibility contract before cross-world use.
+4. Record a real 20–30 second side-by-side rollout from the frozen policies.
 
 ## Resume-ready summary
 

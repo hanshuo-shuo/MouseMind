@@ -20,6 +20,16 @@ BLOCKED_PATTERNS = (
     "dataset/mouse_*.jsonl",
     "closed_loop_episodes.csv",
     "failure_replay_manifest.json",
+    "predictions_private.jsonl",
+    "anchors_private.jsonl",
+    "counterfactuals_private.jsonl",
+    "planner_train.jsonl",
+    "planner_validation.jsonl",
+    "planner_seen_test.jsonl",
+    "planner_unseen_test.jsonl",
+    "risk_train.jsonl",
+    "risk_validation.jsonl",
+    "*private*.jsonl",
 )
 
 

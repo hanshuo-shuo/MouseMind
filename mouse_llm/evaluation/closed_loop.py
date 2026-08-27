@@ -94,6 +94,16 @@ class EpisodeResult:
     skill_switch_rate: float
     dominant_skill: str | None
     skill_counts: str
+    clean_success: int = 0
+    captures_per_successful_episode: float | None = None
+    clean_success_steps: int | None = None
+    time_to_first_capture: int | None = None
+    planner_override_rate: float = 0.0
+    planner_latency_mean_seconds: float = 0.0
+    planner_latency_p95_seconds: float = 0.0
+    verifier_latency_mean_seconds: float = 0.0
+    verifier_latency_p95_seconds: float = 0.0
+    amortized_planner_latency_seconds: float = 0.0
 
 
 def policy_observation(
@@ -357,11 +367,19 @@ def rollout_episode(
     capture_near_occlusion = 0
     capture_in_open_space = 0
     planner_calls = 0
+    planner_overrides = 0
+    planner_latencies: list[float] = []
+    verifier_latencies: list[float] = []
     skills: list[str] = []
     while True:
         start = time.perf_counter()
+        wants_environment_observation = (
+            getattr(policy, "observation_mode", "legacy") == "environment"
+        )
         policy_input = (
-            env.legacy_policy_observation()
+            np.asarray(observation)
+            if wants_environment_observation
+            else env.legacy_policy_observation()
             if hasattr(env, "legacy_policy_observation")
             else np.asarray(observation)
         )
@@ -371,6 +389,13 @@ def rollout_episode(
         valid_actions += int(decision.valid)
         if decision.metadata:
             planner_calls += int(bool(decision.metadata.get("replanned")))
+            planner_overrides += int(bool(decision.metadata.get("was_overridden")))
+            planner_latency = decision.metadata.get("planner_latency_seconds")
+            if isinstance(planner_latency, (int, float)):
+                planner_latencies.append(float(planner_latency))
+            verifier_latency = decision.metadata.get("verifier_latency_seconds")
+            if isinstance(verifier_latency, (int, float)):
+                verifier_latencies.append(float(verifier_latency))
             skill = decision.metadata.get("skill")
             if isinstance(skill, str):
                 skills.append(skill)
@@ -409,6 +434,7 @@ def rollout_episode(
         first_capture_step = steps
     success = int(bool(terminal_info.get("is_success", False)))
     survived = int(bool(terminal_info.get("survived", captures == 0)))
+    clean_success = int(bool(success and captures == 0))
     latency_mean, latency_p50, latency_p95, latency_p99 = _quantiles(latencies)
     if success and initial_goal_distance > 0:
         path_efficiency = initial_goal_distance / max(
@@ -469,6 +495,16 @@ def rollout_episode(
     dominant_skill = (
         max(skill_counts_map, key=skill_counts_map.get) if skill_counts_map else None
     )
+    planner_latency_mean = float(np.mean(planner_latencies)) if planner_latencies else 0.0
+    planner_latency_p95 = (
+        float(np.quantile(planner_latencies, 0.95)) if planner_latencies else 0.0
+    )
+    verifier_latency_mean = (
+        float(np.mean(verifier_latencies)) if verifier_latencies else 0.0
+    )
+    verifier_latency_p95 = (
+        float(np.quantile(verifier_latencies, 0.95)) if verifier_latencies else 0.0
+    )
     return EpisodeResult(
         policy=policy.name,
         seed=seed,
@@ -512,6 +548,16 @@ def rollout_episode(
         skill_switch_rate=skill_switch_rate,
         dominant_skill=dominant_skill,
         skill_counts=json.dumps(skill_counts_map, sort_keys=True, separators=(",", ":")),
+        clean_success=clean_success,
+        captures_per_successful_episode=float(captures) if success else None,
+        clean_success_steps=steps if clean_success else None,
+        time_to_first_capture=first_capture_step,
+        planner_override_rate=planner_overrides / max(planner_calls, 1),
+        planner_latency_mean_seconds=planner_latency_mean,
+        planner_latency_p95_seconds=planner_latency_p95,
+        verifier_latency_mean_seconds=verifier_latency_mean,
+        verifier_latency_p95_seconds=verifier_latency_p95,
+        amortized_planner_latency_seconds=sum(planner_latencies) / steps,
     )
 
 
@@ -540,8 +586,13 @@ def run_policy(
             observation, _ = env.reset(seed=int(seeds[0]))
             policy.reset(int(seeds[0]))
             for _ in range(warmup_actions):
+                wants_environment_observation = (
+                    getattr(policy, "observation_mode", "legacy") == "environment"
+                )
                 policy_input = (
-                    env.legacy_policy_observation()
+                    np.asarray(observation)
+                    if wants_environment_observation
+                    else env.legacy_policy_observation()
                     if hasattr(env, "legacy_policy_observation")
                     else np.asarray(observation)
                 )
@@ -584,6 +635,7 @@ def bootstrap_mean(
 SUMMARY_FIELDS = {
     "return": "episode_return",
     "success_rate": "success",
+    "clean_success_rate": "clean_success",
     "capture_rate": "captured",
     "survival_rate": "survived",
     "captures": "captures",
@@ -596,6 +648,16 @@ SUMMARY_FIELDS = {
     "skill_switch_rate": "skill_switch_rate",
     "open_space_visible_rate": "open_space_visible_rate",
     "oscillation_score": "oscillation_score",
+    "planner_override_rate": "planner_override_rate",
+    "planner_latency_mean_seconds": "planner_latency_mean_seconds",
+    "verifier_latency_mean_seconds": "verifier_latency_mean_seconds",
+    "amortized_planner_latency_seconds": "amortized_planner_latency_seconds",
+}
+
+CONDITIONAL_SUMMARY_FIELDS = {
+    "captures_per_successful_episode": "captures_per_successful_episode",
+    "clean_success_steps": "clean_success_steps",
+    "time_to_first_capture": "time_to_first_capture",
 }
 
 FAILURE_TAXONOMY_DEFINITIONS = {
@@ -620,6 +682,26 @@ def summarize_policy(
             [float(getattr(row, field)) for row in rows],
             seed=seed + offset,
         )
+    for offset, (name, field) in enumerate(CONDITIONAL_SUMMARY_FIELDS.items(), start=100):
+        values = [
+            float(value)
+            for row in rows
+            if (value := getattr(row, field)) is not None
+        ]
+        summary[name] = (
+            {
+                **bootstrap_mean(values, seed=seed + offset),
+                "eligible_episode_count": len(values),
+            }
+            if values
+            else {
+                "mean": None,
+                "ci_low": None,
+                "ci_high": None,
+                "eligible_episode_count": 0,
+            }
+        )
+    summary["captures_per_episode"] = summary["captures"]
     action_latencies = np.asarray(
         [latency for row in rows for latency in row.latency_samples_seconds],
         dtype=np.float64,

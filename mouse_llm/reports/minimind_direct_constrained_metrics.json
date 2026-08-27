@@ -1,0 +1,76 @@
+{
+  "base": {
+    "exact_action_accuracy": {
+      "ci_high": 0.021484375,
+      "ci_low": 0.00390625,
+      "mean": 0.01171875
+    },
+    "latency_seconds": {
+      "mean": 0.05360102112626919,
+      "p50": 0.05265151499770582,
+      "p95": 0.058953179093077776,
+      "p99": 0.06246872613672167
+    },
+    "macro_action_recall": 0.012987012987012988,
+    "median_latency_seconds": 0.05265151499770582,
+    "normalized_destination_error": {
+      "ci_high": 0.30570986324992894,
+      "ci_low": 0.2769828685196277,
+      "mean": 0.2913195228315847
+    },
+    "sample_count": 512,
+    "task_nll": {
+      "ci_high": 2.471074104309082,
+      "ci_low": 2.421153450012207,
+      "mean": 2.4466304779052734
+    },
+    "valid_output_rate": {
+      "ci_high": 1.0,
+      "ci_low": 1.0,
+      "mean": 1.0
+    }
+  },
+  "evaluation": {
+    "decode_mode": "json-constrained",
+    "invalid_destination_error": 1.0,
+    "sample_count": 512,
+    "seed": 42,
+    "split": "held-out episodes"
+  },
+  "evidence_note": "held-out dataset evaluation",
+  "experiment": "minimind_mouse_policy_lora",
+  "lora": {
+    "exact_action_accuracy": {
+      "ci_high": 0.453125,
+      "ci_low": 0.369140625,
+      "mean": 0.41015625
+    },
+    "latency_seconds": {
+      "mean": 0.06652687431687809,
+      "p50": 0.06827918346971273,
+      "p95": 0.07729419611860067,
+      "p99": 0.08374352512881159
+    },
+    "macro_action_recall": 0.23682795895315428,
+    "median_latency_seconds": 0.06827918346971273,
+    "normalized_destination_error": {
+      "ci_high": 0.10681729748509708,
+      "ci_low": 0.08279119739172945,
+      "mean": 0.09449128484606231
+    },
+    "sample_count": 512,
+    "task_nll": {
+      "ci_high": 0.31569635430350895,
+      "ci_low": 0.2771562328096479,
+      "mean": 0.2959870267659426
+    },
+    "valid_output_rate": {
+      "ci_high": 1.0,
+      "ci_low": 1.0,
+      "mean": 1.0
+    }
+  },
+  "research_evidence": true,
+  "schema_version": 1,
+  "synthetic": false
+}

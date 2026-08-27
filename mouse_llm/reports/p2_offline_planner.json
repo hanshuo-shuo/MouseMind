@@ -1,0 +1,179 @@
+{
+  "artifact": "p2_offline_numeric_planner",
+  "epochs_completed": 20,
+  "parameter_count": 17923,
+  "research_evidence": true,
+  "research_evidence_blockers": [],
+  "schema_version": 1,
+  "seen_instruction_test": {
+    "accuracy": 0.8716216216216216,
+    "confusion_matrix": [
+      [
+        26,
+        10,
+        0
+      ],
+      [
+        8,
+        67,
+        0
+      ],
+      [
+        1,
+        0,
+        36
+      ]
+    ],
+    "counterfactual_regret_chosen_minus_oracle": {
+      "mean": -8.047962399247785,
+      "minimum": -1110.7902386311398,
+      "p05": -1.4496843825229686
+    },
+    "latency_seconds": {
+      "p50": 4.498986527323723e-05,
+      "p95": 5.435256753116847e-05,
+      "p99": 5.774606019258499e-05
+    },
+    "macro_f1": 0.8667582278095393,
+    "per_skill": {
+      "evade_predator": {
+        "f1": 0.881578947368421,
+        "precision": 0.8701298701298701,
+        "recall": 0.8933333333333333,
+        "support": 75
+      },
+      "go_to_goal": {
+        "f1": 0.732394366197183,
+        "precision": 0.7428571428571429,
+        "recall": 0.7222222222222222,
+        "support": 36
+      },
+      "hold_position": {
+        "f1": 0.9863013698630138,
+        "precision": 1.0,
+        "recall": 0.972972972972973,
+        "support": 37
+      }
+    },
+    "sample_count": 148,
+    "skill_order": [
+      "go_to_goal",
+      "evade_predator",
+      "hold_position"
+    ]
+  },
+  "unseen_paraphrase_test": {
+    "accuracy": 0.8716216216216216,
+    "confusion_matrix": [
+      [
+        26,
+        10,
+        0
+      ],
+      [
+        8,
+        67,
+        0
+      ],
+      [
+        1,
+        0,
+        36
+      ]
+    ],
+    "counterfactual_regret_chosen_minus_oracle": {
+      "mean": -8.047962399247785,
+      "minimum": -1110.7902386311398,
+      "p05": -1.4496843825229686
+    },
+    "latency_seconds": {
+      "p50": 4.4754939153790474e-05,
+      "p95": 5.5529759265482426e-05,
+      "p99": 6.99853338301182e-05
+    },
+    "macro_f1": 0.8667582278095393,
+    "per_skill": {
+      "evade_predator": {
+        "f1": 0.881578947368421,
+        "precision": 0.8701298701298701,
+        "recall": 0.8933333333333333,
+        "support": 75
+      },
+      "go_to_goal": {
+        "f1": 0.732394366197183,
+        "precision": 0.7428571428571429,
+        "recall": 0.7222222222222222,
+        "support": 36
+      },
+      "hold_position": {
+        "f1": 0.9863013698630138,
+        "precision": 1.0,
+        "recall": 0.972972972972973,
+        "support": 37
+      }
+    },
+    "sample_count": 148,
+    "skill_order": [
+      "go_to_goal",
+      "evade_predator",
+      "hold_position"
+    ]
+  },
+  "validation": {
+    "accuracy": 0.8387096774193549,
+    "confusion_matrix": [
+      [
+        8,
+        15,
+        0
+      ],
+      [
+        4,
+        65,
+        0
+      ],
+      [
+        1,
+        0,
+        31
+      ]
+    ],
+    "counterfactual_regret_chosen_minus_oracle": {
+      "mean": -2.0110872517445944,
+      "minimum": -199.844517833043,
+      "p05": -0.8581890034977446
+    },
+    "latency_seconds": {
+      "p50": 6.069056689739227e-05,
+      "p95": 6.464261095970868e-05,
+      "p99": 7.277778815478086e-05
+    },
+    "macro_f1": 0.7670182166826462,
+    "per_skill": {
+      "evade_predator": {
+        "f1": 0.8724832214765101,
+        "precision": 0.8125,
+        "recall": 0.9420289855072463,
+        "support": 69
+      },
+      "go_to_goal": {
+        "f1": 0.4444444444444444,
+        "precision": 0.6153846153846154,
+        "recall": 0.34782608695652173,
+        "support": 23
+      },
+      "hold_position": {
+        "f1": 0.9841269841269841,
+        "precision": 1.0,
+        "recall": 0.96875,
+        "support": 32
+      }
+    },
+    "sample_count": 124,
+    "skill_order": [
+      "go_to_goal",
+      "evade_predator",
+      "hold_position"
+    ]
+  }
+}

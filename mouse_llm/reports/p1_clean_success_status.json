@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "artifact": "p1_historical_clean_success_status",
+  "historical_seed_range": "1000..1099",
+  "success_definition_unchanged": true,
+  "clean_success_definition": "reached_goal AND captures == 0",
+  "clean_success_rate": null,
+  "status": "pending historical recomputation",
+  "reason": "The checked-in aggregate P1 reports do not contain joint per-episode success/capture records, and the available formal archive contains aggregate reports but not the private 100-seed episode CSV. No historical clean-success value was inferred or invented."
+}

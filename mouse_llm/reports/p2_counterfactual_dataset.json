@@ -1,0 +1,40 @@
+{
+  "all_replays_verified": true,
+  "anchor_count": 320,
+  "artifact": "p2_counterfactual_dataset_aggregate",
+  "branch_capture_class_counts": {
+    "0": 1281,
+    "1": 639
+  },
+  "branch_count": 1920,
+  "counterfactual_skill_oracle": {
+    "counterfactual_regret_chosen_minus_oracle": 0.0,
+    "offline_skill_accuracy": 1.0,
+    "scope": "short-horizon verified branches only; not a closed-loop result"
+  },
+  "horizons": [
+    4,
+    8
+  ],
+  "label_horizon": 8,
+  "planner_rows": {
+    "seen_test": 148,
+    "train": 1008,
+    "unseen_test": 148,
+    "validation": 124
+  },
+  "private_states_committed": false,
+  "research_evidence": true,
+  "research_evidence_blockers": [],
+  "risk_rows": {
+    "train": 756,
+    "validation": 204
+  },
+  "schema_version": 1,
+  "source_pool": "data_collection",
+  "target_skill_counts": {
+    "evade_predator": 686,
+    "go_to_goal": 365,
+    "hold_position": 377
+  }
+}

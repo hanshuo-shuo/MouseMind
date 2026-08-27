@@ -102,13 +102,17 @@ def test_seeded_rollouts_and_paired_report():
     )
     assert report["policies"]["stationary"]["success_rate"]["mean"] == 0.0
     assert report["policies"]["goal"]["success_rate"]["mean"] == 1.0
+    assert report["policies"]["goal"]["clean_success_rate"]["mean"] == 1.0
     paired = report["paired_comparisons"]["goal_minus_stationary"]
     assert paired["success_rate"]["mean"] == 1.0
+    assert paired["clean_success_rate"]["mean"] == 1.0
     assert [row.seed for row in specialist] == seeds
     assert all(row.path_efficiency == pytest.approx(1.0) for row in specialist)
     assert report["policies"]["stationary"]["failure_taxonomy"]["counts"] == {
         "stuck_timeout": 3
     }
+    assert all(row.clean_success == 1 for row in specialist)
+    assert all(row.clean_success_steps == 2 for row in specialist)
 
 
 def test_bootstrap_is_deterministic():

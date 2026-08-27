@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "contract_name": "mousemind_p2_eval_v1",
+  "environment": "BotEvadeEnv",
+  "world": "21_05",
+  "seed_pools": {
+    "data_collection": {
+      "start": 10000,
+      "stop_exclusive": 10080,
+      "count": 80,
+      "sha256": "fed049018aa7189600c5370b05fcdbd958b45ccddf9e1734aaa4a75fc6b58946"
+    },
+    "development": {
+      "start": 20000,
+      "stop_exclusive": 20040,
+      "count": 40,
+      "sha256": "a115900dcc3165ffcdb99a568b839e3ecd4a7227e5d6a3b113778d22f776f09f"
+    },
+    "final_id_test": {
+      "start": 30000,
+      "stop_exclusive": 30100,
+      "count": 100,
+      "sha256": "89727fc394044af79b18eb2bf77f9bf95c4925494621c90ca9e1cbc8e0a391ba"
+    }
+  },
+  "max_steps": 300,
+  "time_step": 0.25,
+  "action_count": 295,
+  "observation_contract": {
+    "name": "legacy_mouse_vector_10d_v1",
+    "audit_sha256": "ca684def2c733c5684d3d6bc5152b69e18369ce40dd4cf68a42cedef22935683"
+  },
+  "baseline_environment_parameters": {
+    "predator_prey_forward_speed_ratio": 0.15,
+    "max_line_of_sight_distance": 1.0,
+    "predator_prey_line_of_sight_ratio": 1.0,
+    "use_lppos": false,
+    "use_predator": true
+  },
+  "ood_environments": [
+    {
+      "name": "faster_predator_020",
+      "predator_prey_forward_speed_ratio": 0.2
+    },
+    {
+      "name": "faster_predator_025",
+      "predator_prey_forward_speed_ratio": 0.25
+    },
+    {
+      "name": "shorter_los_070",
+      "max_line_of_sight_distance": 0.7
+    },
+    {
+      "name": "unseen_language",
+      "instruction_split": "unseen_test_paraphrases"
+    }
+  ],
+  "primary_metrics": [
+    "clean_success_rate",
+    "task_success_rate",
+    "capture_rate",
+    "captures_per_episode"
+  ],
+  "secondary_metrics": [
+    "survival_rate",
+    "return",
+    "path_efficiency",
+    "steps",
+    "time_to_first_capture",
+    "planner_override_rate",
+    "skill_switch_rate",
+    "latency_p50",
+    "latency_p95",
+    "latency_p99",
+    "amortized_planner_latency",
+    "deadline_miss_rate"
+  ],
+  "model_selection": {
+    "planner_horizons": [1, 4, 8, 16],
+    "selection_pool": "development",
+    "primary_objective": "clean_success_rate",
+    "risk_threshold_selection": "development safety-performance frontier",
+    "paired_seed_order_required": true
+  },
+  "final_test_prohibition": "The final ID test seeds must not be used for hyperparameter tuning, threshold selection, horizon or evade-distance selection, training-data filtering, failure-replay training, or early stopping."
+}

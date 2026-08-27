@@ -1,0 +1,7086 @@
+{
+  "experiment": "mousemind_seeded_closed_loop",
+  "failure_taxonomy": {
+    "definitions": {
+      "capture_near_occlusion": "capture while the prey is near an occlusion",
+      "capture_other": "capture without a more specific spatial/temporal label",
+      "goal_overshoot": "approached within 0.15 then ended at least 0.08 farther away",
+      "late_predator_response": "capture within four steps of first predator visibility",
+      "navigation_oscillation": "timeout with A/B/A action alternation score >= 0.45",
+      "open_space_capture": "capture away from walls and occlusions",
+      "stuck_timeout": "timeout with <= 0.03 path length over the final 20 steps",
+      "timeout_other": "timeout not matched by another deterministic rule",
+      "wrong_way_navigation": "final goal distance at least 0.10 worse than start"
+    },
+    "definitions_version": 1
+  },
+  "metadata": {
+    "contract_name": "mousemind_p2_eval_v1",
+    "contract_sha256": "9572230201a1c2a8afb764012237df8c43d155c4941bd2f7282282889af2ed75",
+    "control_budget_seconds": 0.25,
+    "environment": "BotEvadeEnv",
+    "environment_parameters": {
+      "max_line_of_sight_distance": 1.0,
+      "predator_prey_forward_speed_ratio": 0.15
+    },
+    "episode_count": 100,
+    "evade_distance": 0.35,
+    "execution_note": "frozen_P2_final_ID_no_final_test_tuning",
+    "full_pool_episode_count": 100,
+    "instruction_split": "train",
+    "max_steps": 300,
+    "merged_policy_runs": [
+      "main",
+      "direct_minimind"
+    ],
+    "observation_contract_audit": {
+      "artifact": "observation_contract_audit.json",
+      "dataset_rows": 118861,
+      "sha256": "ca684def2c733c5684d3d6bc5152b69e18369ce40dd4cf68a42cedef22935683",
+      "source_commit": "67e769fd410b325b5d2c517d9d5966e5e80fac23",
+      "source_sha256": "775d672ecfb518584005558a2ae635981bdacac29b68ed2fba754579e79bee3f",
+      "state_replay_coverage": {
+        "hidden": 16,
+        "visible": 16
+      },
+      "verified": true
+    },
+    "ood_condition": "id",
+    "p1_planner_horizon": 4,
+    "planner_horizon": 8,
+    "preference": "survival_first",
+    "reference_policy": "direct-mlp",
+    "research_evidence": true,
+    "research_evidence_blockers": [],
+    "risk_threshold": 0.9,
+    "seed_pool": "final_id_test",
+    "seed_sha256": "89727fc394044af79b18eb2bf77f9bf95c4925494621c90ca9e1cbc8e0a391ba",
+    "seed_start": 30000,
+    "synthetic": false,
+    "world": "21_05"
+  },
+  "paired_comparisons": {
+    "direct-minimind-base_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.11,
+        "ci_low": 0.02,
+        "mean": 0.06
+      },
+      "captures": {
+        "ci_high": 36.79025,
+        "ci_low": 14.2285,
+        "mean": 25.7
+      },
+      "clean_success_rate": {
+        "ci_high": -0.01,
+        "ci_low": -0.1,
+        "mean": -0.05
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.0646710562974626,
+        "ci_low": -0.12597607545114115,
+        "mean": -0.0915381065838379
+      },
+      "oscillation_score": {
+        "ci_high": -0.08423901384533888,
+        "ci_low": -0.12555418047187006,
+        "mean": -0.10351857979374122
+      },
+      "path_efficiency": {
+        "ci_high": -0.04956376126637764,
+        "ci_low": -0.14000435720064752,
+        "mean": -0.09143483235373592
+      },
+      "path_length": {
+        "ci_high": -4.969155119943263,
+        "ci_low": -7.1886746521918425,
+        "mean": -6.046121209316384
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -14.239250000000004,
+        "ci_low": -37.5025,
+        "mean": -25.9
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 44.921,
+        "ci_low": 18.879749999999998,
+        "mean": 31.56
+      },
+      "success_rate": {
+        "ci_high": -0.12,
+        "ci_low": -0.28,
+        "mean": -0.2
+      },
+      "survival_rate": {
+        "ci_high": -0.02,
+        "ci_low": -0.11,
+        "mean": -0.06
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-base_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.02336357220045142,
+        "ci_low": -0.02534882942898009,
+        "mean": -0.024346092292091767
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.06,
+        "mean": 0.12
+      },
+      "captures": {
+        "ci_high": 112.62,
+        "ci_low": 100.0,
+        "mean": 106.23
+      },
+      "clean_success_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.19,
+        "mean": -0.12
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.1018248274632993,
+        "ci_low": -0.1437897428645693,
+        "mean": -0.1221273275829164
+      },
+      "oscillation_score": {
+        "ci_high": -0.05898144457179,
+        "ci_low": -0.08573254330229078,
+        "mean": -0.07140998477024992
+      },
+      "path_efficiency": {
+        "ci_high": -0.2658041289943484,
+        "ci_low": -0.33167572126663775,
+        "mean": -0.2977979343310631
+      },
+      "path_length": {
+        "ci_high": -3.7355115143286874,
+        "ci_low": -4.9068808990314325,
+        "mean": -4.288418788536784
+      },
+      "planner_call_rate": {
+        "ci_high": -0.15673868719430387,
+        "ci_low": -0.17068468904650264,
+        "mean": -0.16340351660749827
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.023386231734451077,
+        "ci_low": -0.02532143070163336,
+        "mean": -0.024346092292091767
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -100.96575000000003,
+        "ci_low": -113.02024999999999,
+        "mean": -107.2
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.043532100992870186,
+        "ci_low": -0.055540694662290224,
+        "mean": -0.04944341830784122
+      },
+      "steps": {
+        "ci_high": 214.3405,
+        "ci_low": 188.32950000000002,
+        "mean": 201.83
+      },
+      "success_rate": {
+        "ci_high": -0.93,
+        "ci_low": -1.0,
+        "mean": -0.97
+      },
+      "survival_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.19,
+        "mean": -0.12
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-base_minus_minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.019702772538626807,
+        "ci_low": -0.01997736019160367,
+        "mean": -0.01983460587344613
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "captures": {
+        "ci_high": 106.6305,
+        "ci_low": 94.19,
+        "mean": 100.45
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.07175325143061762,
+        "ci_low": -0.09553705453093597,
+        "mean": -0.08299327968456675
+      },
+      "oscillation_score": {
+        "ci_high": -0.05261837075067867,
+        "ci_low": -0.07829609954661661,
+        "mean": -0.06483565115457351
+      },
+      "path_efficiency": {
+        "ci_high": -0.21381047867484723,
+        "ci_low": -0.29923713812425606,
+        "mean": -0.25708406219146673
+      },
+      "path_length": {
+        "ci_high": -5.2737175740489874,
+        "ci_low": -7.180483459104776,
+        "mean": -6.171101643929749
+      },
+      "planner_call_rate": {
+        "ci_high": -0.1289601266753682,
+        "ci_low": -0.13067478616247238,
+        "mean": -0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.019696746566006146,
+        "ci_low": -0.019978020846710402,
+        "mean": -0.01983460587344613
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -95.25775000000002,
+        "ci_low": -107.56,
+        "mean": -101.25
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 172.2105,
+        "ci_low": 132.88625,
+        "mean": 152.82
+      },
+      "success_rate": {
+        "ci_high": -0.72,
+        "ci_low": -0.87,
+        "mean": -0.8
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-base_minus_minimind-no-instruction": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.020111814182462058,
+        "ci_low": -0.02039928177642156,
+        "mean": -0.020255830961035025
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "captures": {
+        "ci_high": 106.44024999999999,
+        "ci_low": 94.23774999999999,
+        "mean": 100.45
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.07113211612245375,
+        "ci_low": -0.09501074599299915,
+        "mean": -0.08299327968456675
+      },
+      "oscillation_score": {
+        "ci_high": -0.05266152624711876,
+        "ci_low": -0.07812070550773695,
+        "mean": -0.06483565115457351
+      },
+      "path_efficiency": {
+        "ci_high": -0.21703352375608223,
+        "ci_low": -0.298222237508281,
+        "mean": -0.25708406219146673
+      },
+      "path_length": {
+        "ci_high": -5.256709174451947,
+        "ci_low": -7.134452588932244,
+        "mean": -6.171101643929749
+      },
+      "planner_call_rate": {
+        "ci_high": -0.12896167742109158,
+        "ci_low": -0.13072892240496622,
+        "mean": -0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.020118250909575874,
+        "ci_low": -0.02040494232305008,
+        "mean": -0.020255830961035025
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -95.11975000000001,
+        "ci_low": -107.35024999999999,
+        "mean": -101.25
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 172.15524999999997,
+        "ci_low": 131.65775,
+        "mean": 152.82
+      },
+      "success_rate": {
+        "ci_high": -0.72,
+        "ci_low": -0.87,
+        "mean": -0.8
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-base_minus_minimind-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.021875745674938656,
+        "ci_low": -0.02294560537934169,
+        "mean": -0.02238247221054186
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.19,
+        "ci_low": 0.06,
+        "mean": 0.12
+      },
+      "captures": {
+        "ci_high": 111.43,
+        "ci_low": 98.89750000000001,
+        "mean": 105.13
+      },
+      "clean_success_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.18024999999999997,
+        "mean": -0.12
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.09143163952738549,
+        "ci_low": -0.1293720101324708,
+        "mean": -0.11014517338961252
+      },
+      "oscillation_score": {
+        "ci_high": -0.055737940232821075,
+        "ci_low": -0.08297702898830828,
+        "mean": -0.06844918029250388
+      },
+      "path_efficiency": {
+        "ci_high": -0.2707266129936953,
+        "ci_low": -0.3489898378127975,
+        "mean": -0.3092287799640183
+      },
+      "path_length": {
+        "ci_high": -3.686384477619943,
+        "ci_low": -4.91026684153511,
+        "mean": -4.266077344249702
+      },
+      "planner_call_rate": {
+        "ci_high": -0.1464401182744121,
+        "ci_low": -0.15413149473924706,
+        "mean": -0.1502588550158404
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.02187358121824245,
+        "ci_low": -0.022949951510139198,
+        "mean": -0.02238247221054186
+      },
+      "planner_override_rate": {
+        "ci_high": -0.038152121391695513,
+        "ci_low": -0.07263358415458021,
+        "mean": -0.054171129243486826
+      },
+      "return": {
+        "ci_high": -99.8295,
+        "ci_low": -112.441,
+        "mean": -106.05
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.03910285308925357,
+        "ci_low": -0.048866497817232006,
+        "mean": -0.044111150295930435
+      },
+      "steps": {
+        "ci_high": 207.48224999999996,
+        "ci_low": 177.21825,
+        "mean": 193.58
+      },
+      "success_rate": {
+        "ci_high": -0.86,
+        "ci_low": -0.97,
+        "mean": -0.92
+      },
+      "survival_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.19,
+        "mean": -0.12
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -6.415499878854313e-05,
+        "ci_low": -7.048794101135169e-05,
+        "mean": -6.707930126033393e-05
+      }
+    },
+    "direct-minimind-base_minus_numeric-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -6.595031757890826e-05,
+        "ci_low": -7.635206510747218e-05,
+        "mean": -7.094239719195273e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.48,
+        "ci_low": 0.28975,
+        "mean": 0.38
+      },
+      "captures": {
+        "ci_high": 116.54075,
+        "ci_low": 105.11925000000001,
+        "mean": 110.94
+      },
+      "clean_success_rate": {
+        "ci_high": -0.29,
+        "ci_low": -0.48,
+        "mean": -0.38
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.17016411608581034,
+        "ci_low": -0.23829418648238157,
+        "mean": -0.20406995892978105
+      },
+      "oscillation_score": {
+        "ci_high": -0.036281490365171316,
+        "ci_low": -0.05783907098028782,
+        "mean": -0.04624413523208122
+      },
+      "path_efficiency": {
+        "ci_high": -0.44790639884957306,
+        "ci_low": -0.5310257238367118,
+        "mean": -0.4890023389754575
+      },
+      "path_length": {
+        "ci_high": -1.8985513071643714,
+        "ci_low": -2.3395735808694584,
+        "mean": -2.116846245203145
+      },
+      "planner_call_rate": {
+        "ci_high": -0.22540104917115308,
+        "ci_low": -0.26292381021634365,
+        "mean": -0.2433385573068298
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -6.588910788756079e-05,
+        "ci_low": -7.631814854677351e-05,
+        "mean": -7.094239719195273e-05
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -106.2485,
+        "ci_low": -117.65075,
+        "mean": -111.94
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.07052411574485298,
+        "ci_low": -0.08580297338166827,
+        "mean": -0.07822093720238658
+      },
+      "steps": {
+        "ci_high": 262.22,
+        "ci_low": 252.55,
+        "mean": 257.41
+      },
+      "success_rate": {
+        "ci_high": -1.0,
+        "ci_low": -1.0,
+        "mean": -1.0
+      },
+      "survival_rate": {
+        "ci_high": -0.29,
+        "ci_low": -0.48,
+        "mean": -0.38
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-base_minus_numeric-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -7.083885249431711e-05,
+        "ci_low": -8.51932883309933e-05,
+        "mean": -7.740954231269391e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.44,
+        "ci_low": 0.26,
+        "mean": 0.35
+      },
+      "captures": {
+        "ci_high": 115.9205,
+        "ci_low": 104.84949999999999,
+        "mean": 110.47
+      },
+      "clean_success_rate": {
+        "ci_high": -0.26,
+        "ci_low": -0.44,
+        "mean": -0.35
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.1420884362675681,
+        "ci_low": -0.20109454176823577,
+        "mean": -0.170076064385775
+      },
+      "oscillation_score": {
+        "ci_high": -0.045882150687951644,
+        "ci_low": -0.07041238766500081,
+        "mean": -0.05793225836909941
+      },
+      "path_efficiency": {
+        "ci_high": -0.4528342373760455,
+        "ci_low": -0.5240463402882218,
+        "mean": -0.48748349054708745
+      },
+      "path_length": {
+        "ci_high": -1.8512083065965694,
+        "ci_low": -2.2736419726707537,
+        "mean": -2.0573610574438614
+      },
+      "planner_call_rate": {
+        "ci_high": -0.21888897185282447,
+        "ci_low": -0.26435264979787515,
+        "mean": -0.23994493191458757
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -7.05023608649923e-05,
+        "ci_low": -8.438567498696647e-05,
+        "mean": -7.740954231269391e-05
+      },
+      "planner_override_rate": {
+        "ci_high": -0.06686934601131585,
+        "ci_low": -0.11584496336996337,
+        "mean": -0.09117451786259835
+      },
+      "return": {
+        "ci_high": -105.95925,
+        "ci_low": -117.2805,
+        "mean": -111.47
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.05612501653848366,
+        "ci_low": -0.06514561277931973,
+        "mean": -0.06066216343142083
+      },
+      "steps": {
+        "ci_high": 260.08099999999996,
+        "ci_low": 249.41,
+        "mean": 254.82
+      },
+      "success_rate": {
+        "ci_high": -1.0,
+        "ci_low": -1.0,
+        "mean": -1.0
+      },
+      "survival_rate": {
+        "ci_high": -0.26,
+        "ci_low": -0.44,
+        "mean": -0.35
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -9.014173910993796e-05,
+        "ci_low": -0.00010565753836970955,
+        "mean": -9.74393626406683e-05
+      }
+    },
+    "direct-minimind-base_minus_p1-rule": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.21,
+        "ci_low": 0.07,
+        "mean": 0.14
+      },
+      "captures": {
+        "ci_high": 108.13024999999999,
+        "ci_low": 96.25975000000001,
+        "mean": 102.4
+      },
+      "clean_success_rate": {
+        "ci_high": -0.08,
+        "ci_low": -0.21,
+        "mean": -0.14
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.11962779837414744,
+        "ci_low": -0.16208679432070777,
+        "mean": -0.13919526911173807
+      },
+      "oscillation_score": {
+        "ci_high": -0.02456691456357085,
+        "ci_low": -0.044614894954768274,
+        "mean": -0.033872286926105374
+      },
+      "path_efficiency": {
+        "ci_high": -0.205071477646889,
+        "ci_low": -0.2928445423786802,
+        "mean": -0.24709259157855254
+      },
+      "path_length": {
+        "ci_high": -5.273847892248398,
+        "ci_low": -6.9351982469142355,
+        "mean": -6.112042227670202
+      },
+      "planner_call_rate": {
+        "ci_high": -0.27167474111771533,
+        "ci_low": -0.2763015511389602,
+        "mean": -0.2739540130474179
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -97.56949999999999,
+        "ci_low": -109.141,
+        "mean": -103.19
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.07277752851561899,
+        "ci_low": -0.08540483902294785,
+        "mean": -0.07894954038976261
+      },
+      "steps": {
+        "ci_high": 139.85125,
+        "ci_low": 103.16725,
+        "mean": 121.47
+      },
+      "success_rate": {
+        "ci_high": -0.7,
+        "ci_low": -0.87,
+        "mean": -0.79
+      },
+      "survival_rate": {
+        "ci_high": -0.07,
+        "ci_low": -0.21,
+        "mean": -0.14
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-base_minus_random": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "captures": {
+        "ci_high": 54.12025,
+        "ci_low": 42.5295,
+        "mean": 48.41
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.31987219720265686,
+        "ci_low": -0.3325050033422739,
+        "mean": -0.3259353039140938
+      },
+      "oscillation_score": {
+        "ci_high": -0.002382334471525571,
+        "ci_low": -0.0036826406059892454,
+        "mean": -0.0030114996663919307
+      },
+      "path_efficiency": {
+        "ci_high": 0.0,
+        "ci_low": -0.006269156184479612,
+        "mean": -0.0025259027350734114
+      },
+      "path_length": {
+        "ci_high": -24.254425959657326,
+        "ci_low": -25.132047119832066,
+        "mean": -24.74835548663188
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -42.469500000000004,
+        "ci_low": -54.4605,
+        "mean": -48.44
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 9.614249999999977,
+        "ci_low": 0.0,
+        "mean": 3.98
+      },
+      "success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.07,
+        "mean": -0.03
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora_minus_direct-minimind-base": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "captures": {
+        "ci_high": -3.8690000000000055,
+        "ci_low": -26.68025,
+        "mean": -15.0
+      },
+      "clean_success_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.030473238276366353,
+        "ci_low": 0.013450073471889154,
+        "mean": 0.021577987126861292
+      },
+      "oscillation_score": {
+        "ci_high": 0.027846616531569262,
+        "ci_low": 0.00883132348511834,
+        "mean": 0.017105989443355927
+      },
+      "path_efficiency": {
+        "ci_high": 0.16140184224655293,
+        "ci_low": 0.08046229566136562,
+        "mean": 0.11796033675467292
+      },
+      "path_length": {
+        "ci_high": 0.8125438327071489,
+        "ci_low": 0.39249967369447736,
+        "mean": 0.601862391390865
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 27.34,
+        "ci_low": 3.9895,
+        "mean": 15.26
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": -24.6395,
+        "ci_low": -54.8625,
+        "mean": -39.14
+      },
+      "success_rate": {
+        "ci_high": 0.35,
+        "ci_low": 0.17,
+        "mean": 0.26
+      },
+      "survival_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.1,
+        "ci_low": 0.0,
+        "mean": 0.05
+      },
+      "captures": {
+        "ci_high": 23.481499999999993,
+        "ci_low": -1.47125,
+        "mean": 10.7
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.09,
+        "mean": -0.04
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.04297799685632248,
+        "ci_low": -0.10306605130160859,
+        "mean": -0.06996011945697661
+      },
+      "oscillation_score": {
+        "ci_high": -0.06375505116033581,
+        "ci_low": -0.10993705184916833,
+        "mean": -0.0864125903503853
+      },
+      "path_efficiency": {
+        "ci_high": 0.08500816488434643,
+        "ci_low": -0.0350975757648755,
+        "mean": 0.026525504400937004
+      },
+      "path_length": {
+        "ci_high": -4.270864016136804,
+        "ci_low": -6.620166140893389,
+        "mean": -5.444258817925519
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 2.0302499999999983,
+        "ci_low": -22.643250000000002,
+        "mean": -10.64
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 12.707499999999959,
+        "ci_low": -26.263,
+        "mean": -7.58
+      },
+      "success_rate": {
+        "ci_high": 0.18,
+        "ci_low": -0.05,
+        "mean": 0.06
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.1,
+        "mean": -0.05
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.02342782508778104,
+        "ci_low": -0.025423337934268434,
+        "mean": -0.024346092292091767
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.05,
+        "mean": 0.11
+      },
+      "captures": {
+        "ci_high": 100.99,
+        "ci_low": 81.17750000000001,
+        "mean": 91.23
+      },
+      "clean_success_rate": {
+        "ci_high": -0.04,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.08071806495071644,
+        "ci_low": -0.12279063128946283,
+        "mean": -0.1005493404560551
+      },
+      "oscillation_score": {
+        "ci_high": -0.03789832158033375,
+        "ci_low": -0.07172838708010541,
+        "mean": -0.054303995326893985
+      },
+      "path_efficiency": {
+        "ci_high": -0.12335862708860353,
+        "ci_low": -0.23500562024755375,
+        "mean": -0.1798375975763902
+      },
+      "path_length": {
+        "ci_high": -3.0861101703026605,
+        "ci_low": -4.299057867552582,
+        "mean": -3.6865563971459188
+      },
+      "planner_call_rate": {
+        "ci_high": -0.1564602488492198,
+        "ci_low": -0.17074860764892658,
+        "mean": -0.16340351660749827
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.023367654690524202,
+        "ci_low": -0.025431006170563132,
+        "mean": -0.024346092292091767
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -82.45,
+        "ci_low": -101.99074999999999,
+        "mean": -91.94
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.04339266759952492,
+        "ci_low": -0.05570648294409324,
+        "mean": -0.04944341830784122
+      },
+      "steps": {
+        "ci_high": 181.70224999999996,
+        "ci_low": 142.03725,
+        "mean": 162.69
+      },
+      "success_rate": {
+        "ci_high": -0.62,
+        "ci_low": -0.8,
+        "mean": -0.71
+      },
+      "survival_rate": {
+        "ci_high": -0.05,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora_minus_minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.019704077625549894,
+        "ci_low": -0.019979499156787997,
+        "mean": -0.01983460587344613
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "captures": {
+        "ci_high": 95.3305,
+        "ci_low": 75.7995,
+        "mean": 85.45
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.045376184350734566,
+        "ci_low": -0.07791601349774203,
+        "mean": -0.06141529255770545
+      },
+      "oscillation_score": {
+        "ci_high": -0.034569221567099524,
+        "ci_low": -0.0629548095742612,
+        "mean": -0.04772966171121757
+      },
+      "path_efficiency": {
+        "ci_high": -0.08511363074542005,
+        "ci_low": -0.1938644527874074,
+        "mean": -0.13912372543679374
+      },
+      "path_length": {
+        "ci_high": -4.605099865438262,
+        "ci_low": -6.5525977455853885,
+        "mean": -5.569239252538884
+      },
+      "planner_call_rate": {
+        "ci_high": -0.12889950098722372,
+        "ci_low": -0.130753638734422,
+        "mean": -0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.019706043183303157,
+        "ci_low": -0.019978520907419705,
+        "mean": -0.01983460587344613
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -76.54925,
+        "ci_low": -95.50075,
+        "mean": -85.99
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 135.98324999999997,
+        "ci_low": 90.32975,
+        "mean": 113.68
+      },
+      "success_rate": {
+        "ci_high": -0.42,
+        "ci_low": -0.65,
+        "mean": -0.54
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora_minus_minimind-no-instruction": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.02011834100204172,
+        "ci_low": -0.02040366305937282,
+        "mean": -0.020255830961035025
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "captures": {
+        "ci_high": 95.18,
+        "ci_low": 75.35,
+        "mean": 85.45
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.045630053784542435,
+        "ci_low": -0.07769912627788479,
+        "mean": -0.06141529255770545
+      },
+      "oscillation_score": {
+        "ci_high": -0.03264046275659027,
+        "ci_low": -0.062498240666817396,
+        "mean": -0.04772966171121757
+      },
+      "path_efficiency": {
+        "ci_high": -0.08393843497415648,
+        "ci_low": -0.19526470142237204,
+        "mean": -0.13912372543679374
+      },
+      "path_length": {
+        "ci_high": -4.638641537246946,
+        "ci_low": -6.565506116046823,
+        "mean": -5.569239252538884
+      },
+      "planner_call_rate": {
+        "ci_high": -0.12893998130115822,
+        "ci_low": -0.13066874349117039,
+        "mean": -0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.020120823177781612,
+        "ci_low": -0.020405840783696963,
+        "mean": -0.020255830961035025
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -76.35675000000002,
+        "ci_low": -95.6705,
+        "mean": -85.99
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 137.03,
+        "ci_low": 90.61975000000001,
+        "mean": 113.68
+      },
+      "success_rate": {
+        "ci_high": -0.42,
+        "ci_low": -0.65,
+        "mean": -0.54
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora_minus_minimind-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.021832031786371806,
+        "ci_low": -0.022941538347657563,
+        "mean": -0.02238247221054186
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.049750000000000016,
+        "mean": 0.11
+      },
+      "captures": {
+        "ci_high": 99.72149999999999,
+        "ci_low": 80.6495,
+        "mean": 90.13
+      },
+      "clean_success_rate": {
+        "ci_high": -0.05,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.06910472263119719,
+        "ci_low": -0.11033100581050935,
+        "mean": -0.0885671862627512
+      },
+      "oscillation_score": {
+        "ci_high": -0.03577113690026967,
+        "ci_low": -0.06853068027221305,
+        "mean": -0.05134319084914796
+      },
+      "path_efficiency": {
+        "ci_high": -0.1310695128243006,
+        "ci_low": -0.249924350622429,
+        "mean": -0.1912684432093454
+      },
+      "path_length": {
+        "ci_high": -3.011046612536374,
+        "ci_low": -4.390765870328949,
+        "mean": -3.664214952858836
+      },
+      "planner_call_rate": {
+        "ci_high": -0.1465088662749944,
+        "ci_low": -0.15427300249355821,
+        "mean": -0.1502588550158404
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.021862786919817398,
+        "ci_low": -0.02293861061111468,
+        "mean": -0.02238247221054186
+      },
+      "planner_override_rate": {
+        "ci_high": -0.03790385137465818,
+        "ci_low": -0.07122750991309414,
+        "mean": -0.054171129243486826
+      },
+      "return": {
+        "ci_high": -80.98925,
+        "ci_low": -100.73275000000001,
+        "mean": -90.79
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.03913313654747789,
+        "ci_low": -0.04923822961786821,
+        "mean": -0.044111150295930435
+      },
+      "steps": {
+        "ci_high": 175.24474999999998,
+        "ci_low": 133.89775,
+        "mean": 154.44
+      },
+      "success_rate": {
+        "ci_high": -0.55,
+        "ci_low": -0.76,
+        "mean": -0.66
+      },
+      "survival_rate": {
+        "ci_high": -0.05,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -6.388436945451645e-05,
+        "ci_low": -7.027652945022072e-05,
+        "mean": -6.707930126033393e-05
+      }
+    },
+    "direct-minimind-lora_minus_numeric-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -6.606210618644715e-05,
+        "ci_low": -7.627804913318826e-05,
+        "mean": -7.094239719195273e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.47,
+        "ci_low": 0.28,
+        "mean": 0.37
+      },
+      "captures": {
+        "ci_high": 105.231,
+        "ci_low": 85.4695,
+        "mean": 95.94
+      },
+      "clean_success_rate": {
+        "ci_high": -0.27,
+        "ci_low": -0.47,
+        "mean": -0.37
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.148039714700657,
+        "ci_low": -0.2179572977692891,
+        "mean": -0.18249197180291976
+      },
+      "oscillation_score": {
+        "ci_high": -0.015167937070064676,
+        "ci_low": -0.0424700928313062,
+        "mean": -0.0291381457887253
+      },
+      "path_efficiency": {
+        "ci_high": -0.3074692941039135,
+        "ci_low": -0.4331177269191795,
+        "mean": -0.37104200222078454
+      },
+      "path_length": {
+        "ci_high": -1.2524812806691856,
+        "ci_low": -1.7859254302633811,
+        "mean": -1.5149838538122804
+      },
+      "planner_call_rate": {
+        "ci_high": -0.22548563551924336,
+        "ci_low": -0.2636286718439497,
+        "mean": -0.2433385573068298
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -6.574824761501558e-05,
+        "ci_low": -7.63232358046918e-05,
+        "mean": -7.094239719195273e-05
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -85.8695,
+        "ci_low": -106.0205,
+        "mean": -96.68
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.07044607038251324,
+        "ci_low": -0.08623985069773178,
+        "mean": -0.07822093720238658
+      },
+      "steps": {
+        "ci_high": 235.20149999999998,
+        "ci_low": 200.687,
+        "mean": 218.27
+      },
+      "success_rate": {
+        "ci_high": -0.65,
+        "ci_low": -0.83,
+        "mean": -0.74
+      },
+      "survival_rate": {
+        "ci_high": -0.27,
+        "ci_low": -0.47,
+        "mean": -0.37
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora_minus_numeric-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -7.045286082320877e-05,
+        "ci_low": -8.482498764383344e-05,
+        "mean": -7.740954231269391e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.43,
+        "ci_low": 0.24,
+        "mean": 0.34
+      },
+      "captures": {
+        "ci_high": 104.33149999999999,
+        "ci_low": 86.04925,
+        "mean": 95.47
+      },
+      "clean_success_rate": {
+        "ci_high": -0.25,
+        "ci_low": -0.43,
+        "mean": -0.34
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.11858077803264677,
+        "ci_low": -0.17984335791699235,
+        "mean": -0.14849807725891373
+      },
+      "oscillation_score": {
+        "ci_high": -0.02662964970083041,
+        "ci_low": -0.05424156450031461,
+        "mean": -0.04082626892574348
+      },
+      "path_efficiency": {
+        "ci_high": -0.3117707502293797,
+        "ci_low": -0.42577881647898724,
+        "mean": -0.3695231537924146
+      },
+      "path_length": {
+        "ci_high": -1.1832375203142564,
+        "ci_low": -1.7251124886442317,
+        "mean": -1.4554986660529963
+      },
+      "planner_call_rate": {
+        "ci_high": -0.21835153439577515,
+        "ci_low": -0.2633349097401166,
+        "mean": -0.23994493191458757
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -7.023115773788733e-05,
+        "ci_low": -8.486831245320937e-05,
+        "mean": -7.740954231269391e-05
+      },
+      "planner_override_rate": {
+        "ci_high": -0.06808254117098933,
+        "ci_low": -0.11477928973546234,
+        "mean": -0.09117451786259835
+      },
+      "return": {
+        "ci_high": -86.16975000000001,
+        "ci_low": -105.43075,
+        "mean": -96.21
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.05615431383912307,
+        "ci_low": -0.0655769773611355,
+        "mean": -0.06066216343142083
+      },
+      "steps": {
+        "ci_high": 231.3615,
+        "ci_low": 199.08950000000002,
+        "mean": 215.68
+      },
+      "success_rate": {
+        "ci_high": -0.65,
+        "ci_low": -0.82,
+        "mean": -0.74
+      },
+      "survival_rate": {
+        "ci_high": -0.24,
+        "ci_low": -0.44,
+        "mean": -0.34
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -9.007376405668465e-05,
+        "ci_low": -0.0001051386634312569,
+        "mean": -9.74393626406683e-05
+      }
+    },
+    "direct-minimind-lora_minus_p1-rule": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.2,
+        "ci_low": 0.06,
+        "mean": 0.13
+      },
+      "captures": {
+        "ci_high": 97.27249999999998,
+        "ci_low": 77.37675,
+        "mean": 87.4
+      },
+      "clean_success_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.21,
+        "mean": -0.13
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.09654876994046033,
+        "ci_low": -0.1437503315859627,
+        "mean": -0.11761728198487678
+      },
+      "oscillation_score": {
+        "ci_high": -0.0012517621736179397,
+        "ci_low": -0.03142009115162608,
+        "mean": -0.016766297482749454
+      },
+      "path_efficiency": {
+        "ci_high": -0.06923029357791638,
+        "ci_low": -0.1879866739233613,
+        "mean": -0.1291322548238796
+      },
+      "path_length": {
+        "ci_high": -4.646469392683197,
+        "ci_low": -6.394004780348143,
+        "mean": -5.510179836279341
+      },
+      "planner_call_rate": {
+        "ci_high": -0.2717770089352648,
+        "ci_low": -0.2761591069788955,
+        "mean": -0.2739540130474179
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -77.76,
+        "ci_low": -98.09,
+        "mean": -87.93
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.07296397205779967,
+        "ci_low": -0.08504833611980597,
+        "mean": -0.07894954038976261
+      },
+      "steps": {
+        "ci_high": 104.16099999999999,
+        "ci_low": 59.359,
+        "mean": 82.33
+      },
+      "success_rate": {
+        "ci_high": -0.41,
+        "ci_low": -0.64,
+        "mean": -0.53
+      },
+      "survival_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.2,
+        "mean": -0.13
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora_minus_random": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "captures": {
+        "ci_high": 42.811249999999994,
+        "ci_low": 24.049500000000002,
+        "mean": 33.41
+      },
+      "clean_success_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.29272298605750446,
+        "ci_low": -0.31473508495719704,
+        "mean": -0.3043573167872325
+      },
+      "oscillation_score": {
+        "ci_high": 0.024262137029578926,
+        "ci_low": 0.005259558357615906,
+        "mean": 0.014094489776963995
+      },
+      "path_efficiency": {
+        "ci_high": 0.15621726675095488,
+        "ci_low": 0.07720953770282821,
+        "mean": 0.11543443401959949
+      },
+      "path_length": {
+        "ci_high": -23.58459230747926,
+        "ci_low": -24.61371907893316,
+        "mean": -24.146493095241013
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -23.44575000000002,
+        "ci_low": -42.68175,
+        "mean": -33.18
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": -20.93,
+        "ci_low": -51.2205,
+        "mean": -35.16
+      },
+      "success_rate": {
+        "ci_high": 0.32,
+        "ci_low": 0.14,
+        "mean": 0.23
+      },
+      "survival_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-learned_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.025379197935498157,
+        "ci_low": 0.02337352377517474,
+        "mean": 0.024346092292091767
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.01,
+        "ci_low": -0.13,
+        "mean": -0.06
+      },
+      "captures": {
+        "ci_high": -71.2385,
+        "ci_low": -89.26050000000001,
+        "mean": -80.53
+      },
+      "clean_success_rate": {
+        "ci_high": 0.14,
+        "ci_low": 0.0,
+        "mean": 0.07
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.06245107731275672,
+        "ci_low": -0.002844437405664848,
+        "mean": 0.03058922099907849
+      },
+      "oscillation_score": {
+        "ci_high": -0.006086895460723121,
+        "ci_low": -0.05768277185837318,
+        "mean": -0.032108595023491296
+      },
+      "path_efficiency": {
+        "ci_high": 0.26540335558599476,
+        "ci_low": 0.14943966423019195,
+        "mean": 0.20636310197732718
+      },
+      "path_length": {
+        "ci_high": -0.5232559057152669,
+        "ci_low": -3.063050166594866,
+        "mean": -1.7577024207796017
+      },
+      "planner_call_rate": {
+        "ci_high": 0.17061729423301866,
+        "ci_low": 0.15663285829928025,
+        "mean": 0.16340351660749827
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.02535527357649575,
+        "ci_low": 0.023364352902645553,
+        "mean": 0.024346092292091767
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 90.41,
+        "ci_low": 72.579,
+        "mean": 81.3
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.05574833417646489,
+        "ci_low": 0.04373461943677994,
+        "mean": 0.04944341830784122
+      },
+      "steps": {
+        "ci_high": -150.03950000000006,
+        "ci_low": -189.04174999999998,
+        "mean": -170.27
+      },
+      "success_rate": {
+        "ci_high": 0.86,
+        "ci_low": 0.68,
+        "mean": 0.77
+      },
+      "survival_rate": {
+        "ci_high": 0.13,
+        "ci_low": -0.01,
+        "mean": 0.06
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-no-history_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.01998117743490505,
+        "ci_low": 0.01969528866196532,
+        "mean": 0.01983460587344613
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.10024999999999865,
+        "ci_low": 0.0,
+        "mean": 0.05
+      },
+      "captures": {
+        "ci_high": -65.4495,
+        "ci_low": -83.78025,
+        "mean": -74.75
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.09,
+        "mean": -0.04
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.020782279779240263,
+        "ci_low": -0.0418355909870109,
+        "mean": -0.008544826899271185
+      },
+      "oscillation_score": {
+        "ci_high": -0.014326344966162939,
+        "ci_low": -0.06317462101654849,
+        "mean": -0.03868292863916772
+      },
+      "path_efficiency": {
+        "ci_high": 0.2342673544044551,
+        "ci_low": 0.09646849083927016,
+        "mean": 0.16564922983773075
+      },
+      "path_length": {
+        "ci_high": 1.673711186364502,
+        "ci_low": -1.4094284462944067,
+        "mean": 0.12498043461336325
+      },
+      "planner_call_rate": {
+        "ci_high": 0.13075870555570288,
+        "ci_low": 0.12893774583256953,
+        "mean": 0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.019971979218104393,
+        "ci_low": 0.019700323615833824,
+        "mean": 0.01983460587344613
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 84.01075,
+        "ci_low": 66.10875,
+        "mean": 75.35
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": -94.21750000000002,
+        "ci_low": -146.89075,
+        "mean": -121.26
+      },
+      "success_rate": {
+        "ci_high": 0.72,
+        "ci_low": 0.47,
+        "mean": 0.6
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.1,
+        "mean": -0.05
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-no-history_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.003541433870006418,
+        "ci_low": -0.00562196747518832,
+        "mean": -0.004511486418645628
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.04,
+        "mean": 0.11
+      },
+      "captures": {
+        "ci_high": 8.67,
+        "ci_low": 2.89,
+        "mean": 5.78
+      },
+      "clean_success_rate": {
+        "ci_high": -0.05,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.018611396186680427,
+        "ci_low": -0.06317916287775462,
+        "mean": -0.03913404789834967
+      },
+      "oscillation_score": {
+        "ci_high": 0.010893511829450517,
+        "ci_low": -0.024590535460929496,
+        "mean": -0.00657433361567641
+      },
+      "path_efficiency": {
+        "ci_high": 0.011465481106785419,
+        "ci_low": -0.09106109502911552,
+        "mean": -0.04071387213959641
+      },
+      "path_length": {
+        "ci_high": 2.939671273705494,
+        "ci_low": 0.6828687476007659,
+        "mean": 1.8826828553929646
+      },
+      "planner_call_rate": {
+        "ci_high": -0.026977538256516952,
+        "ci_low": -0.04090830839409597,
+        "mean": -0.0336001042373112
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.0035061837576220276,
+        "ci_low": -0.005537243659180411,
+        "mean": -0.004511486418645628
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -3.218750000000007,
+        "ci_low": -8.780249999999999,
+        "mean": -5.95
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.04379258547058764,
+        "ci_low": -0.05574648907481319,
+        "mean": -0.04944341830784122
+      },
+      "steps": {
+        "ci_high": 73.21099999999998,
+        "ci_low": 24.8905,
+        "mean": 49.01
+      },
+      "success_rate": {
+        "ci_high": -0.08,
+        "ci_low": -0.26,
+        "mean": -0.17
+      },
+      "survival_rate": {
+        "ci_high": -0.05,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-no-instruction_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.020406152225277877,
+        "ci_low": 0.020119411913572752,
+        "mean": 0.020255830961035025
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.1,
+        "ci_low": 0.0,
+        "mean": 0.05
+      },
+      "captures": {
+        "ci_high": -65.48,
+        "ci_low": -83.91075,
+        "mean": -74.75
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.09,
+        "mean": -0.04
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.020097981258862314,
+        "ci_low": -0.04146548810931174,
+        "mean": -0.008544826899271185
+      },
+      "oscillation_score": {
+        "ci_high": -0.015372448334748245,
+        "ci_low": -0.06432590926659255,
+        "mean": -0.03868292863916772
+      },
+      "path_efficiency": {
+        "ci_high": 0.23041534577740916,
+        "ci_low": 0.09466921299511498,
+        "mean": 0.16564922983773075
+      },
+      "path_length": {
+        "ci_high": 1.722081808841909,
+        "ci_low": -1.5022866433389692,
+        "mean": 0.12498043461336325
+      },
+      "planner_call_rate": {
+        "ci_high": 0.130754974639783,
+        "ci_low": 0.12895582914579165,
+        "mean": 0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.02040261807950682,
+        "ci_low": 0.020118952214954466,
+        "mean": 0.020255830961035025
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 83.9105,
+        "ci_low": 66.45824999999999,
+        "mean": 75.35
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": -92.78875000000001,
+        "ci_low": -146.921,
+        "mean": -121.26
+      },
+      "success_rate": {
+        "ci_high": 0.72,
+        "ci_low": 0.48,
+        "mean": 0.6
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.10024999999999999,
+        "mean": -0.05
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-no-instruction_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.003119065550237418,
+        "ci_low": -0.005037535189822115,
+        "mean": -0.004090261331056729
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.05,
+        "mean": 0.11
+      },
+      "captures": {
+        "ci_high": 8.650749999999997,
+        "ci_low": 2.9395,
+        "mean": 5.78
+      },
+      "clean_success_rate": {
+        "ci_high": -0.05,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.016653739595858644,
+        "ci_low": -0.06230656898920888,
+        "mean": -0.03913404789834967
+      },
+      "oscillation_score": {
+        "ci_high": 0.011308331842724827,
+        "ci_low": -0.024053740227567615,
+        "mean": -0.00657433361567641
+      },
+      "path_efficiency": {
+        "ci_high": 0.009494562040067916,
+        "ci_low": -0.09186973452753489,
+        "mean": -0.04071387213959641
+      },
+      "path_length": {
+        "ci_high": 3.0532039656861003,
+        "ci_low": 0.8017172786173891,
+        "mean": 1.8826828553929646
+      },
+      "planner_call_rate": {
+        "ci_high": -0.026682048435593794,
+        "ci_low": -0.040469285886767715,
+        "mean": -0.0336001042373112
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.00316470183950988,
+        "ci_low": -0.005146572888399921,
+        "mean": -0.004090261331056729
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -3.1097500000000013,
+        "ci_low": -8.89,
+        "mean": -5.95
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.043458831262910856,
+        "ci_low": -0.056030810192980104,
+        "mean": -0.04944341830784122
+      },
+      "steps": {
+        "ci_high": 73.07049999999994,
+        "ci_low": 25.725,
+        "mean": 49.01
+      },
+      "success_rate": {
+        "ci_high": -0.09,
+        "ci_low": -0.26,
+        "mean": -0.17
+      },
+      "survival_rate": {
+        "ci_high": -0.05,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-no-instruction_minus_minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.00047937274949369794,
+        "ci_low": 0.0003719090818080463,
+        "mean": 0.00042122508758889843
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "captures": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "oscillation_score": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "path_efficiency": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "path_length": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0004744124509756356,
+        "ci_low": 0.0003712333447314839,
+        "mean": 0.00042122508758889843
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-verified_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.022948248995016244,
+        "ci_low": 0.021853653678402186,
+        "mean": 0.02238247221054186
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.02,
+        "ci_low": -0.15,
+        "mean": -0.06
+      },
+      "captures": {
+        "ci_high": -70.58775000000001,
+        "ci_low": -87.861,
+        "mean": -79.43
+      },
+      "clean_success_rate": {
+        "ci_high": 0.15,
+        "ci_low": -0.01,
+        "mean": 0.07
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.05273817525753269,
+        "ci_low": -0.020230524370795967,
+        "mean": 0.018607066805774602
+      },
+      "oscillation_score": {
+        "ci_high": -0.008803840741243745,
+        "ci_low": -0.06174486915447212,
+        "mean": -0.035069399501237324
+      },
+      "path_efficiency": {
+        "ci_high": 0.27572611583793183,
+        "ci_low": 0.1541170266934834,
+        "mean": 0.21779394761028242
+      },
+      "path_length": {
+        "ci_high": -0.4433450912928533,
+        "ci_low": -3.144492256862468,
+        "mean": -1.7800438650666832
+      },
+      "planner_call_rate": {
+        "ci_high": 0.15424041718211096,
+        "ci_low": 0.14651983679542666,
+        "mean": 0.1502588550158404
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.02293399046768031,
+        "ci_low": 0.021819412335186063,
+        "mean": 0.02238247221054186
+      },
+      "planner_override_rate": {
+        "ci_high": 0.07234060912007782,
+        "ci_low": 0.037503211857846885,
+        "mean": 0.054171129243486826
+      },
+      "return": {
+        "ci_high": 88.42025,
+        "ci_low": 70.98975,
+        "mean": 80.15
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.04941948661631123,
+        "ci_low": 0.03887444259136291,
+        "mean": 0.044111150295930435
+      },
+      "steps": {
+        "ci_high": -139.93925000000002,
+        "ci_low": -182.096,
+        "mean": -162.02
+      },
+      "success_rate": {
+        "ci_high": 0.82,
+        "ci_low": 0.61,
+        "mean": 0.72
+      },
+      "survival_rate": {
+        "ci_high": 0.14,
+        "ci_low": -0.02,
+        "mean": 0.06
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 7.040772514338447e-05,
+        "ci_low": 6.39847170330521e-05,
+        "mean": 6.707930126033393e-05
+      }
+    },
+    "minimind-verified_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.0009687900502196142,
+        "ci_low": -0.0030943764071750465,
+        "mean": -0.0019636200815498954
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.09,
+        "ci_low": -0.09,
+        "mean": 0.0
+      },
+      "captures": {
+        "ci_high": 2.91,
+        "ci_low": -0.9005,
+        "mean": 1.1
+      },
+      "clean_success_rate": {
+        "ci_high": 0.09,
+        "ci_low": -0.09,
+        "mean": 0.0
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.015957514756820244,
+        "ci_low": -0.04003530965403219,
+        "mean": -0.011982154193303882
+      },
+      "oscillation_score": {
+        "ci_high": 0.015402101477201346,
+        "ci_low": -0.022265155767046983,
+        "mean": -0.002960804477746029
+      },
+      "path_efficiency": {
+        "ci_high": 0.057140480855444445,
+        "ci_low": -0.03188682936757815,
+        "mean": 0.011430845632955265
+      },
+      "path_length": {
+        "ci_high": 0.7873875806112423,
+        "ci_low": -0.8414466359065117,
+        "mean": -0.022341444287081343
+      },
+      "planner_call_rate": {
+        "ci_high": -0.005272480629372272,
+        "ci_low": -0.02097137909656967,
+        "mean": -0.013144661591657876
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.0008867613693960474,
+        "ci_low": -0.0031292150750695086,
+        "mean": -0.0019636200815498954
+      },
+      "planner_override_rate": {
+        "ci_high": 0.07222730273661869,
+        "ci_low": 0.03687263068094449,
+        "mean": 0.054171129243486826
+      },
+      "return": {
+        "ci_high": 0.78,
+        "ci_low": -3.04025,
+        "mean": -1.15
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0016377212281753284,
+        "ci_low": -0.012404511041433091,
+        "mean": -0.00533226801191078
+      },
+      "steps": {
+        "ci_high": 25.6205,
+        "ci_low": -8.9035,
+        "mean": 8.25
+      },
+      "success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.1,
+        "mean": -0.05
+      },
+      "survival_rate": {
+        "ci_high": 0.09,
+        "ci_low": -0.09,
+        "mean": 0.0
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 7.038061056282006e-05,
+        "ci_low": 6.38161220433316e-05,
+        "mean": 6.707930126033393e-05
+      }
+    },
+    "minimind-verified_minus_minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0031271360117943927,
+        "ci_low": 0.0020212254341363707,
+        "mean": 0.0025478663370957317
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.04,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "captures": {
+        "ci_high": -2.04,
+        "ci_low": -7.4405,
+        "mean": -4.68
+      },
+      "clean_success_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.05,
+        "mean": 0.11
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.04948895205320658,
+        "ci_low": 0.006094586264437119,
+        "mean": 0.027151893705045786
+      },
+      "oscillation_score": {
+        "ci_high": 0.021819597123333114,
+        "ci_low": -0.013771766411610218,
+        "mean": 0.0036135291379303784
+      },
+      "path_efficiency": {
+        "ci_high": 0.10463299611986017,
+        "ci_low": 0.0012469402814572735,
+        "mean": 0.052144717772551676
+      },
+      "path_length": {
+        "ci_high": -0.7964877530600918,
+        "ci_low": -3.0328745832409623,
+        "mean": -1.9050242996800466
+      },
+      "planner_call_rate": {
+        "ci_high": 0.024362052629039885,
+        "ci_low": 0.01676367572150245,
+        "mean": 0.020455442645653323
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0030965670258817973,
+        "ci_low": 0.002024590529383412,
+        "mean": 0.0025478663370957317
+      },
+      "planner_override_rate": {
+        "ci_high": 0.07274640152680069,
+        "ci_low": 0.037610486225730794,
+        "mean": 0.054171129243486826
+      },
+      "return": {
+        "ci_high": 7.51,
+        "ci_low": 1.98,
+        "mean": 4.8
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.04911251724844825,
+        "ci_low": 0.039121239051251436,
+        "mean": 0.044111150295930435
+      },
+      "steps": {
+        "ci_high": -15.797250000000016,
+        "ci_low": -65.49249999999999,
+        "mean": -40.76
+      },
+      "success_rate": {
+        "ci_high": 0.22,
+        "ci_low": 0.029750000000000013,
+        "mean": 0.12
+      },
+      "survival_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.05,
+        "mean": 0.11
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 7.030416955419257e-05,
+        "ci_low": 6.397903057772952e-05,
+        "mean": 6.707930126033393e-05
+      }
+    },
+    "minimind-verified_minus_minimind-no-instruction": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0027026766987063343,
+        "ci_low": 0.0015837364658202095,
+        "mean": 0.002126641249506834
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.04,
+        "ci_low": -0.18,
+        "mean": -0.11
+      },
+      "captures": {
+        "ci_high": -2.0297500000000013,
+        "ci_low": -7.390499999999999,
+        "mean": -4.68
+      },
+      "clean_success_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.04,
+        "mean": 0.11
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.049728545173359846,
+        "ci_low": 0.006800733492325785,
+        "mean": 0.027151893705045786
+      },
+      "oscillation_score": {
+        "ci_high": 0.02075210615877874,
+        "ci_low": -0.013379446090270702,
+        "mean": 0.0036135291379303784
+      },
+      "path_efficiency": {
+        "ci_high": 0.10412042985930818,
+        "ci_low": 0.0030055633176217646,
+        "mean": 0.052144717772551676
+      },
+      "path_length": {
+        "ci_high": -0.807946650349844,
+        "ci_low": -3.0015084943865498,
+        "mean": -1.9050242996800466
+      },
+      "planner_call_rate": {
+        "ci_high": 0.024541213563676282,
+        "ci_low": 0.01654978291980766,
+        "mean": 0.020455442645653323
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.002696841060429182,
+        "ci_low": 0.0015559476831396735,
+        "mean": 0.002126641249506834
+      },
+      "planner_override_rate": {
+        "ci_high": 0.07209973793416728,
+        "ci_low": 0.03838943089201944,
+        "mean": 0.054171129243486826
+      },
+      "return": {
+        "ci_high": 7.7107499999999956,
+        "ci_low": 2.17,
+        "mean": 4.8
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.049514072138235755,
+        "ci_low": 0.0392937897210725,
+        "mean": 0.044111150295930435
+      },
+      "steps": {
+        "ci_high": -17.16825000000001,
+        "ci_low": -65.25175,
+        "mean": -40.76
+      },
+      "success_rate": {
+        "ci_high": 0.22,
+        "ci_low": 0.02,
+        "mean": 0.12
+      },
+      "survival_rate": {
+        "ci_high": 0.18,
+        "ci_low": 0.04,
+        "mean": 0.11
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 7.051607930001328e-05,
+        "ci_low": 6.399134662604196e-05,
+        "mean": 6.707930126033393e-05
+      }
+    },
+    "numeric-learned_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 7.66058618616983e-05,
+        "ci_low": 6.582350634884874e-05,
+        "mean": 7.094239719195273e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.21,
+        "ci_low": -0.43,
+        "mean": -0.32
+      },
+      "captures": {
+        "ci_high": -76.52975,
+        "ci_low": -93.98025,
+        "mean": -85.24
+      },
+      "clean_success_rate": {
+        "ci_high": 0.43,
+        "ci_low": 0.22,
+        "mean": 0.33
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.15758540026304504,
+        "ci_low": 0.06778279200767605,
+        "mean": 0.11253185234594312
+      },
+      "oscillation_score": {
+        "ci_high": -0.03439388901477403,
+        "ci_low": -0.08113505386004738,
+        "mean": -0.05727444456166
+      },
+      "path_efficiency": {
+        "ci_high": 0.45911759854695244,
+        "ci_low": 0.32911341334306926,
+        "mean": 0.3975675066217217
+      },
+      "path_length": {
+        "ci_high": -2.834988744697411,
+        "ci_low": -5.104065275275533,
+        "mean": -3.9292749641132394
+      },
+      "planner_call_rate": {
+        "ci_high": 0.2634228575945175,
+        "ci_low": 0.2246932629312032,
+        "mean": 0.2433385573068298
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 7.643166045404044e-05,
+        "ci_low": 6.567435053441495e-05,
+        "mean": 7.094239719195273e-05
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 94.55125,
+        "ci_low": 77.35,
+        "mean": 86.04
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08587751658961695,
+        "ci_low": 0.07079854838781972,
+        "mean": 0.07822093720238658
+      },
+      "steps": {
+        "ci_high": -210.06975,
+        "ci_low": -239.5505,
+        "mean": -225.85
+      },
+      "success_rate": {
+        "ci_high": 0.8702499999999986,
+        "ci_low": 0.72,
+        "mean": 0.8
+      },
+      "survival_rate": {
+        "ci_high": 0.43,
+        "ci_low": 0.21,
+        "mean": 0.32
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "numeric-learned_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.023292229178246762,
+        "ci_low": -0.025308282120363818,
+        "mean": -0.024275149894899806
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.15,
+        "ci_low": -0.37,
+        "mean": -0.26
+      },
+      "captures": {
+        "ci_high": -2.949500000000003,
+        "ci_low": -6.7402500000000005,
+        "mean": -4.71
+      },
+      "clean_success_rate": {
+        "ci_high": 0.37,
+        "ci_low": 0.15,
+        "mean": 0.26
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.12152828801915265,
+        "ci_low": 0.040750466822369706,
+        "mean": 0.08194263134686464
+      },
+      "oscillation_score": {
+        "ci_high": -0.008868190216352588,
+        "ci_low": -0.041226099544439516,
+        "mean": -0.025165849538168694
+      },
+      "path_efficiency": {
+        "ci_high": 0.23870978893053396,
+        "ci_low": 0.1456872416443755,
+        "mean": 0.19120440464439437
+      },
+      "path_length": {
+        "ci_high": -1.5610585754212205,
+        "ci_low": -2.8041142359655127,
+        "mean": -2.171572543333638
+      },
+      "planner_call_rate": {
+        "ci_high": 0.10212954850044266,
+        "ci_low": 0.06044085687606809,
+        "mean": 0.07993504069933151
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.02337973362606056,
+        "ci_low": -0.02536280570491594,
+        "mean": -0.024275149894899806
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 6.690249999999999,
+        "ci_low": 3.01,
+        "mean": 4.74
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.03840335229182544,
+        "ci_low": 0.018964089745355284,
+        "mean": 0.028777518894545363
+      },
+      "steps": {
+        "ci_high": -42.049749999999996,
+        "ci_low": -69.75,
+        "mean": -55.58
+      },
+      "success_rate": {
+        "ci_high": 0.07,
+        "ci_low": 0.0,
+        "mean": 0.03
+      },
+      "survival_rate": {
+        "ci_high": 0.36,
+        "ci_low": 0.15,
+        "mean": 0.26
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "numeric-learned_minus_minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.019633411270275628,
+        "ci_low": -0.019904102680856517,
+        "mean": -0.01976366347625418
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.27,
+        "ci_low": -0.47,
+        "mean": -0.37
+      },
+      "captures": {
+        "ci_high": -8.329500000000003,
+        "ci_low": -12.89,
+        "mean": -10.49
+      },
+      "clean_success_rate": {
+        "ci_high": 0.46024999999999866,
+        "ci_low": 0.27,
+        "mean": 0.37
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.15745010424047137,
+        "ci_low": 0.08525784268730845,
+        "mean": 0.12107667924521431
+      },
+      "oscillation_score": {
+        "ci_high": -0.0016896050579354972,
+        "ci_low": -0.034510276217283566,
+        "mean": -0.01859151592249229
+      },
+      "path_efficiency": {
+        "ci_high": 0.2844784320928602,
+        "ci_low": 0.18122182712717294,
+        "mean": 0.2319182767839908
+      },
+      "path_length": {
+        "ci_high": -3.0942225093587217,
+        "ci_low": -5.044410667318652,
+        "mean": -4.054255398726604
+      },
+      "planner_call_rate": {
+        "ci_high": 0.13406526846124794,
+        "ci_low": 0.09484230522485092,
+        "mean": 0.11353514493664271
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.01962201544520493,
+        "ci_low": -0.019906294303563724,
+        "mean": -0.01976366347625418
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 12.950249999999999,
+        "ci_low": 8.479750000000001,
+        "mean": 10.69
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08593041654603194,
+        "ci_low": 0.07095304696210485,
+        "mean": 0.07822093720238658
+      },
+      "steps": {
+        "ci_high": -83.85675000000002,
+        "ci_low": -124.91149999999999,
+        "mean": -104.59
+      },
+      "success_rate": {
+        "ci_high": 0.28,
+        "ci_low": 0.13,
+        "mean": 0.2
+      },
+      "survival_rate": {
+        "ci_high": 0.47,
+        "ci_low": 0.27,
+        "mean": 0.37
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "numeric-learned_minus_minimind-no-instruction": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.020043566131808934,
+        "ci_low": -0.02032787986898832,
+        "mean": -0.02018488856384308
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.27,
+        "ci_low": -0.47,
+        "mean": -0.37
+      },
+      "captures": {
+        "ci_high": -8.309750000000001,
+        "ci_low": -12.81025,
+        "mean": -10.49
+      },
+      "clean_success_rate": {
+        "ci_high": 0.47,
+        "ci_low": 0.28,
+        "mean": 0.37
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.16037563262327398,
+        "ci_low": 0.08655259908361769,
+        "mean": 0.12107667924521431
+      },
+      "oscillation_score": {
+        "ci_high": -0.002105429776244155,
+        "ci_low": -0.03489317993487398,
+        "mean": -0.01859151592249229
+      },
+      "path_efficiency": {
+        "ci_high": 0.28369024635020756,
+        "ci_low": 0.18108602455965545,
+        "mean": 0.2319182767839908
+      },
+      "path_length": {
+        "ci_high": -3.0738509312602806,
+        "ci_low": -5.042951782862785,
+        "mean": -4.054255398726604
+      },
+      "planner_call_rate": {
+        "ci_high": 0.13263858019499608,
+        "ci_low": 0.09489464297403884,
+        "mean": 0.11353514493664271
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.020049060477965692,
+        "ci_low": -0.020340072585875193,
+        "mean": -0.02018488856384308
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 12.97,
+        "ci_low": 8.45,
+        "mean": 10.69
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08619532567080031,
+        "ci_low": 0.07099641883190147,
+        "mean": 0.07822093720238658
+      },
+      "steps": {
+        "ci_high": -84.32450000000003,
+        "ci_low": -125.38175,
+        "mean": -104.59
+      },
+      "success_rate": {
+        "ci_high": 0.28,
+        "ci_low": 0.13,
+        "mean": 0.2
+      },
+      "survival_rate": {
+        "ci_high": 0.47,
+        "ci_low": 0.27,
+        "mean": 0.37
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "numeric-learned_minus_minimind-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.021776723705783194,
+        "ci_low": -0.02288923597083243,
+        "mean": -0.02231152981334992
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.15975000000000136,
+        "ci_low": -0.36,
+        "mean": -0.26
+      },
+      "captures": {
+        "ci_high": -4.0397500000000015,
+        "ci_low": -7.73,
+        "mean": -5.81
+      },
+      "clean_success_rate": {
+        "ci_high": 0.37,
+        "ci_low": 0.15,
+        "mean": 0.26
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.13208198488310582,
+        "ci_low": 0.05844828027578536,
+        "mean": 0.09392478554016853
+      },
+      "oscillation_score": {
+        "ci_high": -0.005621438383504919,
+        "ci_low": -0.03869547348124288,
+        "mean": -0.022205045060422667
+      },
+      "path_efficiency": {
+        "ci_high": 0.22461587539117978,
+        "ci_low": 0.135816478992809,
+        "mean": 0.17977355901143913
+      },
+      "path_length": {
+        "ci_high": -1.5382326722801731,
+        "ci_low": -2.8224574300850565,
+        "mean": -2.149231099046557
+      },
+      "planner_call_rate": {
+        "ci_high": 0.1134015317339974,
+        "ci_low": 0.07395785279471186,
+        "mean": 0.09307970229098936
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.02179238411903224,
+        "ci_low": -0.02288908192661284,
+        "mean": -0.02231152981334992
+      },
+      "planner_override_rate": {
+        "ci_high": -0.037873267764687836,
+        "ci_low": -0.07175934360008433,
+        "mean": -0.054171129243486826
+      },
+      "return": {
+        "ci_high": 7.94,
+        "ci_low": 4.02975,
+        "mean": 5.89
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.04374208126816872,
+        "ci_low": 0.025184396641069296,
+        "mean": 0.03410978690645614
+      },
+      "steps": {
+        "ci_high": -48.239250000000006,
+        "ci_low": -80.1405,
+        "mean": -63.83
+      },
+      "success_rate": {
+        "ci_high": 0.14,
+        "ci_low": 0.03,
+        "mean": 0.08
+      },
+      "survival_rate": {
+        "ci_high": 0.36,
+        "ci_low": 0.16,
+        "mean": 0.26
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -6.397828677387127e-05,
+        "ci_low": -7.045800523202497e-05,
+        "mean": -6.707930126033393e-05
+      }
+    },
+    "numeric-verified_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 8.487530810462814e-05,
+        "ci_low": 7.03057235346465e-05,
+        "mean": 7.740954231269391e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.18,
+        "ci_low": -0.39,
+        "mean": -0.29
+      },
+      "captures": {
+        "ci_high": -76.35900000000001,
+        "ci_low": -93.101,
+        "mean": -84.77
+      },
+      "clean_success_rate": {
+        "ci_high": 0.41,
+        "ci_low": 0.2,
+        "mean": 0.3
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.11929846849178105,
+        "ci_low": 0.037631675396703194,
+        "mean": 0.07853795780193709
+      },
+      "oscillation_score": {
+        "ci_high": -0.01929735831308501,
+        "ci_low": -0.07205237389669841,
+        "mean": -0.0455863214246418
+      },
+      "path_efficiency": {
+        "ci_high": 0.46101242374441126,
+        "ci_low": 0.3291352675667686,
+        "mean": 0.39604865819335155
+      },
+      "path_length": {
+        "ci_high": -2.80842267829866,
+        "ci_low": -5.171482783776309,
+        "mean": -3.9887601518725235
+      },
+      "planner_call_rate": {
+        "ci_high": 0.2627004593396769,
+        "ci_low": 0.2183070898059326,
+        "mean": 0.23994493191458757
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 8.464106481460918e-05,
+        "ci_low": 7.037228144816654e-05,
+        "mean": 7.740954231269391e-05
+      },
+      "planner_override_rate": {
+        "ci_high": 0.11700133603067038,
+        "ci_low": 0.06734630327747589,
+        "mean": 0.09117451786259835
+      },
+      "return": {
+        "ci_high": 94.27,
+        "ci_low": 76.9575,
+        "mean": 85.57
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.06520518929244394,
+        "ci_low": 0.056103602006490595,
+        "mean": 0.06066216343142083
+      },
+      "steps": {
+        "ci_high": -206.5695,
+        "ci_low": -238.433,
+        "mean": -223.26
+      },
+      "success_rate": {
+        "ci_high": 0.87,
+        "ci_low": 0.72,
+        "mean": 0.8
+      },
+      "survival_rate": {
+        "ci_high": 0.4,
+        "ci_low": 0.18,
+        "mean": 0.29
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.00010530497034408122,
+        "ci_low": 9.013276420351306e-05,
+        "mean": 9.74393626406683e-05
+      }
+    },
+    "numeric-verified_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.023339861168265214,
+        "ci_low": -0.025289168829728863,
+        "mean": -0.024268682749779065
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.12,
+        "ci_low": -0.35,
+        "mean": -0.23
+      },
+      "captures": {
+        "ci_high": -2.4597500000000014,
+        "ci_low": -6.2305,
+        "mean": -4.24
+      },
+      "clean_success_rate": {
+        "ci_high": 0.34,
+        "ci_low": 0.12,
+        "mean": 0.23
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.08209509986106697,
+        "ci_low": 0.014104798656792721,
+        "mean": 0.04794873680285861
+      },
+      "oscillation_score": {
+        "ci_high": 0.0038099664165506487,
+        "ci_low": -0.03188116573476635,
+        "mean": -0.013477726401150516
+      },
+      "path_efficiency": {
+        "ci_high": 0.23341602356891644,
+        "ci_low": 0.14427788743565947,
+        "mean": 0.18968555621602437
+      },
+      "path_length": {
+        "ci_high": -1.60525659331251,
+        "ci_low": -2.8794291115755,
+        "mean": -2.231057731092922
+      },
+      "planner_call_rate": {
+        "ci_high": 0.10379623981245927,
+        "ci_low": 0.05154337115017387,
+        "mean": 0.07654141530708931
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.023300997461073784,
+        "ci_low": -0.025296042570910865,
+        "mean": -0.024268682749779065
+      },
+      "planner_override_rate": {
+        "ci_high": 0.1163285543081789,
+        "ci_low": 0.06723352104337012,
+        "mean": 0.09117451786259835
+      },
+      "return": {
+        "ci_high": 6.33,
+        "ci_low": 2.50975,
+        "mean": 4.27
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.01931279162007283,
+        "ci_low": 0.0030791778264232746,
+        "mean": 0.011218745123579607
+      },
+      "steps": {
+        "ci_high": -39.189,
+        "ci_low": -68.10275,
+        "mean": -52.99
+      },
+      "success_rate": {
+        "ci_high": 0.07,
+        "ci_low": 0.0,
+        "mean": 0.03
+      },
+      "survival_rate": {
+        "ci_high": 0.34,
+        "ci_low": 0.11,
+        "mean": 0.23
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.00010508206458261858,
+        "ci_low": 9.029086213705011e-05,
+        "mean": 9.74393626406683e-05
+      }
+    },
+    "numeric-verified_minus_minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.01961440143116947,
+        "ci_low": -0.01989632170536813,
+        "mean": -0.01975719633113344
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.24,
+        "ci_low": -0.44,
+        "mean": -0.34
+      },
+      "captures": {
+        "ci_high": -7.849750000000001,
+        "ci_low": -12.34,
+        "mean": -10.02
+      },
+      "clean_success_rate": {
+        "ci_high": 0.44,
+        "ci_low": 0.24,
+        "mean": 0.34
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.11621330412772522,
+        "ci_low": 0.05639011325055698,
+        "mean": 0.08708278470120828
+      },
+      "oscillation_score": {
+        "ci_high": 0.01217174415722935,
+        "ci_low": -0.025806203800896002,
+        "mean": -0.006903392785474108
+      },
+      "path_efficiency": {
+        "ci_high": 0.28646432287995094,
+        "ci_low": 0.1780300155588426,
+        "mean": 0.2303994283556208
+      },
+      "path_length": {
+        "ci_high": -3.1205121359108574,
+        "ci_low": -5.071812858884488,
+        "mean": -4.113740586485887
+      },
+      "planner_call_rate": {
+        "ci_high": 0.13432532982434503,
+        "ci_low": 0.08848063322587732,
+        "mean": 0.11014151954440052
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.019614516539203247,
+        "ci_low": -0.019895455406676164,
+        "mean": -0.01975719633113344
+      },
+      "planner_override_rate": {
+        "ci_high": 0.11571073815675208,
+        "ci_low": 0.06806186071840097,
+        "mean": 0.09117451786259835
+      },
+      "return": {
+        "ci_high": 12.560499999999998,
+        "ci_low": 7.9695,
+        "mean": 10.22
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.06527028288619988,
+        "ci_low": 0.05600111650331025,
+        "mean": 0.06066216343142083
+      },
+      "steps": {
+        "ci_high": -80.44850000000001,
+        "ci_low": -121.98525000000001,
+        "mean": -102.0
+      },
+      "success_rate": {
+        "ci_high": 0.29,
+        "ci_low": 0.13,
+        "mean": 0.2
+      },
+      "survival_rate": {
+        "ci_high": 0.44,
+        "ci_low": 0.25,
+        "mean": 0.34
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0001053292761814494,
+        "ci_low": 9.024691770161731e-05,
+        "mean": 9.74393626406683e-05
+      }
+    },
+    "numeric-verified_minus_minimind-no-instruction": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.020036771012355133,
+        "ci_low": -0.020323488596746236,
+        "mean": -0.020178421418722333
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.25,
+        "ci_low": -0.43,
+        "mean": -0.34
+      },
+      "captures": {
+        "ci_high": -7.779750000000002,
+        "ci_low": -12.34,
+        "mean": -10.02
+      },
+      "clean_success_rate": {
+        "ci_high": 0.44,
+        "ci_low": 0.24,
+        "mean": 0.34
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.11640637498936941,
+        "ci_low": 0.058602142032945496,
+        "mean": 0.08708278470120828
+      },
+      "oscillation_score": {
+        "ci_high": 0.011974686360506725,
+        "ci_low": -0.025322734817137628,
+        "mean": -0.006903392785474108
+      },
+      "path_efficiency": {
+        "ci_high": 0.2836162517213971,
+        "ci_low": 0.17738353302061363,
+        "mean": 0.2303994283556208
+      },
+      "path_length": {
+        "ci_high": -3.137685074820311,
+        "ci_low": -5.071826422918026,
+        "mean": -4.113740586485887
+      },
+      "planner_call_rate": {
+        "ci_high": 0.1331217499032986,
+        "ci_low": 0.08772983624064969,
+        "mean": 0.11014151954440052
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.02003561283016272,
+        "ci_low": -0.020317578782102184,
+        "mean": -0.020178421418722333
+      },
+      "planner_override_rate": {
+        "ci_high": 0.11779343453673947,
+        "ci_low": 0.06609745362781352,
+        "mean": 0.09117451786259835
+      },
+      "return": {
+        "ci_high": 12.59,
+        "ci_low": 8.029499999999999,
+        "mean": 10.22
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.06541148679784173,
+        "ci_low": 0.05596387997587164,
+        "mean": 0.06066216343142083
+      },
+      "steps": {
+        "ci_high": -81.62725,
+        "ci_low": -124.13125,
+        "mean": -102.0
+      },
+      "success_rate": {
+        "ci_high": 0.28,
+        "ci_low": 0.12,
+        "mean": 0.2
+      },
+      "survival_rate": {
+        "ci_high": 0.44,
+        "ci_low": 0.25,
+        "mean": 0.34
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.00010480979465514166,
+        "ci_low": 9.011088138357455e-05,
+        "mean": 9.74393626406683e-05
+      }
+    },
+    "numeric-verified_minus_minimind-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.021763959003448678,
+        "ci_low": -0.02285909215530017,
+        "mean": -0.022305062668229163
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.13,
+        "ci_low": -0.33,
+        "mean": -0.23
+      },
+      "captures": {
+        "ci_high": -3.4697500000000017,
+        "ci_low": -7.26025,
+        "mean": -5.34
+      },
+      "clean_success_rate": {
+        "ci_high": 0.33,
+        "ci_low": 0.13,
+        "mean": 0.23
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.09900194938131122,
+        "ci_low": 0.022669046013071556,
+        "mean": 0.0599308909961625
+      },
+      "oscillation_score": {
+        "ci_high": 0.005628081946854935,
+        "ci_low": -0.028381816196476683,
+        "mean": -0.010516921923404485
+      },
+      "path_efficiency": {
+        "ci_high": 0.223099954559993,
+        "ci_low": 0.1355543388883264,
+        "mean": 0.1782547105830691
+      },
+      "path_length": {
+        "ci_high": -1.5821204692349267,
+        "ci_low": -2.898146074370012,
+        "mean": -2.2087162868058403
+      },
+      "planner_call_rate": {
+        "ci_high": 0.11279869091895145,
+        "ci_low": 0.06735958286021837,
+        "mean": 0.08968607689874719
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.021764099460744046,
+        "ci_low": -0.022883316051058165,
+        "mean": -0.022305062668229163
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0632819560247578,
+        "ci_low": 0.008517186160311285,
+        "mean": 0.037003388619111545
+      },
+      "return": {
+        "ci_high": 7.330499999999997,
+        "ci_low": 3.6397500000000003,
+        "mean": 5.42
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.023168966732899386,
+        "ci_low": 0.00966313288303528,
+        "mean": 0.01655101313549039
+      },
+      "steps": {
+        "ci_high": -46.139,
+        "ci_low": -77.47449999999999,
+        "mean": -61.24
+      },
+      "success_rate": {
+        "ci_high": 0.14,
+        "ci_low": 0.03,
+        "mean": 0.08
+      },
+      "survival_rate": {
+        "ci_high": 0.33024999999999866,
+        "ci_low": 0.13,
+        "mean": 0.23
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 3.843120764005009e-05,
+        "ci_low": 2.291206806788735e-05,
+        "mean": 3.0360061380334362e-05
+      }
+    },
+    "numeric-verified_minus_numeric-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 1.3012943530292806e-05,
+        "ci_low": 7.140912641866484e-08,
+        "mean": 6.467145120741161e-06
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.12,
+        "ci_low": -0.06,
+        "mean": 0.03
+      },
+      "captures": {
+        "ci_high": 1.3902499999999984,
+        "ci_low": -0.53,
+        "mean": 0.47
+      },
+      "clean_success_rate": {
+        "ci_high": 0.06,
+        "ci_low": -0.12,
+        "mean": -0.03
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.0035558082478236545,
+        "ci_low": -0.07134508501841087,
+        "mean": -0.033993894544006024
+      },
+      "oscillation_score": {
+        "ci_high": 0.02552508106986836,
+        "ci_low": -0.0027211653995074395,
+        "mean": 0.011688123137018185
+      },
+      "path_efficiency": {
+        "ci_high": 0.03175703647683358,
+        "ci_low": -0.03586138753916011,
+        "mean": -0.0015188484283700252
+      },
+      "path_length": {
+        "ci_high": 0.17425649913858834,
+        "ci_low": -0.29219200342354373,
+        "mean": -0.05948518775928414
+      },
+      "planner_call_rate": {
+        "ci_high": 0.019172779343659147,
+        "ci_low": -0.023433314810433568,
+        "mean": -0.0033936253922421944
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 1.3049876774344193e-05,
+        "ci_low": 2.583019708446384e-07,
+        "mean": 6.467145120741161e-06
+      },
+      "planner_override_rate": {
+        "ci_high": 0.1162027850718253,
+        "ci_low": 0.06794859858278976,
+        "mean": 0.09117451786259835
+      },
+      "return": {
+        "ci_high": 0.5302499999999987,
+        "ci_low": -1.43,
+        "mean": -0.47
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.009922830518820475,
+        "ci_low": -0.02517006737748925,
+        "mean": -0.017558773770965753
+      },
+      "steps": {
+        "ci_high": 8.440249999999999,
+        "ci_low": -3.2602499999999996,
+        "mean": 2.59
+      },
+      "success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "survival_rate": {
+        "ci_high": 0.06,
+        "ci_low": -0.12,
+        "mean": -0.03
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.00010494139964396085,
+        "ci_low": 9.052929551223343e-05,
+        "mean": 9.74393626406683e-05
+      }
+    },
+    "p1-rule_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.17,
+        "mean": -0.08
+      },
+      "captures": {
+        "ci_high": -67.60825000000001,
+        "ci_low": -85.57074999999999,
+        "mean": -76.7
+      },
+      "clean_success_rate": {
+        "ci_high": 0.17,
+        "ci_low": 0.01,
+        "mean": 0.09
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.0828033706770147,
+        "ci_low": 0.011396187804033918,
+        "mean": 0.04765716252790014
+      },
+      "oscillation_score": {
+        "ci_high": -0.04668676043413948,
+        "ci_low": -0.09315626200401163,
+        "mean": -0.06964629286763584
+      },
+      "path_efficiency": {
+        "ci_high": 0.2171896523947222,
+        "ci_low": 0.0893422502932165,
+        "mean": 0.15565775922481662
+      },
+      "path_length": {
+        "ci_high": 1.2877640277122668,
+        "ci_low": -1.1610132210215232,
+        "mean": 0.06592101835381997
+      },
+      "planner_call_rate": {
+        "ci_high": 0.2762896714824407,
+        "ci_low": 0.2716750397320296,
+        "mean": 0.2739540130474179
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 86.06174999999999,
+        "ci_low": 68.30875,
+        "mean": 77.29
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08508185433752675,
+        "ci_low": 0.07273900202650183,
+        "mean": 0.07894954038976261
+      },
+      "steps": {
+        "ci_high": -65.73000000000005,
+        "ci_low": -112.671,
+        "mean": -89.91
+      },
+      "success_rate": {
+        "ci_high": 0.6902499999999986,
+        "ci_low": 0.47,
+        "mean": 0.59
+      },
+      "survival_rate": {
+        "ci_high": 0.16,
+        "ci_low": 0.0,
+        "mean": 0.08
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "p1-rule_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.02334226599266564,
+        "ci_low": -0.025391717115700606,
+        "mean": -0.024346092292091767
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.08,
+        "ci_low": -0.11024999999999999,
+        "mean": -0.02
+      },
+      "captures": {
+        "ci_high": 6.650249999999999,
+        "ci_low": 1.10925,
+        "mean": 3.83
+      },
+      "clean_success_rate": {
+        "ci_high": 0.12,
+        "ci_low": -0.08,
+        "mean": 0.02
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.04803769729159164,
+        "ci_low": -0.012020859658213414,
+        "mean": 0.01706794152882166
+      },
+      "oscillation_score": {
+        "ci_high": -0.019825821761593573,
+        "ci_low": -0.05412638043210615,
+        "mean": -0.03753769784414454
+      },
+      "path_efficiency": {
+        "ci_high": 0.007258321858999749,
+        "ci_low": -0.11046341857716958,
+        "mean": -0.050705342752510534
+      },
+      "path_length": {
+        "ci_high": 2.904530279233717,
+        "ci_low": 0.7866996708663995,
+        "mean": 1.8236234391334216
+      },
+      "planner_call_rate": {
+        "ci_high": 0.11781752109907391,
+        "ci_low": 0.10273029973024854,
+        "mean": 0.1105504964399196
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.02341694490307185,
+        "ci_low": -0.025333759851481136,
+        "mean": -0.024346092292091767
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -1.04,
+        "ci_low": -6.9110000000000005,
+        "mean": -4.01
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.03778675541934579,
+        "ci_low": 0.0212041902038375,
+        "mean": 0.029506122081921403
+      },
+      "steps": {
+        "ci_high": 102.35199999999999,
+        "ci_low": 55.95875,
+        "mean": 80.36
+      },
+      "success_rate": {
+        "ci_high": -0.1,
+        "ci_low": -0.26,
+        "mean": -0.18
+      },
+      "survival_rate": {
+        "ci_high": 0.11,
+        "ci_low": -0.08,
+        "mean": 0.02
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "p1-rule_minus_minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.019706051125151582,
+        "ci_low": -0.019981325067045783,
+        "mean": -0.01983460587344613
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.2,
+        "mean": -0.13
+      },
+      "captures": {
+        "ci_high": 1.2604999999999973,
+        "ci_low": -5.320250000000001,
+        "mean": -1.95
+      },
+      "clean_success_rate": {
+        "ci_high": 0.21,
+        "ci_low": 0.06,
+        "mean": 0.13
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.08260602388702815,
+        "ci_low": 0.03379548036621938,
+        "mean": 0.056201989427171334
+      },
+      "oscillation_score": {
+        "ci_high": -0.014140406379457219,
+        "ci_low": -0.047467958641651306,
+        "mean": -0.03096336422846813
+      },
+      "path_efficiency": {
+        "ci_high": 0.05442105034416536,
+        "ci_low": -0.07070437829996008,
+        "mean": -0.009991470612914133
+      },
+      "path_length": {
+        "ci_high": 1.2769886431437316,
+        "ci_low": -1.296138744721961,
+        "mean": -0.05905941625954341
+      },
+      "planner_call_rate": {
+        "ci_high": 0.14660420809263192,
+        "ci_low": 0.1415769889848029,
+        "mean": 0.14415060067723082
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.019699219395865365,
+        "ci_low": -0.019976115354656775,
+        "mean": -0.01983460587344613
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 5.030749999999996,
+        "ci_low": -1.35,
+        "mean": 1.94
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08552967284689611,
+        "ci_low": 0.07294807884719862,
+        "mean": 0.07894954038976261
+      },
+      "steps": {
+        "ci_high": 59.22025,
+        "ci_low": 3.547,
+        "mean": 31.35
+      },
+      "success_rate": {
+        "ci_high": 0.12,
+        "ci_low": -0.13,
+        "mean": -0.01
+      },
+      "survival_rate": {
+        "ci_high": 0.21,
+        "ci_low": 0.06,
+        "mean": 0.13
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "p1-rule_minus_minimind-no-instruction": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.020116196793671992,
+        "ci_low": -0.020400362467252475,
+        "mean": -0.020255830961035025
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.21,
+        "mean": -0.13
+      },
+      "captures": {
+        "ci_high": 1.1002499999999986,
+        "ci_low": -5.27025,
+        "mean": -1.95
+      },
+      "clean_success_rate": {
+        "ci_high": 0.2,
+        "ci_low": 0.06,
+        "mean": 0.13
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.08297598266550489,
+        "ci_low": 0.03403267265993857,
+        "mean": 0.056201989427171334
+      },
+      "oscillation_score": {
+        "ci_high": -0.01433587804945947,
+        "ci_low": -0.04749921383712256,
+        "mean": -0.03096336422846813
+      },
+      "path_efficiency": {
+        "ci_high": 0.05516672651619272,
+        "ci_low": -0.07181785605618506,
+        "mean": -0.009991470612914133
+      },
+      "path_length": {
+        "ci_high": 1.223955257603557,
+        "ci_low": -1.3554171374128932,
+        "mean": -0.05905941625954341
+      },
+      "planner_call_rate": {
+        "ci_high": 0.14671373609449392,
+        "ci_low": 0.1415237035174202,
+        "mean": 0.14415060067723082
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.02011548531346798,
+        "ci_low": -0.020402309853855806,
+        "mean": -0.020255830961035025
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 5.29,
+        "ci_low": -1.2705,
+        "mean": 1.94
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08509048197004493,
+        "ci_low": 0.0729562928884295,
+        "mean": 0.07894954038976261
+      },
+      "steps": {
+        "ci_high": 58.47499999999997,
+        "ci_low": 3.57775,
+        "mean": 31.35
+      },
+      "success_rate": {
+        "ci_high": 0.11,
+        "ci_low": -0.13,
+        "mean": -0.01
+      },
+      "survival_rate": {
+        "ci_high": 0.2,
+        "ci_low": 0.06,
+        "mean": 0.13
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "p1-rule_minus_minimind-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.021831297575899522,
+        "ci_low": -0.022962126310099088,
+        "mean": -0.02238247221054186
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.07,
+        "ci_low": -0.12,
+        "mean": -0.02
+      },
+      "captures": {
+        "ci_high": 5.4602499999999985,
+        "ci_low": -0.14024999999999999,
+        "mean": 2.73
+      },
+      "clean_success_rate": {
+        "ci_high": 0.11,
+        "ci_low": -0.07,
+        "mean": 0.02
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.06276791286238088,
+        "ci_low": -0.0012632077992048886,
+        "mean": 0.029050095722125545
+      },
+      "oscillation_score": {
+        "ci_high": -0.016775082738538016,
+        "ci_low": -0.05337268265700333,
+        "mean": -0.03457689336639852
+      },
+      "path_efficiency": {
+        "ci_high": 0.00034345264657889167,
+        "ci_low": -0.11989935494250532,
+        "mean": -0.0621361883854658
+      },
+      "path_length": {
+        "ci_high": 2.9943903485487837,
+        "ci_low": 0.6886112209156927,
+        "mean": 1.8459648834205036
+      },
+      "planner_call_rate": {
+        "ci_high": 0.12814321140085624,
+        "ci_low": 0.11934179287231957,
+        "mean": 0.12369515803157748
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.02186412831559779,
+        "ci_low": -0.022937156278305428,
+        "mean": -0.02238247221054186
+      },
+      "planner_override_rate": {
+        "ci_high": -0.0383204129749665,
+        "ci_low": -0.07278138826529333,
+        "mean": -0.054171129243486826
+      },
+      "return": {
+        "ci_high": 0.12024999999999864,
+        "ci_low": -5.89025,
+        "mean": -2.86
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.04347157280383123,
+        "ci_low": 0.026216533468916503,
+        "mean": 0.03483839009383218
+      },
+      "steps": {
+        "ci_high": 97.12549999999997,
+        "ci_low": 46.80875,
+        "mean": 72.11
+      },
+      "success_rate": {
+        "ci_high": -0.03,
+        "ci_low": -0.24,
+        "mean": -0.13
+      },
+      "survival_rate": {
+        "ci_high": 0.12,
+        "ci_low": -0.08,
+        "mean": 0.02
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -6.40657996119023e-05,
+        "ci_low": -7.040839881596787e-05,
+        "mean": -6.707930126033393e-05
+      }
+    },
+    "p1-rule_minus_numeric-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -6.576368819759903e-05,
+        "ci_low": -7.610867373264522e-05,
+        "mean": -7.094239719195273e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.36,
+        "ci_low": 0.12,
+        "mean": 0.24
+      },
+      "captures": {
+        "ci_high": 10.650999999999994,
+        "ci_low": 6.6,
+        "mean": 8.54
+      },
+      "clean_success_rate": {
+        "ci_high": -0.12,
+        "ci_low": -0.36,
+        "mean": -0.24
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": -0.027606651334126327,
+        "ci_low": -0.10363676852260888,
+        "mean": -0.06487468981804298
+      },
+      "oscillation_score": {
+        "ci_high": 0.002935708289606525,
+        "ci_low": -0.027049572968358117,
+        "mean": -0.012371848305975843
+      },
+      "path_efficiency": {
+        "ci_high": -0.18113878176539086,
+        "ci_low": -0.3015816011061478,
+        "mean": -0.24190974739690493
+      },
+      "path_length": {
+        "ci_high": 4.910546907941158,
+        "ci_low": 3.0974177668255516,
+        "mean": 3.995195982467059
+      },
+      "planner_call_rate": {
+        "ci_high": 0.04913112713358106,
+        "ci_low": 0.009680569245759,
+        "mean": 0.030615455740588094
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -6.577495530914739e-05,
+        "ci_low": -7.67664058916778e-05,
+        "mean": -7.094239719195273e-05
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -6.7897500000000015,
+        "ci_low": -10.90025,
+        "mean": -8.75
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.010145169035052385,
+        "ci_low": -0.008509318861245138,
+        "mean": 0.0007286031873760368
+      },
+      "steps": {
+        "ci_high": 154.13649999999996,
+        "ci_low": 119.8295,
+        "mean": 135.94
+      },
+      "success_rate": {
+        "ci_high": -0.13,
+        "ci_low": -0.29,
+        "mean": -0.21
+      },
+      "survival_rate": {
+        "ci_high": -0.12,
+        "ci_low": -0.36,
+        "mean": -0.24
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "p1-rule_minus_numeric-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -7.03248558830939e-05,
+        "ci_low": -8.490541751619921e-05,
+        "mean": -7.740954231269391e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.32,
+        "ci_low": 0.1,
+        "mean": 0.21
+      },
+      "captures": {
+        "ci_high": 10.43025,
+        "ci_low": 5.8397499999999996,
+        "mean": 8.07
+      },
+      "clean_success_rate": {
+        "ci_high": -0.1,
+        "ci_low": -0.33,
+        "mean": -0.21
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.0007274745173883374,
+        "ci_low": -0.06457935368912213,
+        "mean": -0.03088079527403696
+      },
+      "oscillation_score": {
+        "ci_high": -0.007830904949255552,
+        "ci_low": -0.04016851046008521,
+        "mean": -0.02405997144299402
+      },
+      "path_efficiency": {
+        "ci_high": -0.1860742202495074,
+        "ci_low": -0.29403386447850977,
+        "mean": -0.24039089896853494
+      },
+      "path_length": {
+        "ci_high": 4.930695049096491,
+        "ci_low": 3.192405679449471,
+        "mean": 4.054681170226344
+      },
+      "planner_call_rate": {
+        "ci_high": 0.05470601757192747,
+        "ci_low": 0.01092128982356643,
+        "mean": 0.03400908113283029
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -7.057086329242073e-05,
+        "ci_low": -8.437378757138067e-05,
+        "mean": -7.740954231269391e-05
+      },
+      "planner_override_rate": {
+        "ci_high": -0.06796636577217074,
+        "ci_low": -0.11665650646223401,
+        "mean": -0.09117451786259835
+      },
+      "return": {
+        "ci_high": -6.11,
+        "ci_low": -10.63,
+        "mean": -8.28
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0264212690270446,
+        "ci_low": 0.010314110698442316,
+        "mean": 0.01828737695834179
+      },
+      "steps": {
+        "ci_high": 151.07499999999996,
+        "ci_low": 115.40925,
+        "mean": 133.35
+      },
+      "success_rate": {
+        "ci_high": -0.13,
+        "ci_low": -0.29,
+        "mean": -0.21
+      },
+      "survival_rate": {
+        "ci_high": -0.1,
+        "ci_low": -0.32,
+        "mean": -0.21
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -9.017862471096086e-05,
+        "ci_low": -0.00010549029717251414,
+        "mean": -9.74393626406683e-05
+      }
+    },
+    "random_minus_direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.11,
+        "ci_low": 0.02,
+        "mean": 0.06
+      },
+      "captures": {
+        "ci_high": -13.929000000000006,
+        "ci_low": -31.691000000000003,
+        "mean": -22.71
+      },
+      "clean_success_rate": {
+        "ci_high": -0.01,
+        "ci_low": -0.1,
+        "mean": -0.05
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.2630612358028285,
+        "ci_low": 0.20112897007325292,
+        "mean": 0.23439719733025588
+      },
+      "oscillation_score": {
+        "ci_high": -0.08062639101391303,
+        "ci_low": -0.12313413777957845,
+        "mean": -0.10050708012734928
+      },
+      "path_efficiency": {
+        "ci_high": -0.04547935619333839,
+        "ci_low": -0.13378449587466945,
+        "mean": -0.08890892961866252
+      },
+      "path_length": {
+        "ci_high": 19.8545200570897,
+        "ci_low": 17.478781261776444,
+        "mean": 18.702234277315494
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": 31.540749999999996,
+        "ci_low": 13.4,
+        "mean": 22.54
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 42.92,
+        "ci_low": 12.99775,
+        "mean": 27.58
+      },
+      "success_rate": {
+        "ci_high": -0.09,
+        "ci_low": -0.26,
+        "mean": -0.17
+      },
+      "survival_rate": {
+        "ci_high": -0.02,
+        "ci_low": -0.11,
+        "mean": -0.06
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "random_minus_minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.02337265246381768,
+        "ci_low": -0.02538330786908127,
+        "mean": -0.024346092292091767
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.19,
+        "ci_low": 0.06,
+        "mean": 0.12
+      },
+      "captures": {
+        "ci_high": 60.520250000000004,
+        "ci_low": 54.8895,
+        "mean": 57.82
+      },
+      "clean_success_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.18,
+        "mean": -0.12
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.22563448367723396,
+        "ci_low": 0.18268973197760852,
+        "mean": 0.20380797633117742
+      },
+      "oscillation_score": {
+        "ci_high": -0.055700040961522417,
+        "ci_low": -0.08253038058047694,
+        "mean": -0.06839848510385799
+      },
+      "path_efficiency": {
+        "ci_high": -0.2618454089397426,
+        "ci_low": -0.330817358086795,
+        "mean": -0.2952720315959897
+      },
+      "path_length": {
+        "ci_high": 21.197471309480626,
+        "ci_low": 19.68498503708047,
+        "mean": 20.459936698095092
+      },
+      "planner_call_rate": {
+        "ci_high": -0.15660392161128556,
+        "ci_low": -0.17101025012500373,
+        "mean": -0.16340351660749827
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.02336892327987088,
+        "ci_low": -0.02534017540313427,
+        "mean": -0.024346092292091767
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -55.84975,
+        "ci_low": -61.4005,
+        "mean": -58.76
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.04357008357433879,
+        "ci_low": -0.05537871747569025,
+        "mean": -0.04944341830784122
+      },
+      "steps": {
+        "ci_high": 211.08025,
+        "ci_low": 183.94774999999998,
+        "mean": 197.85
+      },
+      "success_rate": {
+        "ci_high": -0.89,
+        "ci_low": -0.98,
+        "mean": -0.94
+      },
+      "survival_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.18,
+        "mean": -0.12
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "random_minus_minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.019701949711381367,
+        "ci_low": -0.01997535453716029,
+        "mean": -0.01983460587344613
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "captures": {
+        "ci_high": 54.84,
+        "ci_low": 48.96,
+        "mean": 52.04
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.2566638401311847,
+        "ci_low": 0.22811125277908892,
+        "mean": 0.24294202422952707
+      },
+      "oscillation_score": {
+        "ci_high": -0.05009178895492107,
+        "ci_low": -0.07487709214531095,
+        "mean": -0.061824151488181586
+      },
+      "path_efficiency": {
+        "ci_high": -0.21595064570106948,
+        "ci_low": -0.2936402401179392,
+        "mean": -0.2545581594563933
+      },
+      "path_length": {
+        "ci_high": 19.585575482789146,
+        "ci_low": 17.50159702859632,
+        "mean": 18.57725384270213
+      },
+      "planner_call_rate": {
+        "ci_high": -0.12889379606828,
+        "ci_low": -0.13071539643937657,
+        "mean": -0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.019703143967786555,
+        "ci_low": -0.01997111131021964,
+        "mean": -0.01983460587344613
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -49.889,
+        "ci_low": -55.64025,
+        "mean": -52.81
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 168.4305,
+        "ci_low": 128.45975,
+        "mean": 148.84
+      },
+      "success_rate": {
+        "ci_high": -0.68,
+        "ci_low": -0.85,
+        "mean": -0.77
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "random_minus_minimind-no-instruction": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.020120712776012725,
+        "ci_low": -0.020399756479893595,
+        "mean": -0.020255830961035025
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "captures": {
+        "ci_high": 54.770250000000004,
+        "ci_low": 48.9595,
+        "mean": 52.04
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.255495161809314,
+        "ci_low": 0.22910349786098594,
+        "mean": 0.24294202422952707
+      },
+      "oscillation_score": {
+        "ci_high": -0.049855243722184986,
+        "ci_low": -0.0747924086472361,
+        "mean": -0.061824151488181586
+      },
+      "path_efficiency": {
+        "ci_high": -0.21347021398890872,
+        "ci_low": -0.29574768374043076,
+        "mean": -0.2545581594563933
+      },
+      "path_length": {
+        "ci_high": 19.60064826984666,
+        "ci_low": 17.505398628051815,
+        "mean": 18.57725384270213
+      },
+      "planner_call_rate": {
+        "ci_high": -0.12894592059561832,
+        "ci_low": -0.13070290535557638,
+        "mean": -0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.0201195043890307,
+        "ci_low": -0.020406847479080954,
+        "mean": -0.020255830961035025
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -49.91975,
+        "ci_low": -55.50025,
+        "mean": -52.81
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 168.09,
+        "ci_low": 128.809,
+        "mean": 148.84
+      },
+      "success_rate": {
+        "ci_high": -0.6897500000000013,
+        "ci_low": -0.85,
+        "mean": -0.77
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": -0.03,
+        "mean": -0.01
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "random_minus_minimind-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -0.021833598067723156,
+        "ci_low": -0.022950390558841228,
+        "mean": -0.02238247221054186
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.19,
+        "ci_low": 0.06,
+        "mean": 0.12
+      },
+      "captures": {
+        "ci_high": 59.471749999999986,
+        "ci_low": 53.89975,
+        "mean": 56.72
+      },
+      "clean_success_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.19,
+        "mean": -0.12
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.23556522323091053,
+        "ci_low": 0.19377138091878351,
+        "mean": 0.2157901305244813
+      },
+      "oscillation_score": {
+        "ci_high": -0.05294833563661346,
+        "ci_low": -0.08074866130157982,
+        "mean": -0.06543768062611194
+      },
+      "path_efficiency": {
+        "ci_high": -0.27039791320070083,
+        "ci_low": -0.3467352024026645,
+        "mean": -0.3067028772289449
+      },
+      "path_length": {
+        "ci_high": 21.247407761553095,
+        "ci_low": 19.644676901460127,
+        "mean": 20.482278142382178
+      },
+      "planner_call_rate": {
+        "ci_high": -0.14638891879769214,
+        "ci_low": -0.15415368336688395,
+        "mean": -0.1502588550158404
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -0.021846163643400238,
+        "ci_low": -0.022939154490792583,
+        "mean": -0.02238247221054186
+      },
+      "planner_override_rate": {
+        "ci_high": -0.03768468496078929,
+        "ci_low": -0.0720938495625335,
+        "mean": -0.054171129243486826
+      },
+      "return": {
+        "ci_high": -54.669500000000006,
+        "ci_low": -60.270500000000006,
+        "mean": -57.61
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.03887327961644709,
+        "ci_low": -0.04931259800451831,
+        "mean": -0.044111150295930435
+      },
+      "steps": {
+        "ci_high": 204.94025,
+        "ci_low": 173.82850000000002,
+        "mean": 189.6
+      },
+      "success_rate": {
+        "ci_high": -0.82,
+        "ci_low": -0.95,
+        "mean": -0.89
+      },
+      "survival_rate": {
+        "ci_high": -0.06,
+        "ci_low": -0.19,
+        "mean": -0.12
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -6.400954359870276e-05,
+        "ci_low": -7.037790559781425e-05,
+        "mean": -6.707930126033393e-05
+      }
+    },
+    "random_minus_numeric-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -6.577466755898083e-05,
+        "ci_low": -7.674365463219019e-05,
+        "mean": -7.094239719195273e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.48,
+        "ci_low": 0.28,
+        "mean": 0.38
+      },
+      "captures": {
+        "ci_high": 64.60074999999999,
+        "ci_low": 60.26,
+        "mean": 62.53
+      },
+      "clean_success_rate": {
+        "ci_high": -0.28,
+        "ci_low": -0.48,
+        "mean": -0.38
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.1551405033650945,
+        "ci_low": 0.08332510177742881,
+        "mean": 0.12186534498431274
+      },
+      "oscillation_score": {
+        "ci_high": -0.03222922754277386,
+        "ci_low": -0.05458230754422131,
+        "mean": -0.04323263556568929
+      },
+      "path_efficiency": {
+        "ci_high": -0.4452073431882518,
+        "ci_low": -0.5275452061440473,
+        "mean": -0.486476436240384
+      },
+      "path_length": {
+        "ci_high": 23.077427518984592,
+        "ci_low": 22.08846452589138,
+        "mean": 22.63150924142873
+      },
+      "planner_call_rate": {
+        "ci_high": -0.22506245536738542,
+        "ci_low": -0.2634159537474568,
+        "mean": -0.2433385573068298
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -6.575721220806521e-05,
+        "ci_low": -7.672318588130293e-05,
+        "mean": -7.094239719195273e-05
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -61.39975,
+        "ci_low": -65.57024999999999,
+        "mean": -63.5
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.07085801171324184,
+        "ci_low": -0.08561865018800548,
+        "mean": -0.07822093720238658
+      },
+      "steps": {
+        "ci_high": 259.52074999999996,
+        "ci_low": 246.87875,
+        "mean": 253.43
+      },
+      "success_rate": {
+        "ci_high": -0.93,
+        "ci_low": -1.0,
+        "mean": -0.97
+      },
+      "survival_rate": {
+        "ci_high": -0.28,
+        "ci_low": -0.48,
+        "mean": -0.38
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "random_minus_numeric-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": -7.035004435453417e-05,
+        "ci_low": -8.479942046753663e-05,
+        "mean": -7.740954231269391e-05
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.45,
+        "ci_low": 0.26,
+        "mean": 0.35
+      },
+      "captures": {
+        "ci_high": 64.25025,
+        "ci_low": 59.71975,
+        "mean": 62.06
+      },
+      "clean_success_rate": {
+        "ci_high": -0.26,
+        "ci_low": -0.45,
+        "mean": -0.35
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.184886277336558,
+        "ci_low": 0.12401329814395154,
+        "mean": 0.1558592395283188
+      },
+      "oscillation_score": {
+        "ci_high": -0.04333585726869094,
+        "ci_low": -0.06737952867487815,
+        "mean": -0.054920758702707476
+      },
+      "path_efficiency": {
+        "ci_high": -0.4449730531719027,
+        "ci_low": -0.5197722716939553,
+        "mean": -0.48495758781201403
+      },
+      "path_length": {
+        "ci_high": 23.122872453509682,
+        "ci_low": 22.167906761098635,
+        "mean": 22.690994429188013
+      },
+      "planner_call_rate": {
+        "ci_high": -0.21787170247908036,
+        "ci_low": -0.2644430635812804,
+        "mean": -0.23994493191458757
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": -7.048934199953153e-05,
+        "ci_low": -8.548421374543691e-05,
+        "mean": -7.740954231269391e-05
+      },
+      "planner_override_rate": {
+        "ci_high": -0.06733415007120505,
+        "ci_low": -0.11844432208873,
+        "mean": -0.09117451786259835
+      },
+      "return": {
+        "ci_high": -60.80975,
+        "ci_low": -65.26,
+        "mean": -63.03
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.05612354889878037,
+        "ci_low": -0.06503721052872964,
+        "mean": -0.06066216343142083
+      },
+      "steps": {
+        "ci_high": 257.46,
+        "ci_low": 243.49,
+        "mean": 250.84
+      },
+      "success_rate": {
+        "ci_high": -0.93,
+        "ci_low": -1.0,
+        "mean": -0.97
+      },
+      "survival_rate": {
+        "ci_high": -0.26,
+        "ci_low": -0.44,
+        "mean": -0.35
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": -9.026098916822588e-05,
+        "ci_low": -0.00010505455143374021,
+        "mean": -9.74393626406683e-05
+      }
+    },
+    "random_minus_p1-rule": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "candidate_minus_reference": true,
+      "capture_rate": {
+        "ci_high": 0.21,
+        "ci_low": 0.08,
+        "mean": 0.14
+      },
+      "captures": {
+        "ci_high": 57.08,
+        "ci_low": 50.65,
+        "mean": 53.99
+      },
+      "clean_success_rate": {
+        "ci_high": -0.08,
+        "ci_low": -0.21,
+        "mean": -0.14
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "open_space_visible_rate": {
+        "ci_high": 0.20703239838123091,
+        "ci_low": 0.1620055587602296,
+        "mean": 0.18674003480235574
+      },
+      "oscillation_score": {
+        "ci_high": -0.02173536450279552,
+        "ci_low": -0.04158348581640249,
+        "mean": -0.030860787259713446
+      },
+      "path_efficiency": {
+        "ci_high": -0.2024856078870191,
+        "ci_low": -0.28704185951862715,
+        "mean": -0.24456668884347912
+      },
+      "path_length": {
+        "ci_high": 19.601339267807916,
+        "ci_low": 17.702187571426077,
+        "mean": 18.63631325896167
+      },
+      "planner_call_rate": {
+        "ci_high": -0.2717160582826576,
+        "ci_low": -0.27630466684540733,
+        "mean": -0.2739540130474179
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -51.46975,
+        "ci_low": -57.89075,
+        "mean": -54.75
+      },
+      "skill_switch_rate": {
+        "ci_high": -0.07278216740891452,
+        "ci_low": -0.08511984971120666,
+        "mean": -0.07894954038976261
+      },
+      "steps": {
+        "ci_high": 135.61075,
+        "ci_low": 100.4795,
+        "mean": 117.49
+      },
+      "success_rate": {
+        "ci_high": -0.67,
+        "ci_low": -0.8402499999999999,
+        "mean": -0.76
+      },
+      "survival_rate": {
+        "ci_high": -0.08,
+        "ci_low": -0.21,
+        "mean": -0.14
+      },
+      "valid_action_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    }
+  },
+  "policies": {
+    "direct-minimind-base": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "capture_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "captures": {
+        "ci_high": 118.91075,
+        "ci_low": 107.58825,
+        "mean": 113.6
+      },
+      "captures_per_episode": {
+        "ci_high": 118.91075,
+        "ci_low": 107.58825,
+        "mean": 113.6
+      },
+      "captures_per_successful_episode": {
+        "ci_high": null,
+        "ci_low": null,
+        "eligible_episode_count": 0,
+        "mean": null
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "clean_success_steps": {
+        "ci_high": null,
+        "ci_low": null,
+        "eligible_episode_count": 0,
+        "mean": null
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 100
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 100,
+        "rates_among_failures": {
+          "capture_near_occlusion": 1.0
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.05574358460442163,
+        "mean_action_hz": 17.939284082579057,
+        "p50": 0.054163035936653614,
+        "p95": 0.06160440619569272,
+        "p99": 0.06308206561021507
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "oscillation_score": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "path_efficiency": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "path_length": {
+        "ci_high": 0.2680295493758919,
+        "ci_low": 0.2680285742262591,
+        "mean": 0.26802906180107544
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -107.81975,
+        "ci_low": -119.38024999999999,
+        "mean": -113.6
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 300.0,
+        "ci_low": 300.0,
+        "mean": 300.0
+      },
+      "success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "time_to_first_capture": {
+        "ci_high": 32.781499999999994,
+        "ci_low": 25.63975,
+        "eligible_episode_count": 100,
+        "mean": 28.99
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-minimind-lora": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "capture_rate": {
+        "ci_high": 1.0,
+        "ci_low": 0.97,
+        "mean": 0.99
+      },
+      "captures": {
+        "ci_high": 108.06025,
+        "ci_low": 89.0395,
+        "mean": 98.6
+      },
+      "captures_per_episode": {
+        "ci_high": 108.06025,
+        "ci_low": 89.0395,
+        "mean": 98.6
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 41.53846153846154,
+        "ci_low": 17.690384615384616,
+        "eligible_episode_count": 26,
+        "mean": 28.96153846153846
+      },
+      "clean_success_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "clean_success_steps": {
+        "ci_high": 19.0,
+        "ci_low": 19.0,
+        "eligible_episode_count": 1,
+        "mean": 19.0
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 23,
+          "capture_other": 66,
+          "late_predator_response": 2,
+          "open_space_capture": 8
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 99,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.23232323232323232,
+          "capture_other": 0.6666666666666666,
+          "late_predator_response": 0.020202020202020204,
+          "open_space_capture": 0.08080808080808081
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.06284246603319385,
+        "mean_action_hz": 15.912806468667107,
+        "p50": 0.06148504372686148,
+        "p95": 0.0702467915834859,
+        "p99": 0.07397195158991965
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.03082563981233608,
+        "ci_low": 0.013692744128728675,
+        "mean": 0.021577987126861292
+      },
+      "oscillation_score": {
+        "ci_high": 0.028040816046602052,
+        "ci_low": 0.008798499285213484,
+        "mean": 0.017105989443355927
+      },
+      "path_efficiency": {
+        "ci_high": 0.15936541481020908,
+        "ci_low": 0.07886125404238314,
+        "mean": 0.11796033675467292
+      },
+      "path_length": {
+        "ci_high": 1.0996234989062723,
+        "ci_low": 0.67168630856845,
+        "mean": 0.8698914531919406
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -88.13825000000001,
+        "ci_low": -107.67125,
+        "mean": -98.34
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 274.8305,
+        "ci_low": 245.61625,
+        "mean": 260.86
+      },
+      "success_rate": {
+        "ci_high": 0.34024999999999866,
+        "ci_low": 0.18,
+        "mean": 0.26
+      },
+      "survival_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "time_to_first_capture": {
+        "ci_high": 72.30505050505049,
+        "ci_low": 56.72651515151515,
+        "eligible_episode_count": 99,
+        "mean": 64.38383838383838
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "direct-mlp": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "capture_rate": {
+        "ci_high": 0.98,
+        "ci_low": 0.89,
+        "mean": 0.94
+      },
+      "captures": {
+        "ci_high": 96.46099999999998,
+        "ci_low": 79.3695,
+        "mean": 87.9
+      },
+      "captures_per_episode": {
+        "ci_high": 96.46099999999998,
+        "ci_low": 79.3695,
+        "mean": 87.9
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 34.853749999999984,
+        "ci_low": 12.45,
+        "eligible_episode_count": 20,
+        "mean": 22.9
+      },
+      "clean_success_rate": {
+        "ci_high": 0.1,
+        "ci_low": 0.01,
+        "mean": 0.05
+      },
+      "clean_success_steps": {
+        "ci_high": 78.6,
+        "ci_low": 57.0,
+        "eligible_episode_count": 5,
+        "mean": 67.8
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 85,
+          "capture_other": 4,
+          "late_predator_response": 5,
+          "stuck_timeout": 1
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 95,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.8947368421052632,
+          "capture_other": 0.042105263157894736,
+          "late_predator_response": 0.05263157894736842,
+          "stuck_timeout": 0.010526315789473684
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.0003418919439254779,
+        "mean_action_hz": 2924.9007406210476,
+        "p50": 0.00032805977389216423,
+        "p95": 0.00040349576156586405,
+        "p99": 0.0004576694779098034
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.1263045724939635,
+        "ci_low": 0.06570977319542495,
+        "mean": 0.0915381065838379
+      },
+      "oscillation_score": {
+        "ci_high": 0.12332279176283269,
+        "ci_low": 0.08334417038161522,
+        "mean": 0.10351857979374122
+      },
+      "path_efficiency": {
+        "ci_high": 0.14041125350840672,
+        "ci_low": 0.04880547229207811,
+        "mean": 0.09143483235373592
+      },
+      "path_length": {
+        "ci_high": 7.491378436718274,
+        "ci_low": 5.241434628521049,
+        "mean": 6.314150271117461
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -79.1895,
+        "ci_low": -96.32024999999999,
+        "mean": -87.7
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 281.5825,
+        "ci_low": 254.23925,
+        "mean": 268.44
+      },
+      "success_rate": {
+        "ci_high": 0.28,
+        "ci_low": 0.12,
+        "mean": 0.2
+      },
+      "survival_rate": {
+        "ci_high": 0.11,
+        "ci_low": 0.02,
+        "mean": 0.06
+      },
+      "time_to_first_capture": {
+        "ci_high": 62.501329787234035,
+        "ci_low": 50.744680851063826,
+        "eligible_episode_count": 94,
+        "mean": 56.62765957446808
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.025372207509697875,
+        "ci_low": 0.02343744412627437,
+        "mean": 0.024346092292091767
+      },
+      "capture_rate": {
+        "ci_high": 0.94,
+        "ci_low": 0.81,
+        "mean": 0.88
+      },
+      "captures": {
+        "ci_high": 9.290499999999996,
+        "ci_low": 5.7195,
+        "mean": 7.37
+      },
+      "captures_per_episode": {
+        "ci_high": 9.290499999999996,
+        "ci_low": 5.7195,
+        "mean": 7.37
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 8.381958762886596,
+        "ci_low": 5.195876288659794,
+        "eligible_episode_count": 97,
+        "mean": 6.690721649484536
+      },
+      "clean_success_rate": {
+        "ci_high": 0.19,
+        "ci_low": 0.06,
+        "mean": 0.12
+      },
+      "clean_success_steps": {
+        "ci_high": 60.00416666666664,
+        "ci_low": 37.331250000000004,
+        "eligible_episode_count": 12,
+        "mean": 49.083333333333336
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 40,
+          "capture_other": 37,
+          "open_space_capture": 11
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 88,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.45454545454545453,
+          "capture_other": 0.42045454545454547,
+          "open_space_capture": 0.125
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.023687082876105898,
+        "mean_action_hz": 42.21710225908568,
+        "p50": 0.00012901006266474724,
+        "p95": 0.15132102500647307,
+        "p99": 0.15385952930897476
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.14391824987386032,
+        "ci_low": 0.10299164526442788,
+        "mean": 0.1221273275829164
+      },
+      "oscillation_score": {
+        "ci_high": 0.08602450548496052,
+        "ci_low": 0.05887819747354586,
+        "mean": 0.07140998477024992
+      },
+      "path_efficiency": {
+        "ci_high": 0.3323604428967645,
+        "ci_low": 0.2644007253701935,
+        "mean": 0.2977979343310631
+      },
+      "path_length": {
+        "ci_high": 5.162665569923883,
+        "ci_low": 3.9678254577484493,
+        "mean": 4.556447850337858
+      },
+      "planner_call_rate": {
+        "ci_high": 0.1707097174051885,
+        "ci_low": 0.15661558667757913,
+        "mean": 0.16340351660749827
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.02536688248631432,
+        "ci_low": 0.02339547119076262,
+        "mean": 0.024346092292091767
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -4.739750000000002,
+        "ci_low": -8.2905,
+        "mean": -6.4
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0555849752764994,
+        "ci_low": 0.04331084317503059,
+        "mean": 0.04944341830784122
+      },
+      "steps": {
+        "ci_high": 111.05075,
+        "ci_low": 85.29,
+        "mean": 98.17
+      },
+      "success_rate": {
+        "ci_high": 1.0,
+        "ci_low": 0.93,
+        "mean": 0.97
+      },
+      "survival_rate": {
+        "ci_high": 0.19,
+        "ci_low": 0.06,
+        "mean": 0.12
+      },
+      "time_to_first_capture": {
+        "ci_high": 39.32954545454545,
+        "ci_low": 32.51107954545454,
+        "eligible_episode_count": 88,
+        "mean": 35.72727272727273
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-no-history": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.019975866361351367,
+        "ci_low": 0.01969976471375998,
+        "mean": 0.01983460587344613
+      },
+      "capture_rate": {
+        "ci_high": 1.0,
+        "ci_low": 0.97,
+        "mean": 0.99
+      },
+      "captures": {
+        "ci_high": 15.260499999999997,
+        "ci_low": 11.14925,
+        "mean": 13.15
+      },
+      "captures_per_episode": {
+        "ci_high": 15.260499999999997,
+        "ci_low": 11.14925,
+        "mean": 13.15
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 12.962812499999998,
+        "ci_low": 8.7246875,
+        "eligible_episode_count": 80,
+        "mean": 10.7125
+      },
+      "clean_success_rate": {
+        "ci_high": 0.04,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "clean_success_steps": {
+        "ci_high": 48.0,
+        "ci_low": 48.0,
+        "eligible_episode_count": 1,
+        "mean": 48.0
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 58,
+          "capture_other": 39,
+          "open_space_capture": 2
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 99,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.5858585858585859,
+          "capture_other": 0.3939393939393939,
+          "open_space_capture": 0.020202020202020204
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.019714488561314147,
+        "mean_action_hz": 50.72411576338357,
+        "p50": 0.0001323297619819641,
+        "p95": 0.15328833821695298,
+        "p99": 0.1540307052526623
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.09496477768131159,
+        "ci_low": 0.07155400866906528,
+        "mean": 0.08299327968456675
+      },
+      "oscillation_score": {
+        "ci_high": 0.07792913420863785,
+        "ci_low": 0.0520738444296321,
+        "mean": 0.06483565115457351
+      },
+      "path_efficiency": {
+        "ci_high": 0.297686918327589,
+        "ci_low": 0.21545799010136643,
+        "mean": 0.25708406219146673
+      },
+      "path_length": {
+        "ci_high": 7.386758870260843,
+        "ci_low": 5.4409351882532135,
+        "mean": 6.439130705730822
+      },
+      "planner_call_rate": {
+        "ci_high": 0.13073602933908313,
+        "ci_low": 0.12895618654415503,
+        "mean": 0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.019979742742720685,
+        "ci_low": 0.019702583562080985,
+        "mean": 0.01983460587344613
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -10.32,
+        "ci_low": -14.780249999999999,
+        "mean": -12.35
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 168.16724999999997,
+        "ci_low": 127.17975000000001,
+        "mean": 147.18
+      },
+      "success_rate": {
+        "ci_high": 0.87,
+        "ci_low": 0.72,
+        "mean": 0.8
+      },
+      "survival_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "time_to_first_capture": {
+        "ci_high": 40.152020202020196,
+        "ci_low": 32.474747474747474,
+        "eligible_episode_count": 99,
+        "mean": 36.06060606060606
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-no-instruction": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.02040203803602932,
+        "ci_low": 0.02011355012283402,
+        "mean": 0.020255830961035025
+      },
+      "capture_rate": {
+        "ci_high": 1.0,
+        "ci_low": 0.97,
+        "mean": 0.99
+      },
+      "captures": {
+        "ci_high": 15.400499999999997,
+        "ci_low": 11.16,
+        "mean": 13.15
+      },
+      "captures_per_episode": {
+        "ci_high": 15.400499999999997,
+        "ci_low": 11.16,
+        "mean": 13.15
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 12.8875,
+        "ci_low": 8.6125,
+        "eligible_episode_count": 80,
+        "mean": 10.7125
+      },
+      "clean_success_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "clean_success_steps": {
+        "ci_high": 48.0,
+        "ci_low": 48.0,
+        "eligible_episode_count": 1,
+        "mean": 48.0
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 58,
+          "capture_other": 39,
+          "open_space_capture": 2
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 99,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.5858585858585859,
+          "capture_other": 0.3939393939393939,
+          "open_space_capture": 0.020202020202020204
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.02012587031178057,
+        "mean_action_hz": 49.6872922516377,
+        "p50": 0.00012915045954287052,
+        "p95": 0.15598079906776546,
+        "p99": 0.15753052451647817
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.09494592865826171,
+        "ci_low": 0.07107472146659838,
+        "mean": 0.08299327968456675
+      },
+      "oscillation_score": {
+        "ci_high": 0.07832675704066536,
+        "ci_low": 0.05263474948250894,
+        "mean": 0.06483565115457351
+      },
+      "path_efficiency": {
+        "ci_high": 0.2982220463100836,
+        "ci_low": 0.2154130425832217,
+        "mean": 0.25708406219146673
+      },
+      "path_length": {
+        "ci_high": 7.43426102625303,
+        "ci_low": 5.520924620963562,
+        "mean": 6.439130705730822
+      },
+      "planner_call_rate": {
+        "ci_high": 0.1307328795282863,
+        "ci_low": 0.12892102296126878,
+        "mean": 0.1298034123701871
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.020406069993188176,
+        "ci_low": 0.020119537021644353,
+        "mean": 0.020255830961035025
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -10.25975,
+        "ci_low": -14.57025,
+        "mean": -12.35
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 167.4284999999999,
+        "ci_low": 127.86875,
+        "mean": 147.18
+      },
+      "success_rate": {
+        "ci_high": 0.88,
+        "ci_low": 0.71,
+        "mean": 0.8
+      },
+      "survival_rate": {
+        "ci_high": 0.03,
+        "ci_low": 0.0,
+        "mean": 0.01
+      },
+      "time_to_first_capture": {
+        "ci_high": 40.23232323232323,
+        "ci_low": 32.21212121212121,
+        "eligible_episode_count": 99,
+        "mean": 36.06060606060606
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "minimind-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.022938214536007747,
+        "ci_low": 0.02185633256009755,
+        "mean": 0.02238247221054186
+      },
+      "capture_rate": {
+        "ci_high": 0.94,
+        "ci_low": 0.81,
+        "mean": 0.88
+      },
+      "captures": {
+        "ci_high": 10.38,
+        "ci_low": 6.809749999999999,
+        "mean": 8.47
+      },
+      "captures_per_episode": {
+        "ci_high": 10.38,
+        "ci_low": 6.809749999999999,
+        "mean": 8.47
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 8.456793478260868,
+        "ci_low": 5.673913043478261,
+        "eligible_episode_count": 92,
+        "mean": 7.021739130434782
+      },
+      "clean_success_rate": {
+        "ci_high": 0.19,
+        "ci_low": 0.06,
+        "mean": 0.12
+      },
+      "clean_success_steps": {
+        "ci_high": 58.920833333333306,
+        "ci_low": 32.49791666666667,
+        "eligible_episode_count": 12,
+        "mean": 45.083333333333336
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 42,
+          "capture_other": 38,
+          "open_space_capture": 8
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 88,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.4772727272727273,
+          "capture_other": 0.4318181818181818,
+          "open_space_capture": 0.09090909090909091
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.022141298031677005,
+        "mean_action_hz": 45.164470419454396,
+        "p50": 0.00012991996482014656,
+        "p95": 0.15150109597016126,
+        "p99": 0.1537855129595846
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.1289124922515035,
+        "ci_low": 0.09046765500812509,
+        "mean": 0.11014517338961252
+      },
+      "oscillation_score": {
+        "ci_high": 0.08360448405846561,
+        "ci_low": 0.055452244023828236,
+        "mean": 0.06844918029250388
+      },
+      "path_efficiency": {
+        "ci_high": 0.34988514149386635,
+        "ci_low": 0.27318809544678874,
+        "mean": 0.3092287799640183
+      },
+      "path_length": {
+        "ci_high": 5.195777485937684,
+        "ci_low": 3.9150322854868396,
+        "mean": 4.534106406050778
+      },
+      "planner_call_rate": {
+        "ci_high": 0.15423586215298654,
+        "ci_low": 0.1464850697996916,
+        "mean": 0.1502588550158404
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.022952146513398327,
+        "ci_low": 0.021858991668938527,
+        "mean": 0.02238247221054186
+      },
+      "planner_override_rate": {
+        "ci_high": 0.07344408780749484,
+        "ci_low": 0.037781958118561845,
+        "mean": 0.054171129243486826
+      },
+      "return": {
+        "ci_high": -5.929750000000001,
+        "ci_low": -9.44,
+        "mean": -7.55
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.04921636050427164,
+        "ci_low": 0.03898247179623081,
+        "mean": 0.044111150295930435
+      },
+      "steps": {
+        "ci_high": 122.93050000000001,
+        "ci_low": 92.68175,
+        "mean": 106.42
+      },
+      "success_rate": {
+        "ci_high": 0.97,
+        "ci_low": 0.87,
+        "mean": 0.92
+      },
+      "survival_rate": {
+        "ci_high": 0.19,
+        "ci_low": 0.06,
+        "mean": 0.12
+      },
+      "time_to_first_capture": {
+        "ci_high": 38.68210227272727,
+        "ci_low": 31.977272727272727,
+        "eligible_episode_count": 88,
+        "mean": 35.18181818181818
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 7.03151224429167e-05,
+        "ci_low": 6.407174503126557e-05,
+        "mean": 6.707930126033393e-05
+      }
+    },
+    "numeric-learned": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 7.66784044461194e-05,
+        "ci_low": 6.60278957488863e-05,
+        "mean": 7.094239719195273e-05
+      },
+      "capture_rate": {
+        "ci_high": 0.71,
+        "ci_low": 0.52,
+        "mean": 0.62
+      },
+      "captures": {
+        "ci_high": 3.57,
+        "ci_low": 1.98,
+        "mean": 2.66
+      },
+      "captures_per_episode": {
+        "ci_high": 3.57,
+        "ci_low": 1.98,
+        "mean": 2.66
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 3.4702499999999987,
+        "ci_low": 1.9397499999999999,
+        "eligible_episode_count": 100,
+        "mean": 2.66
+      },
+      "clean_success_rate": {
+        "ci_high": 0.47,
+        "ci_low": 0.28,
+        "mean": 0.38
+      },
+      "clean_success_steps": {
+        "ci_high": 25.94802631578947,
+        "ci_low": 17.55263157894737,
+        "eligible_episode_count": 38,
+        "mean": 21.394736842105264
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 32,
+          "capture_other": 22,
+          "open_space_capture": 8
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 62,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.5161290322580645,
+          "capture_other": 0.3548387096774194,
+          "open_space_capture": 0.12903225806451613
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.0002671486718208822,
+        "mean_action_hz": 3743.234032136532,
+        "p50": 0.00013261986896395683,
+        "p95": 0.0006613041274249554,
+        "p99": 0.0007135834265500308
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.23942553929693847,
+        "ci_low": 0.1713041458829714,
+        "mean": 0.20406995892978105
+      },
+      "oscillation_score": {
+        "ci_high": 0.056905940896463815,
+        "ci_low": 0.035877500670941906,
+        "mean": 0.04624413523208122
+      },
+      "path_efficiency": {
+        "ci_high": 0.5309840177550768,
+        "ci_low": 0.4502916435226117,
+        "mean": 0.4890023389754575
+      },
+      "path_length": {
+        "ci_high": 2.6041318388292614,
+        "ci_low": 2.168504352876665,
+        "mean": 2.384875307004221
+      },
+      "planner_call_rate": {
+        "ci_high": 0.26346346147762134,
+        "ci_low": 0.22505405678166115,
+        "mean": 0.2433385573068298
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 7.648497525125484e-05,
+        "ci_low": 6.586705590261102e-05,
+        "mean": 7.094239719195273e-05
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -0.96,
+        "ci_low": -2.51,
+        "mean": -1.66
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08580874862108044,
+        "ci_low": 0.07084100856438104,
+        "mean": 0.07822093720238658
+      },
+      "steps": {
+        "ci_high": 47.020250000000004,
+        "ci_low": 38.029250000000005,
+        "mean": 42.59
+      },
+      "success_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "survival_rate": {
+        "ci_high": 0.47,
+        "ci_low": 0.28,
+        "mean": 0.38
+      },
+      "time_to_first_capture": {
+        "ci_high": 26.870967741935484,
+        "ci_low": 23.28991935483871,
+        "eligible_episode_count": 62,
+        "mean": 24.983870967741936
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "numeric-verified": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 8.468726598041323e-05,
+        "ci_low": 7.002088891288195e-05,
+        "mean": 7.740954231269391e-05
+      },
+      "capture_rate": {
+        "ci_high": 0.74,
+        "ci_low": 0.5597500000000001,
+        "mean": 0.65
+      },
+      "captures": {
+        "ci_high": 3.86,
+        "ci_low": 2.45,
+        "mean": 3.13
+      },
+      "captures_per_episode": {
+        "ci_high": 3.86,
+        "ci_low": 2.45,
+        "mean": 3.13
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 3.8802499999999984,
+        "ci_low": 2.43,
+        "eligible_episode_count": 100,
+        "mean": 3.13
+      },
+      "clean_success_rate": {
+        "ci_high": 0.44,
+        "ci_low": 0.26,
+        "mean": 0.35
+      },
+      "clean_success_steps": {
+        "ci_high": 29.542857142857144,
+        "ci_low": 18.571428571428573,
+        "eligible_episode_count": 35,
+        "mean": 23.6
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 22,
+          "capture_other": 35,
+          "open_space_capture": 8
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 65,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.3384615384615385,
+          "capture_other": 0.5384615384615384,
+          "open_space_capture": 0.12307692307692308
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.00037143924030309995,
+        "mean_action_hz": 2692.2303609709766,
+        "p50": 0.00014291983097791672,
+        "p95": 0.001110374438576399,
+        "p99": 0.0016789750196039676
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.19996355014113712,
+        "ci_low": 0.14202052652713568,
+        "mean": 0.170076064385775
+      },
+      "oscillation_score": {
+        "ci_high": 0.07092514024735162,
+        "ci_low": 0.04680278894159039,
+        "mean": 0.05793225836909941
+      },
+      "path_efficiency": {
+        "ci_high": 0.5229542522305769,
+        "ci_low": 0.45008533772518033,
+        "mean": 0.48748349054708745
+      },
+      "path_length": {
+        "ci_high": 2.5491691946541892,
+        "ci_low": 2.125031190808987,
+        "mean": 2.325390119244937
+      },
+      "planner_call_rate": {
+        "ci_high": 0.2635689868463096,
+        "ci_low": 0.21926948369707194,
+        "mean": 0.23994493191458757
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 8.529475787188859e-05,
+        "ci_low": 7.057473821412052e-05,
+        "mean": 7.740954231269391e-05
+      },
+      "planner_override_rate": {
+        "ci_high": 0.11563850833548975,
+        "ci_low": 0.06561643549304153,
+        "mean": 0.09117451786259835
+      },
+      "return": {
+        "ci_high": -1.45,
+        "ci_low": -2.91025,
+        "mean": -2.13
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.06519117587208245,
+        "ci_low": 0.056261058974403796,
+        "mean": 0.06066216343142083
+      },
+      "steps": {
+        "ci_high": 50.64399999999998,
+        "ci_low": 40.34975,
+        "mean": 45.18
+      },
+      "success_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "survival_rate": {
+        "ci_high": 0.45,
+        "ci_low": 0.26,
+        "mean": 0.35
+      },
+      "time_to_first_capture": {
+        "ci_high": 29.307692307692307,
+        "ci_low": 25.338461538461537,
+        "eligible_episode_count": 65,
+        "mean": 27.276923076923076
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.00010488434402841351,
+        "ci_low": 9.042679475882195e-05,
+        "mean": 9.74393626406683e-05
+      }
+    },
+    "p1-rule": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "capture_rate": {
+        "ci_high": 0.9202499999999987,
+        "ci_low": 0.79,
+        "mean": 0.86
+      },
+      "captures": {
+        "ci_high": 13.51,
+        "ci_low": 9.14,
+        "mean": 11.2
+      },
+      "captures_per_episode": {
+        "ci_high": 13.51,
+        "ci_low": 9.14,
+        "mean": 11.2
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 9.974683544303797,
+        "ci_low": 6.430379746835443,
+        "eligible_episode_count": 79,
+        "mean": 8.113924050632912
+      },
+      "clean_success_rate": {
+        "ci_high": 0.21,
+        "ci_low": 0.08,
+        "mean": 0.14
+      },
+      "clean_success_steps": {
+        "ci_high": 118.86428571428569,
+        "ci_low": 61.49821428571428,
+        "eligible_episode_count": 14,
+        "mean": 89.21428571428571
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 50,
+          "capture_other": 28,
+          "late_predator_response": 3,
+          "open_space_capture": 5
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 86,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.5813953488372093,
+          "capture_other": 0.32558139534883723,
+          "late_predator_response": 0.03488372093023256,
+          "open_space_capture": 0.05813953488372093
+        }
+      },
+      "latency_seconds": {
+        "mean": 0.0001887853985023934,
+        "mean_action_hz": 5297.019832745816,
+        "p50": 9.985081851482391e-05,
+        "p95": 0.0003524013794958591,
+        "p99": 0.0003957626782357692
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.16490524711951188,
+        "ci_low": 0.12002716244382985,
+        "mean": 0.13919526911173807
+      },
+      "oscillation_score": {
+        "ci_high": 0.04429015136250176,
+        "ci_low": 0.023859500065975585,
+        "mean": 0.033872286926105374
+      },
+      "path_efficiency": {
+        "ci_high": 0.2914444791792855,
+        "ci_low": 0.20520011794079362,
+        "mean": 0.24709259157855254
+      },
+      "path_length": {
+        "ci_high": 7.296130940914495,
+        "ci_low": 5.565468964647457,
+        "mean": 6.38007128947128
+      },
+      "planner_call_rate": {
+        "ci_high": 0.27635426923177614,
+        "ci_low": 0.2716119553676006,
+        "mean": 0.2739540130474179
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -8.289250000000003,
+        "ci_low": -12.620249999999999,
+        "mean": -10.41
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.08511143564346019,
+        "ci_low": 0.07278575977980324,
+        "mean": 0.07894954038976261
+      },
+      "steps": {
+        "ci_high": 196.0005,
+        "ci_low": 160.77775,
+        "mean": 178.53
+      },
+      "success_rate": {
+        "ci_high": 0.87,
+        "ci_low": 0.71,
+        "mean": 0.79
+      },
+      "survival_rate": {
+        "ci_high": 0.21,
+        "ci_low": 0.08,
+        "mean": 0.14
+      },
+      "time_to_first_capture": {
+        "ci_high": 78.33749999999999,
+        "ci_low": 62.825581395348834,
+        "eligible_episode_count": 86,
+        "mean": 70.06976744186046
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    },
+    "random": {
+      "amortized_planner_latency_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "capture_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "captures": {
+        "ci_high": 67.2105,
+        "ci_low": 63.16975,
+        "mean": 65.19
+      },
+      "captures_per_episode": {
+        "ci_high": 67.2105,
+        "ci_low": 63.16975,
+        "mean": 65.19
+      },
+      "captures_per_successful_episode": {
+        "ci_high": 70.0,
+        "ci_low": 19.0,
+        "eligible_episode_count": 3,
+        "mean": 44.666666666666664
+      },
+      "clean_success_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "clean_success_steps": {
+        "ci_high": null,
+        "ci_low": null,
+        "eligible_episode_count": 0,
+        "mean": null
+      },
+      "deadline_miss_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "episode_count": 100,
+      "failure_taxonomy": {
+        "counts": {
+          "capture_near_occlusion": 90,
+          "late_predator_response": 10
+        },
+        "definitions_version": 1,
+        "failed_episode_count": 100,
+        "rates_among_failures": {
+          "capture_near_occlusion": 0.9,
+          "late_predator_response": 0.1
+        }
+      },
+      "latency_seconds": {
+        "mean": 1.7845130103127625e-05,
+        "mean_action_hz": 56037.697356139484,
+        "p50": 1.4600344002246857e-05,
+        "p95": 2.7971318922936915e-05,
+        "p99": 3.0319574289023856e-05
+      },
+      "open_space_visible_rate": {
+        "ci_high": 0.3322540329302643,
+        "ci_low": 0.3197366517527306,
+        "mean": 0.3259353039140938
+      },
+      "oscillation_score": {
+        "ci_high": 0.0036826406059892454,
+        "ci_low": 0.0023825503355704696,
+        "mean": 0.0030114996663919307
+      },
+      "path_efficiency": {
+        "ci_high": 0.0060594765868672495,
+        "ci_low": 0.0,
+        "mean": 0.0025259027350734114
+      },
+      "path_length": {
+        "ci_high": 25.409178079999197,
+        "ci_low": 24.495422682932862,
+        "mean": 25.016384548432956
+      },
+      "planner_call_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "planner_override_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "return": {
+        "ci_high": -62.99,
+        "ci_low": -67.25025,
+        "mean": -65.16
+      },
+      "skill_switch_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "steps": {
+        "ci_high": 300.0,
+        "ci_low": 290.39,
+        "mean": 296.02
+      },
+      "success_rate": {
+        "ci_high": 0.07,
+        "ci_low": 0.0,
+        "mean": 0.03
+      },
+      "survival_rate": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      },
+      "time_to_first_capture": {
+        "ci_high": 22.42025,
+        "ci_low": 18.15,
+        "eligible_episode_count": 100,
+        "mean": 20.16
+      },
+      "valid_action_rate": {
+        "ci_high": 1.0,
+        "ci_low": 1.0,
+        "mean": 1.0
+      },
+      "verifier_latency_mean_seconds": {
+        "ci_high": 0.0,
+        "ci_low": 0.0,
+        "mean": 0.0
+      }
+    }
+  },
+  "schema_version": 1,
+  "system_by_run": {
+    "direct_minimind": {
+      "cuda_peak_allocated_bytes": 9574651904,
+      "peak_process_rss_bytes": 1789464576,
+      "process_rss_bytes": 1768697856
+    },
+    "main": {
+      "cuda_peak_allocated_bytes": 9863720960,
+      "peak_process_rss_bytes": 1899126784,
+      "process_rss_bytes": 1888190464
+    }
+  }
+}

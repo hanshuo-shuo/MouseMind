@@ -1,0 +1,23 @@
+{
+  "anchor_count": 320,
+  "artifact": "p2_anchor_collection_aggregate",
+  "private_replay_records_committed": false,
+  "research_evidence": true,
+  "schema_version": 1,
+  "seed_count": 80,
+  "seed_pool": "data_collection",
+  "source_policy_counts": {
+    "direct-mlp": 108,
+    "p1-rule": 108,
+    "skill-perturbation": 104
+  },
+  "tag_counts": {
+    "first_predator_visibility": 82,
+    "near_occlusion": 128,
+    "near_wall": 187,
+    "planner_disagreement": 243,
+    "pre_capture_window": 137,
+    "recently_puffed": 113,
+    "strategic_stride": 206
+  }
+}

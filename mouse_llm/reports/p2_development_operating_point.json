@@ -1,0 +1,95 @@
+{
+  "artifact": "p2_development_operating_point",
+  "final_test_used": false,
+  "horizon_sweep": [
+    {
+      "capture_rate": 0.6,
+      "captures_per_episode": 2.4,
+      "clean_success_rate": 0.4,
+      "horizon": 1,
+      "task_success_rate": 1.0
+    },
+    {
+      "capture_rate": 0.625,
+      "captures_per_episode": 2.275,
+      "clean_success_rate": 0.375,
+      "horizon": 4,
+      "task_success_rate": 1.0
+    },
+    {
+      "capture_rate": 0.475,
+      "captures_per_episode": 1.9,
+      "clean_success_rate": 0.525,
+      "horizon": 8,
+      "task_success_rate": 1.0
+    },
+    {
+      "capture_rate": 0.775,
+      "captures_per_episode": 2.3,
+      "clean_success_rate": 0.225,
+      "horizon": 16,
+      "task_success_rate": 1.0
+    }
+  ],
+  "research_evidence": true,
+  "schema_version": 1,
+  "selected_planner_horizon": 8,
+  "selected_risk_threshold": 0.9,
+  "selected_system": "numeric-learned",
+  "selection_pool": "development",
+  "selection_rule": "maximize clean success; tie-break by task success, lower capture rate, then simpler/lower operating value",
+  "threshold_sweep": [
+    {
+      "capture_rate": 0.85,
+      "capture_rate_delta_vs_unverified": 0.375,
+      "captures_per_episode": 5.6,
+      "clean_success_delta_vs_unverified": -0.375,
+      "clean_success_rate": 0.15,
+      "task_success_delta_vs_unverified": 0.0,
+      "task_success_rate": 1.0,
+      "threshold": 0.1
+    },
+    {
+      "capture_rate": 0.8,
+      "capture_rate_delta_vs_unverified": 0.32500000000000007,
+      "captures_per_episode": 4.725,
+      "clean_success_delta_vs_unverified": -0.325,
+      "clean_success_rate": 0.2,
+      "task_success_delta_vs_unverified": 0.0,
+      "task_success_rate": 1.0,
+      "threshold": 0.3
+    },
+    {
+      "capture_rate": 0.75,
+      "capture_rate_delta_vs_unverified": 0.275,
+      "captures_per_episode": 4.55,
+      "clean_success_delta_vs_unverified": -0.275,
+      "clean_success_rate": 0.25,
+      "task_success_delta_vs_unverified": 0.0,
+      "task_success_rate": 1.0,
+      "threshold": 0.5
+    },
+    {
+      "capture_rate": 0.7,
+      "capture_rate_delta_vs_unverified": 0.22499999999999998,
+      "captures_per_episode": 3.325,
+      "clean_success_delta_vs_unverified": -0.22500000000000003,
+      "clean_success_rate": 0.3,
+      "task_success_delta_vs_unverified": 0.0,
+      "task_success_rate": 1.0,
+      "threshold": 0.7
+    },
+    {
+      "capture_rate": 0.625,
+      "capture_rate_delta_vs_unverified": 0.15000000000000002,
+      "captures_per_episode": 3.225,
+      "clean_success_delta_vs_unverified": -0.15000000000000002,
+      "clean_success_rate": 0.375,
+      "task_success_delta_vs_unverified": 0.0,
+      "task_success_rate": 1.0,
+      "threshold": 0.9
+    }
+  ],
+  "verifier_deployment_status": "not promoted: no swept operating point improved clean success and capture rate without material task-success loss",
+  "verifier_promoted": false
+}

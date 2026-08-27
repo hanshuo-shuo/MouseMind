@@ -173,26 +173,55 @@ def generate_response(
 
     start = time.perf_counter()
     with torch.inference_mode():
-        generation_args: dict[str, Any] = {}
         if action_constraint is not None:
-            generation_args["prefix_allowed_tokens_fn"] = (
-                action_constraint.prefix_allowed_tokens_fn(
-                    prompt_length=prompt_inputs["input_ids"].shape[1]
-                )
+            # MiniMind's custom GenerationMixin path has changed across
+            # Transformers releases and has previously ignored
+            # prefix_allowed_tokens_fn. Apply the trie mask explicitly so
+            # "constrained" always means constrained, independent of that
+            # integration detail.
+            output = prompt_inputs["input_ids"]
+            attention_mask = prompt_inputs["attention_mask"]
+            prompt_length = output.shape[1]
+            allowed_tokens = action_constraint.prefix_allowed_tokens_fn(
+                prompt_length=prompt_length
             )
-        output = model.generate(
-            inputs=prompt_inputs["input_ids"],
-            attention_mask=prompt_inputs["attention_mask"],
-            max_new_tokens=max_new_tokens,
-            do_sample=False,
-            temperature=1.0,
-            top_p=1.0,
-            top_k=0,
-            repetition_penalty=1.0,
-            pad_token_id=tokenizer.pad_token_id,
-            eos_token_id=tokenizer.eos_token_id,
-            **generation_args,
-        )
+            for _ in range(max_new_tokens):
+                logits = model(
+                    output,
+                    attention_mask=attention_mask,
+                ).logits[:, -1, :]
+                allowed = allowed_tokens(0, output[0])
+                allowed_tensor = torch.as_tensor(allowed, device=logits.device)
+                next_token = allowed_tensor[
+                    logits[0, allowed_tensor].argmax()
+                ].reshape(1, 1)
+                output = torch.cat((output, next_token), dim=1)
+                attention_mask = torch.cat(
+                    (
+                        attention_mask,
+                        torch.ones(
+                            (attention_mask.shape[0], 1),
+                            dtype=attention_mask.dtype,
+                            device=attention_mask.device,
+                        ),
+                    ),
+                    dim=1,
+                )
+                if int(next_token.item()) == int(tokenizer.eos_token_id):
+                    break
+        else:
+            output = model.generate(
+                inputs=prompt_inputs["input_ids"],
+                attention_mask=prompt_inputs["attention_mask"],
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                temperature=1.0,
+                top_p=1.0,
+                top_k=0,
+                repetition_penalty=1.0,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+            )
     elapsed = time.perf_counter() - start
     generated = output[0, prompt_inputs["input_ids"].shape[1] :]
     return tokenizer.decode(generated, skip_special_tokens=True), elapsed
