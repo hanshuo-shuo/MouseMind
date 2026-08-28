@@ -216,7 +216,7 @@ def _render(
         append_images=frames[1:],
         duration=100,
         loop=0,
-        optimize=False,
+        optimize=True,
         disposal=2,
     )
 
