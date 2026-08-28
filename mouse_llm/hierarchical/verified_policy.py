@@ -116,10 +116,19 @@ class ProposeVerifyPolicy:
         evade_distance: float = 0.35,
         temporal_window: int = 8,
         name: str = "learned-hierarchical",
+        observation_mode: str = "environment",
+        goal_destination_indices: tuple[int, int] | None = None,
     ):
         if planner_horizon <= 0:
             raise ValueError("planner_horizon must be positive")
         self.name = name
+        if observation_mode not in {"environment", "transfer"}:
+            raise ValueError(f"Unsupported observation mode {observation_mode!r}")
+        if goal_destination_indices is not None:
+            if len(goal_destination_indices) != 2 or min(goal_destination_indices) < 0:
+                raise ValueError("goal_destination_indices must contain two indices")
+        self.observation_mode = observation_mode
+        self.goal_destination_indices = goal_destination_indices
         self.action_count = len(destinations)
         self.specialist = specialist
         self.controller = GeometricSkillController(
@@ -189,7 +198,18 @@ class ProposeVerifyPolicy:
         legacy = policy_observation(
             observation, indices=LEGACY_GYM_SOURCE_INDICES
         )
-        decision = self.controller.act(self.current_skill, legacy)
+        goal_destination = (
+            np.asarray(observation, dtype=np.float64)[
+                list(self.goal_destination_indices)
+            ]
+            if self.goal_destination_indices is not None
+            else None
+        )
+        decision = self.controller.act(
+            self.current_skill,
+            legacy,
+            goal_destination=goal_destination,
+        )
         self.context_builder.record_decision(decision.action, self.current_skill)
         self.steps_until_replan -= 1
         metadata: dict[str, Any] = {

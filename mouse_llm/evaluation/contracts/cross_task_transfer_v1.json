@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "contract_name": "mousemind_cross_task_transfer_v1",
+  "source": {
+    "environment": "BotEvadeEnv",
+    "world": "21_05",
+    "task": "single fixed goal with predator"
+  },
+  "target": {
+    "environment": "OasisEnv",
+    "world": "21_05",
+    "task": "three ordered sampled goals followed by return to start",
+    "sampled_goal_count": 3,
+    "objective_count": 4,
+    "goal_threshold": 0.025,
+    "goal_locations": [
+      [0.265625, 0.5],
+      [0.3125, 0.7435696448143734],
+      [0.3125, 0.1752404735808355],
+      [0.4765625, 0.45940505919760444],
+      [0.640625, 0.7435696448143734],
+      [0.640625, 0.1752404735808355],
+      [0.78125, 0.5]
+    ],
+    "discrete_goal_projection": {
+      "default_goal_index": 5,
+      "default_location": [0.6875, 0.1752404735808355],
+      "frozen_location": [0.640625, 0.1752404735808355],
+      "projection_distance": 0.046875,
+      "reason": "The default goal is farther from every discrete action destination than the 0.025 completion threshold."
+    }
+  },
+  "seed_pools": {
+    "compatibility_audit": {
+      "start": 40000,
+      "stop_exclusive": 40010,
+      "count": 10,
+      "sha256": "a0de97dd4753e78c1995322262ce45e7b42901743691488b9e5b89b85c0ca61e"
+    },
+    "development": {
+      "start": 41000,
+      "stop_exclusive": 41040,
+      "count": 40,
+      "sha256": "d50a3ce15e5ac129264532c393cdfc16b64b8e53ec5376d9a04c7ea627adff51"
+    },
+    "final_test": {
+      "start": 42000,
+      "stop_exclusive": 42100,
+      "count": 100,
+      "sha256": "fc346ebd00a638934a831e6ce51c3eb3ed1365dd6eb2d2ac65fb7fdd23619965"
+    }
+  },
+  "max_steps": 600,
+  "time_step": 0.25,
+  "action_contract": {
+    "world": "21_05",
+    "action_count": 295,
+    "coordinate_dtype": "little-endian float64",
+    "coordinate_sha256": "8d2c7a70bb9afb65bac1a067d98d5985380cb623a22251415c189a2c1e9953b9"
+  },
+  "observation_contract": {
+    "legacy_semantic_fields": [
+      "prey_x",
+      "prey_y",
+      "prey_direction",
+      "predator_x",
+      "predator_y",
+      "predator_direction",
+      "prey_goal_distance",
+      "puffed",
+      "puff_cooled_down",
+      "finished"
+    ],
+    "transfer_extension_fields": [
+      "goal_x",
+      "goal_y",
+      "objectives_remaining"
+    ],
+    "literal_low_level_transfer": {
+      "compatible": false,
+      "reason": "The frozen BotEvade 10D specialist observes goal distance but not the active goal coordinates required by Oasis."
+    },
+    "planner_isolation_transfer": {
+      "compatible": true,
+      "goal_controller": "parameter-free nearest action to active goal",
+      "frozen_component": "high-level planner"
+    }
+  },
+  "conditions": [
+    {
+      "name": "seen_instruction",
+      "instruction_split": "train"
+    },
+    {
+      "name": "unseen_instruction",
+      "instruction_split": "unseen_test"
+    }
+  ],
+  "primary_metrics": [
+    "task_success_rate",
+    "clean_success_rate",
+    "goal_completion_rate",
+    "capture_rate",
+    "captures_per_episode"
+  ],
+  "secondary_metrics": [
+    "ordered_goals_completed",
+    "return_completed_rate",
+    "return",
+    "path_efficiency",
+    "steps",
+    "latency_p50",
+    "latency_p95",
+    "latency_p99",
+    "deadline_miss_rate"
+  ],
+  "selection": {
+    "planner_horizon": 8,
+    "rule_planner_horizon": 4,
+    "evade_distance": 0.35,
+    "preference": "survival_first",
+    "paired_seed_order_required": true,
+    "target_adaptation_allowed": false
+  },
+  "final_test_prohibition": "Final-test seeds must not be used for training, threshold or horizon selection, target adaptation, failure replay, filtering, or early stopping."
+}

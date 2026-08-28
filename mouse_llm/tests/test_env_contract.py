@@ -4,6 +4,7 @@ import os
 import math
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 
@@ -51,5 +52,59 @@ def test_botevade_reset_and_step_contract():
         assert {"captures", "is_success", "survived", "termination_reason"} <= info.keys()
         assert info["survived"] == int(info["captures"] == 0)
         assert info["is_success"] == int(env.model.prey_data.goal_achieved)
+    finally:
+        env.close()
+
+
+def test_oasis_reset_transfer_and_terminal_contract():
+    if not os.environ.get("CELLWORLD_CACHE"):
+        pytest.skip("CELLWORLD_CACHE is required for the offline environment smoke test")
+    required_path = (
+        Path(os.environ["CELLWORLD_CACHE"])
+        / "paths/hexagonal.21_05.astar.robot"
+    )
+    if not required_path.is_file():
+        pytest.skip(f"offline cache is missing {required_path}")
+    pytest.importorskip("gymnasium")
+    pytest.importorskip("cellworld")
+    from mouse_llm.envs.mice import OasisEnv
+
+    env = OasisEnv(
+        world_name="21_05",
+        use_lppos=False,
+        use_predator=True,
+        frame_stack_k=1,
+        max_step=2,
+    )
+    try:
+        first, _ = env.reset(seed=19)
+        first_predator = tuple(env.model.predator.state.location)
+        first_order = env.sampled_goal_order
+        second, _ = env.reset(seed=19)
+        assert np.array_equal(first, second)
+        assert tuple(env.model.predator.state.location) == first_predator
+        assert env.sampled_goal_order == first_order
+        assert env.legacy_policy_observation().shape == (10,)
+        transfer = env.transfer_policy_observation()
+        assert transfer.shape == (18,)
+        assert np.isfinite(transfer).all()
+        env.step(0)
+        _, _, terminated, truncated, info = env.step(0)
+        assert terminated or truncated
+        assert {
+            "captures",
+            "is_success",
+            "survived",
+            "termination_reason",
+            "goals_completed",
+            "goal_count",
+            "return_completed",
+            "objectives_completed",
+            "objective_count",
+        } <= info.keys()
+        assert info["survived"] == int(info["captures"] == 0)
+        assert info["is_success"] == int(
+            terminated and env.model.goal_location is None
+        )
     finally:
         env.close()

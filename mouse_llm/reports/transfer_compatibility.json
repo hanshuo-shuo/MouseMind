@@ -1,0 +1,61 @@
+{
+  "action_contract": {
+    "checks": {
+      "catalog_matches_source": true,
+      "coordinate_sha256": true,
+      "declared_count": true,
+      "source_count": true,
+      "source_matches_target": true,
+      "target_count": true
+    },
+    "coordinate_sha256": "8d2c7a70bb9afb65bac1a067d98d5985380cb623a22251415c189a2c1e9953b9",
+    "verified": true
+  },
+  "artifact": "cross_task_transfer_compatibility_audit",
+  "contract_name": "mousemind_cross_task_transfer_v1",
+  "contract_sha256": "eacc2e7438265e7847c7b324703cd0fbec9000190308c7662258a7f32a6747cd",
+  "observation_contract": {
+    "checks": {
+      "all_frozen_goals_reachable": true,
+      "default_goal_mismatch_reproduced": true,
+      "finite": true,
+      "legacy_prefix_matches_transfer": true,
+      "legacy_shape_10": true,
+      "transfer_shape_18": true
+    },
+    "default_goal_action_error": 0.046875,
+    "literal_low_level_transfer": {
+      "compatible": false,
+      "reason": "The frozen BotEvade 10D specialist observes goal distance but not the active goal coordinates required by Oasis."
+    },
+    "maximum_frozen_goal_action_error": 0.01875000000000001,
+    "planner_isolation_transfer": {
+      "compatible": true,
+      "frozen_component": "high-level planner",
+      "goal_controller": "parameter-free nearest action to active goal"
+    },
+    "verified": true
+  },
+  "private_data_used": false,
+  "research_evidence": true,
+  "research_evidence_blockers": [],
+  "reset_contract": {
+    "seed_count": 10,
+    "unique_goal_order_count": 10,
+    "verified": true
+  },
+  "schema_version": 1,
+  "terminal_contract": {
+    "checks": {
+      "all_objectives_completed": true,
+      "all_sampled_goals_completed": true,
+      "capture_free": true,
+      "return_completed": true,
+      "survival_independent_of_termination": true,
+      "task_success": true,
+      "terminated_without_truncation": true
+    },
+    "steps": 32,
+    "verified": true
+  }
+}

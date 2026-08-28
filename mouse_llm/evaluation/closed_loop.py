@@ -104,6 +104,12 @@ class EpisodeResult:
     verifier_latency_mean_seconds: float = 0.0
     verifier_latency_p95_seconds: float = 0.0
     amortized_planner_latency_seconds: float = 0.0
+    goals_completed: int = 0
+    goal_count: int = 1
+    return_completed: int = 0
+    objectives_completed: int = 0
+    objective_count: int = 1
+    goal_completion_rate: float = 0.0
 
 
 def policy_observation(
@@ -294,9 +300,28 @@ def _goal_distance(env: Any, observation: Sequence[float]) -> float:
     try:
         return float(env.model.prey_data.prey_goal_distance)
     except AttributeError:
+        if hasattr(getattr(env, "model", None), "prey_goal_distance"):
+            return float(env.model.prey_goal_distance)
         if hasattr(env, "goal_distance"):
             return float(env.goal_distance(observation))
     return 0.0
+
+
+def _policy_input(env: Any, policy: Policy, observation: Sequence[float]) -> np.ndarray:
+    mode = getattr(policy, "observation_mode", "legacy")
+    if mode == "transfer":
+        adapter = getattr(env, "transfer_policy_observation", None)
+        if not callable(adapter):
+            raise ValueError(
+                f"{type(env).__name__} does not provide a transfer observation"
+            )
+        return np.asarray(adapter())
+    if mode == "environment":
+        return np.asarray(observation)
+    if mode != "legacy":
+        raise ValueError(f"Unknown policy observation mode {mode!r}")
+    adapter = getattr(env, "legacy_policy_observation", None)
+    return np.asarray(adapter()) if callable(adapter) else np.asarray(observation)
 
 
 def classify_failure(
@@ -373,16 +398,7 @@ def rollout_episode(
     skills: list[str] = []
     while True:
         start = time.perf_counter()
-        wants_environment_observation = (
-            getattr(policy, "observation_mode", "legacy") == "environment"
-        )
-        policy_input = (
-            np.asarray(observation)
-            if wants_environment_observation
-            else env.legacy_policy_observation()
-            if hasattr(env, "legacy_policy_observation")
-            else np.asarray(observation)
-        )
+        policy_input = _policy_input(env, policy, observation)
         decision = policy.act(policy_input)
         latency = time.perf_counter() - start
         latencies.append(latency)
@@ -404,22 +420,34 @@ def rollout_episode(
             decision.action
         )
         raw_observation = np.asarray(observation).reshape(-1)
-        if len(raw_observation) >= 15:
+        if {
+            "predator_visible",
+            "near_wall",
+            "near_occlusion",
+            "puffed",
+        } <= terminal_info.keys():
+            predator_visible = bool(terminal_info["predator_visible"])
+            near_wall = bool(terminal_info["near_wall"])
+            near_occlusion = bool(terminal_info["near_occlusion"])
+            puffed = bool(terminal_info["puffed"])
+        elif len(raw_observation) >= 15:
             predator_visible = bool(raw_observation[3])
             near_wall = bool(raw_observation[7])
             near_occlusion = bool(raw_observation[8])
             puffed = bool(raw_observation[10])
-            if predator_visible:
-                predator_visible_steps += 1
-                if first_predator_visible_step is None:
-                    first_predator_visible_step = steps + 1
-                if not near_wall and not near_occlusion:
-                    open_space_visible_steps += 1
-            if puffed:
-                if first_capture_step is None:
-                    first_capture_step = steps + 1
-                capture_near_occlusion |= int(near_occlusion)
-                capture_in_open_space |= int(not near_wall and not near_occlusion)
+        else:
+            predator_visible = near_wall = near_occlusion = puffed = False
+        if predator_visible:
+            predator_visible_steps += 1
+            if first_predator_visible_step is None:
+                first_predator_visible_step = steps + 1
+            if not near_wall and not near_occlusion:
+                open_space_visible_steps += 1
+        if puffed:
+            if first_capture_step is None:
+                first_capture_step = steps + 1
+            capture_near_occlusion |= int(near_occlusion)
+            capture_in_open_space |= int(not near_wall and not near_occlusion)
         next_position = _prey_position(observation)
         path_length += float(np.linalg.norm(next_position - position))
         position = next_position
@@ -429,16 +457,19 @@ def rollout_episode(
         steps += 1
         if terminated or truncated:
             break
-    captures = int(terminal_info.get("captures", 0))
+    captures = int(terminal_info.get("captures", terminal_info.get("puff_count", 0)))
     if captures > 0 and first_capture_step is None:
         first_capture_step = steps
     success = int(bool(terminal_info.get("is_success", False)))
     survived = int(bool(terminal_info.get("survived", captures == 0)))
     clean_success = int(bool(success and captures == 0))
     latency_mean, latency_p50, latency_p95, latency_p99 = _quantiles(latencies)
-    if success and initial_goal_distance > 0:
-        path_efficiency = initial_goal_distance / max(
-            path_length, initial_goal_distance
+    task_minimum_distance = float(
+        terminal_info.get("task_minimum_distance", initial_goal_distance)
+    )
+    if success and task_minimum_distance > 0:
+        path_efficiency = task_minimum_distance / max(
+            path_length, task_minimum_distance
         )
     else:
         path_efficiency = 0.0
@@ -471,6 +502,15 @@ def rollout_episode(
     )
     goal_distance_min = min(goal_distances)
     goal_distance_end = goal_distances[-1]
+    goals_completed = int(terminal_info.get("goals_completed", success))
+    goal_count = int(terminal_info.get("goal_count", 1))
+    return_completed = int(terminal_info.get("return_completed", 0))
+    objectives_completed = int(
+        terminal_info.get("objectives_completed", goals_completed)
+    )
+    objective_count = int(terminal_info.get("objective_count", goal_count))
+    if goal_count <= 0 or objective_count <= 0:
+        raise ValueError("Goal and objective counts must be positive")
     failure_mode = classify_failure(
         success=success,
         captures=captures,
@@ -558,6 +598,12 @@ def rollout_episode(
         verifier_latency_mean_seconds=verifier_latency_mean,
         verifier_latency_p95_seconds=verifier_latency_p95,
         amortized_planner_latency_seconds=sum(planner_latencies) / steps,
+        goals_completed=goals_completed,
+        goal_count=goal_count,
+        return_completed=return_completed,
+        objectives_completed=objectives_completed,
+        objective_count=objective_count,
+        goal_completion_rate=objectives_completed / objective_count,
     )
 
 
@@ -586,17 +632,7 @@ def run_policy(
             observation, _ = env.reset(seed=int(seeds[0]))
             policy.reset(int(seeds[0]))
             for _ in range(warmup_actions):
-                wants_environment_observation = (
-                    getattr(policy, "observation_mode", "legacy") == "environment"
-                )
-                policy_input = (
-                    np.asarray(observation)
-                    if wants_environment_observation
-                    else env.legacy_policy_observation()
-                    if hasattr(env, "legacy_policy_observation")
-                    else np.asarray(observation)
-                )
-                policy.act(policy_input)
+                policy.act(_policy_input(env, policy, observation))
         rows: list[EpisodeResult] = []
         for index, seed in enumerate(seeds, start=1):
             rows.append(

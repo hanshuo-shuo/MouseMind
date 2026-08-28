@@ -33,8 +33,14 @@ class Oasis(Model):
                  agent_render_mode: Agent.RenderMode = Agent.RenderMode.SPRITE,
                  max_line_of_sight_distance: float = 1.0):
 
+        # Keep all task randomness local so Gymnasium ``reset(seed=...)`` can
+        # reproduce both the goal order and predator trajectory without
+        # mutating Python's process-wide random state.
+        self.rng = random.Random()
         if goal_sequence_generator is None:
-            goal_sequence_generator = lambda: random.sample(range(0, len(goal_locations)), 3)
+            goal_sequence_generator = lambda: self.rng.sample(
+                range(0, len(goal_locations)), 3
+            )
 
         self.start_location = (.05, .5)
         self.goal_locations = goal_locations
@@ -62,7 +68,8 @@ class Oasis(Model):
         if use_predator:
             self.predator = Robot(start_locations=self.loader.robot_start_locations,
                                   open_locations=self.loader.open_locations,
-                                  navigation=self.loader.navigation)
+                                  navigation=self.loader.navigation,
+                                  rng=self.rng)
 
             self.add_agent("predator", self.predator)
 
@@ -134,7 +141,7 @@ class Oasis(Model):
                 self.predator.set_destination(self.prey.state.location)
 
             if not self.predator.path:
-                self.predator.set_destination(random.choice(self.loader.open_locations))
+                self.predator.set_destination(self.rng.choice(self.loader.open_locations))
 
         if delta_t < self.puff_cool_down:
             self.puff_cool_down -= delta_t
@@ -169,10 +176,16 @@ class Oasis(Model):
     def reset(self):
         Model.reset(self)
         self.goal_achieved = False
+        self.goal_achieved_time = 0
         self.puff_count = 0
+        self.puffed = False
+        self.puff_cool_down = 0
         self.goal_sequence = self.goal_sequence_generator()
         self.__update_goal__()
         self.__update_state__()
+
+    def seed(self, seed=None):
+        self.rng.seed(seed)
 
     def step(self) -> float:
         delta_t = Model.step(self)

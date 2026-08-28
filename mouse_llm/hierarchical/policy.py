@@ -99,9 +99,20 @@ class GeometricSkillController:
     def _nearest_action(self, destination: np.ndarray) -> int:
         return int(np.linalg.norm(self.destinations - destination, axis=1).argmin())
 
-    def act(self, skill: Skill, observation: np.ndarray) -> PolicyDecision:
+    def act(
+        self,
+        skill: Skill,
+        observation: np.ndarray,
+        *,
+        goal_destination: np.ndarray | None = None,
+    ) -> PolicyDecision:
         state = np.asarray(observation, dtype=np.float64)
         if skill == Skill.GO_TO_GOAL:
+            if goal_destination is not None:
+                goal = np.asarray(goal_destination, dtype=np.float64).reshape(-1)
+                if len(goal) != 2 or not np.isfinite(goal).all():
+                    raise ValueError("goal_destination must contain finite x/y")
+                return PolicyDecision(self._nearest_action(goal))
             return self.specialist.act(observation)
         prey = state[:2]
         if skill == Skill.HOLD_POSITION:

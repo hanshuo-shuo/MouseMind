@@ -2,6 +2,7 @@ import enum
 import math
 import typing
 from collections import deque
+from pathlib import Path
 
 import numpy as np
 from gymnasium import Env
@@ -9,7 +10,34 @@ from gymnasium import spaces
 from enum import Enum
 
 from ._vendor import cellworld_game as cwgame
-from .utils import normalize_angle
+from .utils import find, load_cell_ids_near_occlusion, normalize_angle
+
+
+ASSET_DIR = Path(__file__).resolve().parent / "assets"
+
+# The first fifteen values intentionally mirror BotEvade's frame_stack_k=1
+# observation layout. The final three fields expose the active Oasis task
+# state without changing the frozen P2 planner input.
+TRANSFER_POLICY_FIELDS = (
+    "prey_x",
+    "prey_y",
+    "prey_direction",
+    "predator_visible",
+    "predator_x",
+    "predator_y",
+    "predator_direction",
+    "near_wall",
+    "near_occlusion",
+    "time_prey_seen_predator",
+    "puffed",
+    "puff_cooled_down",
+    "finished",
+    "peeking",
+    "prey_goal_distance",
+    "goal_x",
+    "goal_y",
+    "objectives_remaining",
+)
 
 # Fields that get frame-stacked (capture temporal dynamics)
 STACK_FIELDS = [
@@ -189,6 +217,11 @@ class OasisEnv(Environment):
         self.action_type = action_type
         self.observation_type = observation_type
         self.frame_stack_k = frame_stack_k
+        self.world_name = world_name
+        self.sampled_goal_count = 0
+        self.total_objective_count = 0
+        self.sampled_goal_order: tuple[int, ...] = ()
+        self.minimum_route_length = 0.0
 
         # Loader for action list
         self.loader = cwgame.CellWorldLoader(world_name=world_name)
@@ -250,6 +283,19 @@ class OasisEnv(Environment):
             self.observation = self.model.view.get_screen(normalized=True)
             self.observation_space = spaces.Box(0.0, 1.0, self.observation.shape, dtype=np.float32)
             self.frame_stack = None
+
+        if world_name == "21_05":
+            occlusion_asset = ASSET_DIR / "cell_ids_near_occlusion_21_05.npy"
+        elif world_name == "clump01_05":
+            occlusion_asset = ASSET_DIR / "cell_ids_near_occlusion.npy"
+        else:
+            raise ValueError(f"World name {world_name} not supported")
+        self.cell_ids_near_occlusion = load_cell_ids_near_occlusion(
+            occlusion_asset
+        )
+        self.cell_ids_near_wall = load_cell_ids_near_occlusion(
+            ASSET_DIR / "cell_ids_near_wall_strict.npy"
+        )
 
         # Episode trackers
         self.step_count = 0
@@ -329,6 +375,115 @@ class OasisEnv(Environment):
         stacked = np.concatenate(list(self.frame_stack), axis=0)
         return np.concatenate([stacked, current_nonstack], axis=0)
 
+    def _near_geometry(self) -> tuple[bool, bool]:
+        closest_cell = find(self.loader.locations, self.model.prey.state.location[:2])
+        return (
+            bool(closest_cell in self.cell_ids_near_wall),
+            bool(closest_cell in self.cell_ids_near_occlusion),
+        )
+
+    def _goal_progress(self) -> dict[str, int]:
+        if self.sampled_goal_count <= 0 or self.total_objective_count <= 0:
+            raise RuntimeError("Oasis goal contract is unavailable before reset")
+        if self.model.goal_location is None:
+            sampled_completed = self.sampled_goal_count
+            return_completed = 1
+        elif tuple(self.model.goal_location) == tuple(self.model.start_location):
+            sampled_completed = self.sampled_goal_count
+            return_completed = 0
+        else:
+            sampled_completed = self.sampled_goal_count - (
+                len(self.model.goal_sequence) + 1
+            )
+            return_completed = 0
+        objectives_completed = sampled_completed + return_completed
+        return {
+            "goals_completed": int(sampled_completed),
+            "goal_count": int(self.sampled_goal_count),
+            "return_completed": int(return_completed),
+            "objectives_completed": int(objectives_completed),
+            "objective_count": int(self.total_objective_count),
+            "objectives_remaining": int(
+                self.total_objective_count - objectives_completed
+            ),
+        }
+
+    def legacy_policy_observation(self) -> np.ndarray:
+        """Encode the frozen P2 10D semantic interface from Oasis state.
+
+        This adapter deliberately excludes the active goal coordinates. A
+        literal BotEvade low-level checkpoint can therefore be evaluated, but
+        the compatibility audit marks it insufficient for arbitrary Oasis
+        goals rather than silently claiming full-system transfer.
+        """
+        predator_visible = self._predator_visible()
+        if predator_visible:
+            predator_x = self.model.predator.state.location[0]
+            predator_y = self.model.predator.state.location[1]
+            predator_direction = math.radians(self.model.predator.state.direction)
+        else:
+            predator_x = 0.0
+            predator_y = 0.0
+            predator_direction = 0.0
+        return np.asarray(
+            [
+                self.model.prey.state.location[0],
+                self.model.prey.state.location[1],
+                math.radians(self.model.prey.state.direction),
+                predator_x,
+                predator_y,
+                predator_direction,
+                self.model.prey_goal_distance,
+                self.observation.puffed,
+                self.observation.puff_cooled_down,
+                self.observation.finished,
+            ],
+            dtype=np.float32,
+        )
+
+    def transfer_policy_observation(self) -> np.ndarray:
+        """Return BotEvade-compatible planner state plus active Oasis goal."""
+        predator_visible = self._predator_visible()
+        if predator_visible:
+            predator_x = self.model.predator.state.location[0]
+            predator_y = self.model.predator.state.location[1]
+            predator_direction = normalize_angle(
+                math.radians(self.model.predator.state.direction)
+            )
+        else:
+            predator_x = 0.0
+            predator_y = 0.0
+            predator_direction = 0.0
+        near_wall, near_occlusion = self._near_geometry()
+        goal = self.model.goal_location or (0.0, 0.0)
+        progress = self._goal_progress()
+        result = np.asarray(
+            [
+                self.model.prey.state.location[0],
+                self.model.prey.state.location[1],
+                normalize_angle(math.radians(self.model.prey.state.direction)),
+                predator_visible,
+                predator_x,
+                predator_y,
+                predator_direction,
+                near_wall,
+                near_occlusion,
+                self.time_prey_seen_predator,
+                self.observation.puffed,
+                self.observation.puff_cooled_down,
+                self.observation.finished,
+                0.0,
+                self.model.prey_goal_distance,
+                goal[0],
+                goal[1],
+                progress["objectives_remaining"],
+            ],
+            dtype=np.float32,
+        )
+        if len(result) != len(TRANSFER_POLICY_FIELDS) or not np.isfinite(result).all():
+            raise ValueError("Oasis transfer observation violates its contract")
+        return result
+
     # ------------------------------------------------------------------
     # Action
     # ------------------------------------------------------------------
@@ -350,21 +505,38 @@ class OasisEnv(Environment):
         reward = self.reward_function(obs)
         self.episode_reward += reward
 
-        # Clear one-shot puff flag after it has been read into the observation
-        if self.model.puffed:
+        puffed = bool(self.model.puffed)
+        predator_visible = self._predator_visible()
+        near_wall, near_occlusion = self._near_geometry()
+        progress = self._goal_progress()
+
+        # Clear one-shot puff flag after it has been read into the observation.
+        if puffed:
             self.model.puffed = False
 
         done = not self.model.running
+        captures = int(self.model.puff_count)
+        is_success = int(done and self.model.goal_location is None)
+        survived = int(captures == 0)
+        info = {
+            "captures": captures,
+            "puff_count": captures,
+            "reward": self.episode_reward,
+            "episode_reward": self.episode_reward,
+            "is_success": is_success,
+            "survived": survived,
+            "puffed": int(puffed),
+            "predator_visible": int(predator_visible),
+            "near_wall": int(near_wall),
+            "near_occlusion": int(near_occlusion),
+            "task_minimum_distance": self.minimum_route_length,
+            "goal_order": list(self.sampled_goal_order),
+            **progress,
+        }
         if done or truncated:
-            survived = int(done and self.model.puff_count == 0)
-            info = {
-                "puff_count": self.model.puff_count,
-                "episode_reward": self.episode_reward,
-                "is_success": survived,
-                "survived": survived,
-            }
-        else:
-            info = {}
+            info["termination_reason"] = (
+                "goal_sequence_complete" if is_success else "timeout"
+            )
 
         return obs, reward, done, truncated, info
 
@@ -391,7 +563,24 @@ class OasisEnv(Environment):
         return obs, {}
 
     def reset(self, options=None, seed=None):
+        if seed is not None:
+            self.model.seed(seed)
         self.model.reset()
+        self.sampled_goal_count = len(self.model.goal_sequence) + 1
+        self.total_objective_count = self.sampled_goal_count + 1
+        active_goal_index = self.model.goal_locations.index(self.model.goal_location)
+        self.sampled_goal_order = (
+            active_goal_index,
+            *tuple(int(value) for value in self.model.goal_sequence),
+        )
+        route = [
+            self.model.start_location,
+            *(self.model.goal_locations[index] for index in self.sampled_goal_order),
+            self.model.start_location,
+        ]
+        self.minimum_route_length = float(
+            sum(math.dist(left, right) for left, right in zip(route[:-1], route[1:]))
+        )
         Environment.reset(self, options=options, seed=seed)
         return self.__reset__()
 
