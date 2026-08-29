@@ -20,7 +20,11 @@ MiniMind collapsed from 89% to 0% task success.
 
 [Transfer study](TRANSFER_RESULTS.md) · [Technical guide](mouse_llm/README.md) · [Earlier learned-control result](P2_RESULTS.md) · [Public smoke demo](#run-the-public-demo)
 
-![MiniMind instruction-shift transfer rollout](mouse_llm/reports/figures/transfer_rollout.gif)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/hanshuo-shuo/MouseMind/main/mouse_llm/reports/figures/transfer_rollout.gif" alt="MiniMind instruction-shift transfer rollout" width="100%">
+</p>
+
+[Open the animation directly](mouse_llm/reports/figures/transfer_rollout.gif).
 
 The animation uses the predetermined first final seed (`42000`). The left panel
 is the goal-only interface; the middle and right panels use identical MiniMind

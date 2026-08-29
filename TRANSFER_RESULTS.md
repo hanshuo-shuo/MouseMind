@@ -18,7 +18,11 @@ The target-task interface restored completion, but none of the frozen strategic 
 
 ![Frozen cross-task transfer](mouse_llm/reports/figures/transfer_boundary.png)
 
-![MiniMind instruction-shift rollout](mouse_llm/reports/figures/transfer_rollout.gif)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/hanshuo-shuo/MouseMind/main/mouse_llm/reports/figures/transfer_rollout.gif" alt="MiniMind instruction-shift transfer rollout" width="100%">
+</p>
+
+[Open the animation directly](mouse_llm/reports/figures/transfer_rollout.gif).
 
 The animation uses the predetermined first final seed (`42000`). The left panel is the goal-only interface; the other panels use identical MiniMind weights with seen versus unseen instruction templates. Goal-only completes with one capture; seen-instruction MiniMind visits all goals but times out before returning with 33 captures; unseen-instruction MiniMind completes no goals and records 50 captures. This is qualitative—claims and intervals come from the 100-seed aggregate.
 
