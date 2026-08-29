@@ -11,20 +11,20 @@ from typing import Any
 COLORS = {
     "direct-mlp": "#8c98a4",
     "p1-rule": "#e69f00",
-    "numeric-learned": "#4c78a8",
-    "numeric-verified": "#2ca25f",
-    "minimind-learned": "#8b5cf6",
-    "minimind-verified": "#0f9d76",
+    "numeric-learned": "#6b7280",
+    "numeric-verified": "#9ca3af",
+    "minimind-learned": "#7c3aed",
+    "minimind-verified": "#a78bfa",
     "minimind-no-history": "#b794f4",
     "minimind-no-instruction": "#d6bcfa",
 }
 CORE_POLICIES = (
     "direct-mlp",
     "p1-rule",
-    "numeric-learned",
-    "numeric-verified",
     "minimind-learned",
     "minimind-verified",
+    "numeric-learned",
+    "numeric-verified",
 )
 SAFETY_LABEL_OFFSETS = {
     "numeric-learned": (8, -22),
@@ -45,6 +45,13 @@ def _load(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload.get("experiment") != "mousemind_seeded_closed_loop":
         raise ValueError(f"Not a closed-loop aggregate report: {path}")
+    return payload
+
+
+def _load_alignment(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("artifact") != "mousemind_trajectory_profile_alignment":
+        raise ValueError(f"Not a trajectory-profile alignment report: {path}")
     return payload
 
 
@@ -120,11 +127,11 @@ def safety_frontier(
             alpha=0.65,
             linewidth=2,
             marker="o",
-            label="verifier threshold sweep (development)",
+            label="upper-reference verifier sweep (development)",
         )
     axis.set_xlabel("Clean success (%)  → safer completion")
     axis.set_ylabel("Task success (%)")
-    axis.set_title("Offline imitation did not predict closed-loop control")
+    axis.set_title("Proposed MiniMind hierarchy, baselines, and upper references")
     axis.grid(alpha=0.2)
     axis.set_xlim(left=0)
     axis.set_ylim(bottom=0)
@@ -144,7 +151,14 @@ def ood_generalization(
     for _, report in reports[1:]:
         common &= set(report["policies"])
     policies = [
-        name for name in CORE_POLICIES if name in common and name != "direct-mlp"
+        name
+        for name in (
+            "minimind-learned",
+            "minimind-verified",
+            "numeric-learned",
+            "numeric-verified",
+        )
+        if name in common
     ]
     fig, axis = plt.subplots(figsize=(9.0, 5.2))
     x = list(range(len(reports)))
@@ -171,7 +185,7 @@ def ood_generalization(
         )
     axis.set_xticks(x, [name.replace("_", "\n") for name, _ in reports])
     axis.set_ylabel("Clean success (%)")
-    axis.set_title("Fresh ID and out-of-distribution robustness")
+    axis.set_title("Proposed MiniMind and non-language upper-reference robustness")
     axis.grid(axis="y", alpha=0.2)
     axis.set_ylim(bottom=0)
     axis.legend(frameon=False, ncol=2)
@@ -225,6 +239,82 @@ def planner_ablation(report: dict[str, Any], output: Path) -> None:
     plt.close(fig)
 
 
+def trajectory_alignment(report: dict[str, Any], output: Path) -> None:
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    if report.get("artifact") != "mousemind_trajectory_profile_alignment":
+        raise ValueError("Not a trajectory-profile alignment report")
+    order = (
+        "direct-minimind-lora",
+        "direct-mlp",
+        "p1-rule",
+        "minimind-no-history",
+        "minimind-no-instruction",
+        "minimind-learned",
+        "numeric-learned",
+    )
+    labels = {
+        "direct-minimind-lora": "Direct MiniMind LoRA\nbaseline",
+        "direct-mlp": "MLP BC\nlow-level reference",
+        "p1-rule": "P1 rule hierarchy\nbaseline",
+        "minimind-no-history": "MiniMind\nno history",
+        "minimind-no-instruction": "MiniMind\nno instruction",
+        "minimind-learned": "Full MiniMind hierarchy\nPROPOSED",
+        "numeric-learned": "Numeric planner\nupper reference",
+    }
+    colors = {
+        "direct-minimind-lora": "#a8b1bb",
+        "direct-mlp": "#8c98a4",
+        "p1-rule": "#e69f00",
+        "minimind-no-history": "#c4b5fd",
+        "minimind-no-instruction": "#ddd6fe",
+        "minimind-learned": "#7c3aed",
+        "numeric-learned": "#6b7280",
+    }
+    policies = [name for name in order if name in report["policies"]]
+    means = [
+        float(report["policies"][name]["alignment_distance"]["mean"])
+        for name in policies
+    ]
+    lows = [
+        float(report["policies"][name]["alignment_distance"]["ci_low"])
+        for name in policies
+    ]
+    highs = [
+        float(report["policies"][name]["alignment_distance"]["ci_high"])
+        for name in policies
+    ]
+    positions = np.arange(len(policies))
+    fig, axis = plt.subplots(figsize=(9.4, 5.6))
+    bars = axis.barh(
+        positions,
+        means,
+        color=[colors[name] for name in policies],
+        xerr=[
+            [mean - low for mean, low in zip(means, lows, strict=True)],
+            [high - mean for mean, high in zip(means, highs, strict=True)],
+        ],
+        capsize=3,
+    )
+    axis.set_yticks(positions, [labels[name] for name in policies])
+    axis.invert_yaxis()
+    axis.set_xlabel("Behavioral-profile alignment distance (lower is better)")
+    axis.set_title("Hierarchical MiniMind approaches held-out source behavior")
+    axis.grid(axis="x", alpha=0.2)
+    for bar, mean in zip(bars, means, strict=True):
+        axis.text(
+            mean + 0.008,
+            bar.get_y() + bar.get_height() / 2,
+            f"{mean:.3f}",
+            va="center",
+            fontsize=9,
+        )
+    fig.tight_layout()
+    _save(fig, output)
+    plt.close(fig)
+
+
 def _named_path(value: str) -> tuple[str, Path]:
     if "=" not in value:
         raise argparse.ArgumentTypeError("expected NAME=PATH")
@@ -242,6 +332,7 @@ def main() -> None:
     parser.add_argument("--id-report", type=Path, required=True)
     parser.add_argument("--ood-report", action="append", type=_named_path, default=[])
     parser.add_argument("--frontier-report", action="append", type=_threshold_path, default=[])
+    parser.add_argument("--trajectory-alignment", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -252,6 +343,11 @@ def main() -> None:
     ood_generalization(ood, args.output_dir / "p2_ood_generalization.png")
     latency_tradeoff(identity, args.output_dir / "p2_latency_tradeoff.png")
     planner_ablation(identity, args.output_dir / "p2_planner_ablation.png")
+    if args.trajectory_alignment is not None:
+        trajectory_alignment(
+            _load_alignment(args.trajectory_alignment),
+            args.output_dir / "p2_trajectory_alignment.png",
+        )
 
 
 if __name__ == "__main__":

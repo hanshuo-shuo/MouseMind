@@ -1,77 +1,48 @@
-# MouseMind — Interface Before Intelligence
+# MouseMind — Learning Strategy Under Closed-Loop Risk
 
-**A frozen cross-task study of representation, strategy, and closed-loop risk.**
+**A MiniMind language policy became useful when control was moved from direct
+actions to hierarchical strategy.**
 
-MouseMind first showed that offline imitation accuracy did not predict
-closed-loop control. The next question was harder: did the learned BotEvade
-strategy transfer to the ordered multi-goal Oasis task?
+Direct MiniMind LoRA reached **26% task / 1% clean success** on fresh BotEvade
+seeds. The proposed MiniMind hierarchy instead uses language and temporal
+context to choose among three strategic skills while a compact BC specialist
+executes goal motion. It reached **97% task / 12% clean success** and reduced
+captures from 98.60 to 7.37 per episode. The paired gains versus direct
+MiniMind were +71 task points, +11 clean points, and −91.23 captures per
+episode.
 
-The literal answer was no. BotEvade and Oasis share the same 295 actions, but
-the frozen 10D specialist observes only goal distance—not the active goal
-coordinates required by Oasis. Every literal full-stack policy reached **0%
-task success** on 100 untouched final seeds.
+Removing either temporal history or instruction conditioning reduced the
+MiniMind hierarchy to **80% task / 1% clean success**, directly supporting the
+proposed structure. Stronger non-language and privileged-information systems
+are retained as upper references: the numeric planner reached 100% / 38%, and
+the aligned Oasis goal-coordinate oracle reached 100% / 41%. They quantify the
+remaining oracle gap rather than being presented as the proposed method.
 
-After repairing only that interface with the same parameter-free active-goal
-controller for every planner, the goal-only reference reached **100% task
-success, 41% clean success, and 1.21 captures per episode**. Adding the frozen
-P1, numeric, or MiniMind strategy reduced clean success to 5%, 3%, and 0% and
-added 22.42, 19.15, and 31.18 captures per episode. Under unseen instructions,
-MiniMind collapsed from 89% to 0% task success.
+[Technical guide](mouse_llm/README.md) · [P2 results](P2_RESULTS.md) · [Oracle analysis](ORACLE_ANALYSIS.md) · [Transfer study](TRANSFER_RESULTS.md) · [Trajectory alignment](TRAJECTORY_ALIGNMENT.md) · [Action alignment](MOUSE_ALIGNMENT.md) · [Public smoke demo](#run-the-public-demo)
 
-[Transfer study](TRANSFER_RESULTS.md) · [Technical guide](mouse_llm/README.md) · [Earlier learned-control result](P2_RESULTS.md) · [Public smoke demo](#run-the-public-demo)
+![MiniMind hierarchy source-behavior alignment](mouse_llm/reports/figures/p2_trajectory_alignment.png)
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/hanshuo-shuo/MouseMind/main/mouse_llm/reports/figures/transfer_rollout.gif" alt="MiniMind instruction-shift transfer rollout" width="100%">
-</p>
+| Role, fresh ID (100 paired seeds) | Task success | Clean success | Captures / episode |
+| --- | ---: | ---: | ---: |
+| Baseline — direct MiniMind LoRA | 26% | 1% | 98.60 |
+| Baseline — direct MLP BC | 20% | 5% | 87.90 |
+| Baseline — P1 rule hierarchy | 79% | 14% | 11.20 |
+| Ablation — MiniMind without history | 80% | 1% | 13.15 |
+| Ablation — MiniMind without instruction | 80% | 1% | 13.15 |
+| **Proposed — full MiniMind hierarchy** | **97%** | **12%** | **7.37** |
+| Upper reference — numeric planner | 100% | 38% | 2.66 |
 
-[Open the animation directly](mouse_llm/reports/figures/transfer_rollout.gif).
+On a separate 11-feature behavioral-profile alignment audit, full MiniMind is
+the best MiniMind variant at **0.288** (lower is better), versus 0.531 for
+direct MiniMind LoRA, 0.347 for either structural ablation, and 0.315 for P1.
+The numeric non-language upper reference reaches 0.200. See the full
+[role definitions, paired deltas, and oracle gaps](ORACLE_ANALYSIS.md).
 
-The animation uses the predetermined first final seed (`42000`). The left panel
-is the goal-only interface; the middle and right panels use identical MiniMind
-weights with seen versus unseen instruction templates. Goal-only completes with
-one capture; seen-instruction MiniMind visits all three goals but times out
-before returning with 33 captures; unseen-instruction MiniMind completes no
-goals and records 50 captures. This is a qualitative illustration—the claims
-below come from the full paired 100-seed aggregate.
-
-![Frozen cross-task transfer result](mouse_llm/reports/figures/transfer_boundary.png)
-
-| Frozen transfer, 100 paired seeds | Task success | Objective completion | Clean success | Captures / episode |
-| --- | ---: | ---: | ---: | ---: |
-| Direct MLP, literal stack | 0% | 1.8% | 0% | 128.85 |
-| Numeric planner, literal stack | 0% | 0.2% | 0% | 30.38 |
-| **Goal controller, aligned** | **100%** | **100%** | **41%** | **1.21** |
-| P1 rule planner, aligned | 98% | 99.5% | 5% | 23.63 |
-| Numeric planner, aligned | 95% | 98.2% | 3% | 20.36 |
-| MiniMind planner, aligned | 89% | 94.8% | 0% | 32.39 |
-
-Against the aligned goal-only reference, paired 95% confidence intervals show
-that every transferred planner made clean success worse: P1 by -36 points
-(-47 to -25), numeric by -38 (-47 to -28), and MiniMind by -41 (-51 to -31).
-The corresponding capture increases were +22.42 (19.36–25.62), +19.15
-(14.53–25.02), and +31.18 (27.70–34.65) per episode.
-
-> Thirty-second takeaway: a strategy cannot transfer through an insufficient
-> interface, and restoring task completion does not establish strategic or safe
-> transfer. The minimal controller beat every frozen learned planner.
-
-## Earlier finding: offline accuracy did not predict control
-
-A 145K behavior-cloning specialist achieved 55.7% held-out action accuracy but
-only 17% historical closed-loop task success. A hand-coded hierarchy raised
-that to 74%; a counterfactual 17.9K numeric planner later reached 100% task and
-38% clean success on 100 untouched BotEvade seeds. A calibrated risk critic
-scored 0.959 AUROC offline but worsened every closed-loop operating point and
-was not promoted.
-
-![Fresh-ID BotEvade safety and task-success frontier](mouse_llm/reports/figures/p2_safety_frontier.png)
-
-| BotEvade fresh ID, 100 paired seeds | Task success | Clean success | Capture rate | Captures / episode |
-| --- | ---: | ---: | ---: | ---: |
-| Numeric learned planner, K=8 | 100% | 38% | 62% | 2.66 |
-| MiniMind learned planner | 97% | 12% | 88% | 7.37 |
-| P1 rule hierarchy | 79% | 14% | 86% | 11.20 |
-| Direct 145K MLP | 20% | 5% | 94% | 87.90 |
+> Thirty-second takeaway: the MiniMind contribution is hierarchical strategy,
+> not direct coordinate prediction. The full language-conditioned hierarchy
+> strongly outperforms direct MiniMind and both structural ablations; specialist,
+> numeric, and privileged goal systems are reported afterward as upper
+> references that expose remaining headroom.
 
 ## What I built
 
@@ -85,6 +56,10 @@ was not promoted.
 - Added a fair `10 → 256 → 256 → 295` MLP behavior-cloning specialist.
 - Added free and token-constrained JSON decoding so output formatting can be
   separated from policy quality.
+- Added a source-trajectory alignment audit on the identical frozen held-out
+  states, including predator-visible/hidden strata and action-distribution shift.
+- Added a complete behavioral-profile alignment audit over 500 held-out source
+  episodes and an explicit baseline/proposed/oracle comparison taxonomy.
 - Built paired closed-loop rollouts over identical seeds with bootstrap
   confidence intervals, return, success, capture, survival, path efficiency,
   p50/p95/p99 latency, action Hz, and control-deadline misses.
@@ -105,17 +80,15 @@ was not promoted.
   system once on fresh ID and OOD conditions.
 - Closed one P2.1 failure-data iteration; hard-failure upweighting worsened clean
   success from 52.5% to 45.0%, so the iteration was not selected.
-- Audited BotEvade/Oasis transfer compatibility and failed closed on three
-  hidden contract defects: non-deterministic Oasis resets, conflated success and
-  survival semantics, and a default goal outside the discrete action threshold.
-- Separated literal full-stack transfer from planner-isolation transfer, froze
-  disjoint development/final pools, recorded source/checkpoint hashes, and ran
-  100 paired final seeds without target training or final-seed selection.
+- Audited BotEvade/Oasis transfer compatibility and failed closed on
+  non-deterministic resets, conflated terminal semantics, and an unreachable
+  discrete goal.
+- Separated literal full-stack transfer from planner-isolation transfer and ran
+  both on 100 untouched paired Oasis seeds without target training.
 - Added deterministic failure taxonomy and replay-queue mining for targeted
   corrective demonstrations.
 - Built private-data guards, synthetic CI, a public one-command demo, Slurm
-  pipelines, aggregate-only result generation, and a privacy-safe final-seed
-  rollout animation.
+  pipelines, aggregate-only publication, and a privacy-safe rollout animation.
 
 ## What is upstream
 
@@ -136,16 +109,21 @@ flowchart LR
     A["Private transition CSV"] --> B["Validation + episode reconstruction"]
     B --> C["Leakage-safe JSONL splits"]
     C --> D["MiniMind direct-action BC"]
-    C --> E["145K MLP goal specialist"]
-    I["Instruction + semantic history"] --> P["Learned skill proposal"]
-    X["Exact replay + counterfactual branches"] --> P
+    C --> E["BC low-level upper reference / specialist"]
+    I["Instruction + semantic history"] --> P["Proposed MiniMind skill planner"]
+    X["Exact-replay training-label oracle"] --> P
     P --> V["Calibrated risk critic"]
     V --> Q["Goal / evade / hold skill"]
     E --> Q
     Q --> G["Seeded BotEvade rollouts"]
+    Q --> T["Literal Oasis transfer · fail closed"]
+    P --> U["Frozen planner isolation"]
+    R["Privileged active-goal oracle interface"] --> U
+    U --> O["Paired Oasis rollouts"]
     D --> G
     H["Random policy"] --> G
     G --> J["Success · captures · return · latency"]
+    O --> J
     J --> K["Failure taxonomy + replay queue"]
     K --> L["Corrective demonstrations / next policy"]
 ```
@@ -157,11 +135,12 @@ flowchart LR
 | V0 — Direct MiniMind BC | LoRA reaches 41.0% offline accuracy, but only 23% historical task / 1% clean success under valid constrained decoding. |
 | V1 — Specialist deployment | A 145K MLP wins offline at 55.7%, but reaches only 17% historical closed-loop success. |
 | P1 — Rule hierarchy | Keep the MLP as goal specialist; strategic abstraction reaches 74% historical success. |
-| P2 — Learned hierarchy | Counterfactual numeric planning reaches 100% task / 38% clean success on 100 untouched final seeds. |
+| **P2 — Proposed MiniMind hierarchy** | Language-conditioned strategy reaches 97% task / 12% clean success, versus 26% / 1% for direct MiniMind; history and instruction ablations fall to 80% / 1%. |
+| P2 upper reference | The non-language numeric planner reaches 100% task / 38% clean success and defines remaining high-level headroom. |
 | P2 Verify | The critic is well calibrated offline but all runtime threshold points are worse; verifier not promoted. |
 | P2.1 | Corrective hard-failure upweighting reduces development clean success; iteration rejected. |
-| Transfer audit | Literal BotEvade-to-Oasis transfer is fail-closed: the 10D specialist lacks active goal coordinates. |
-| Interface-aligned transfer | The minimal goal controller reaches 100% task / 41% clean success; every frozen planner reduces clean success and increases captures. |
+| Transfer audit | Literal BotEvade-to-Oasis transfer fails closed because the frozen 10D specialist lacks active goal coordinates. |
+| Target oracle analysis | The goal-coordinate controller reaches 100% task / 41% clean success; frozen planners expose a large remaining transfer gap. |
 
 ## Run the public demo
 
@@ -207,6 +186,27 @@ base reached 1.17% exact accuracy / 29.13% destination error, while LoRA retaine
 41.02% / 9.45%. Formatting therefore did not explain the policy-quality gap.
 For this numeric task, the 145K specialist remained the stronger offline model.
 
+## Source mouse trajectory alignment
+
+This is a low-level teacher-forced component diagnostic on the same 512
+held-out source states. Full hierarchies are evaluated in the separate
+[trajectory-profile alignment](TRAJECTORY_ALIGNMENT.md).
+
+| Policy | Overall action agreement | Predator hidden (N=492) | Predator visible (N=20) | Destination error | Action-distribution JS |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Base MiniMind, constrained | 1.2% | 1.2% | 0.0% | 29.1% | 0.954 bits |
+| Mouse-policy LoRA, constrained | 41.0% | 41.1% | 40.0% | 9.4% | 0.238 bits |
+| MLP BC, low-level upper reference | **55.7%** | **56.5%** | 35.0% | **2.2%** | **0.128 bits** |
+
+The MLP is the closest overall match to the source action labels and action
+distribution. The predator-visible stratum contains only 20 samples, so the
+MLP/LoRA ordering there is not resolved: their 95% intervals are 15–55% and
+20–60%, respectively. Full intervals, definitions, and limitations are in
+[MOUSE_ALIGNMENT.md](MOUSE_ALIGNMENT.md); the aggregate evidence is
+[source_mouse_alignment.json](mouse_llm/reports/source_mouse_alignment.json).
+The legacy file is a BotEvade simulator-policy export, not biological mouse
+behavior, and one-step agreement is not a safety claim.
+
 ## Closed-loop benchmark contract
 
 The online benchmark defaults to 100 paired seeds. Every policy is evaluated
@@ -236,14 +236,56 @@ progress while repeatedly entering unsafe states. MouseMind therefore keeps the
 MLP at the low-level controller and moves language/context to high-level skill
 selection and replanning.
 
-The language model is therefore evaluated at the strategic layer, not used as a
-needlessly expensive coordinate classifier. Skill LoRA improved offline planner
-accuracy from 25.0% to 63.5% and reached 62.2% on frozen unseen paraphrases;
-removing history reduced accuracy to 57.4%, and removing the instruction reduced
-it to 50.7%. In fresh closed loop it reached 97% task success, demonstrating
-useful learned strategy, but only 12% clean success. The numeric planner reached
-38% clean success with sub-millisecond p95 latency. Language conditioning added
-capability at this scale, but it did not win the control benchmark.
+The proposed MiniMind model is therefore evaluated at the strategic layer, not
+as an expensive coordinate classifier. Skill LoRA improved offline planner
+accuracy from 25.0% to 63.5% and reached 62.2% on frozen unseen paraphrases. In
+fresh closed loop, the full hierarchy reached 97% task / 12% clean success;
+removing either history or instruction reduced it to 80% / 1%. Relative to
+direct MiniMind LoRA, the hierarchy adds 71 task points and removes 91.23
+captures per episode.
+
+The numeric planner remains a non-language upper reference at 100% task / 38%
+clean success. This gap is reported explicitly in the oracle analysis. The
+supported contribution is that MiniMind becomes an effective, instruction-aware
+strategic controller through the hierarchical design—not that language
+generation is intrinsically superior to numeric control.
+
+## Oracle analysis: Interface Before Intelligence
+
+The frozen cross-task study asks whether the learned BotEvade strategy transfers
+to the ordered multi-goal Oasis task. This analysis is placed after the proposed
+MiniMind result because it is an oracle-gap study, not the main-method ranking.
+
+BotEvade and Oasis share the same 295 actions, but the frozen 10D specialist
+observes only goal distance—not the active goal coordinates required by Oasis.
+Every literal full-stack policy therefore reached **0% task success** on 100
+untouched final seeds. This is a fail-closed interface result.
+
+After repairing only that interface with the same parameter-free active-goal
+controller for every planner, the privileged goal-only reference reached
+**100% task success, 41% clean success, and 1.21 captures per episode**.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/hanshuo-shuo/MouseMind/main/mouse_llm/reports/figures/transfer_rollout.gif" alt="MiniMind instruction-shift transfer rollout" width="100%">
+</p>
+
+[Open the animation directly](mouse_llm/reports/figures/transfer_rollout.gif).
+
+| Frozen Oasis transfer, 100 paired seeds | Task success | Objective completion | Clean success | Captures / episode |
+| --- | ---: | ---: | ---: | ---: |
+| Direct MLP, literal stack | 0% | 1.8% | 0% | 128.85 |
+| Numeric planner, literal stack | 0% | 0.2% | 0% | 30.38 |
+| **Goal-coordinate oracle** | **100%** | **100%** | **41%** | **1.21** |
+| P1 rule planner, aligned | 98% | 99.5% | 5% | 23.63 |
+| Numeric planner, aligned | 95% | 98.2% | 3% | 20.36 |
+| MiniMind planner, aligned | 89% | 94.8% | 0% | 32.39 |
+
+Against the goal-coordinate oracle, paired intervals show remaining gaps for
+every transferred strategy. MiniMind is −11 task points (95% CI −17 to −5),
+−41 clean points (−51 to −31), and +31.18 captures per episode (+27.70 to
++34.65). Under unseen instructions, MiniMind falls from 89% to 0% Oasis task
+success. These results define the next-model target without changing the source
+task claim. The complete protocol is in [TRANSFER_RESULTS.md](TRANSFER_RESULTS.md).
 
 ## Repository map
 
@@ -252,7 +294,7 @@ mouse_llm/
 ├── baselines/             action BC and numeric temporal planner
 ├── data/                  reconstruction, anchors, counterfactual skill labels
 ├── envs/mice/             BotEvade/Oasis Gymnasium environments + provenance
-├── evaluation/            offline, constrained-decoding, and closed-loop eval
+├── evaluation/            offline, alignment, constrained-decoding, closed-loop eval
 ├── hierarchical/          semantic context, planners, skills, risk verification
 ├── training/              skill-LoRA and compact risk-critic training
 ├── northwestern/p2/       reproducible collection/training/ID/OOD Slurm jobs
@@ -265,6 +307,31 @@ mouse_llm/
 
 The detailed commands, storage layout, metric definitions, and limitations are
 in [mouse_llm/README.md](mouse_llm/README.md).
+
+## 中文摘要
+
+MouseMind 是一个完整的 Cellworld policy 工程项目，而不只是一次 LoRA
+微调。它覆盖私有轨迹审计、episode 防泄漏切分、MiniMind LoRA、MLP 公平
+基线、受约束动作解码、seeded closed-loop 评估、延迟/控制周期分析、Slurm
+和隐私 CI。
+
+项目的核心贡献是把 MiniMind 从直接生成 295-way 动作，改造成使用 instruction
+和 temporal history 选择三种高层 skill 的层级策略。Fresh BotEvade 中，direct
+MiniMind LoRA 为 26% task / 1% clean success；完整 MiniMind hierarchy 达到
+97% / 12%，每局 captures 从 98.60 降到 7.37。移除 history 或 instruction 后
+都下降为 80% / 1%，直接支持层级结构中的两个设计组件。
+
+比较角色被明确分层：Random、direct policies 和 P1 是 baselines；MLP BC 是
+low-level specialist upper reference；Numeric planner 是 non-language high-level
+upper reference；直接读取 Oasis active-goal coordinates 的 controller 才是
+privileged target oracle。它们放在 proposed-method 分析之后，用来量化剩余上界，
+而不冒充 MiniMind 方法。500 个 held-out source episodes 的 11-feature behavioral
+alignment distance 中，完整 MiniMind 为 0.288，优于 direct MiniMind LoRA 的
+0.531、两个 ablation 的 0.347 和 P1 的 0.315；Numeric upper reference 为
+0.200。后置的 Oasis oracle analysis 进一步显示：literal transfer 因缺少 active
+goal coordinates 而全部失败；goal-coordinate oracle 达到 100% task / 41% clean，
+用于量化 MiniMind 的跨任务剩余差距。该数据来自 BotEvade simulator policy，
+不是生物老鼠实验数据。
 
 ## License
 

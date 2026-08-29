@@ -2,7 +2,7 @@
 
 ## 1. What was implemented
 
-A frozen fresh-seed contract, semantic temporal planner context, exact seeded replay, counterfactual branching for all three skills, outcome-grounded language targets, a numeric planner, MiniMind skill LoRA, a calibrated capture-risk critic, propose-verify control, development-only operating-point selection, OOD evaluation, and one corrective-data path.
+A MiniMind-based hierarchical policy over three strategic skills, semantic temporal context, exact seeded replay, counterfactual outcome labels, MiniMind skill LoRA, structural history/instruction ablations, a non-language numeric upper reference, a calibrated capture-risk critic, development-only operating-point selection, OOD evaluation, and one corrective-data path.
 
 ## 2. Exact experiments run
 
@@ -20,26 +20,29 @@ All numbers below come from aggregate artifacts marked `research_evidence=true`.
 
 | Policy | Clean success | Task success | Capture rate | Captures / episode |
 | --- | ---: | ---: | ---: | ---: |
+| *Baselines* |  |  |  |  |
+| random | 0.0% | 3.0% | 100.0% | 65.19 |
 | direct-minimind-base | 0.0% | 0.0% | 100.0% | 113.60 |
 | direct-minimind-lora | 1.0% | 26.0% | 99.0% | 98.60 |
 | direct-mlp | 5.0% | 20.0% | 94.0% | 87.90 |
-| minimind-learned | 12.0% | 97.0% | 88.0% | 7.37 |
+| p1-rule | 14.0% | 79.0% | 86.0% | 11.20 |
+| *Proposed MiniMind hierarchy and ablations* |  |  |  |  |
 | minimind-no-history | 1.0% | 80.0% | 99.0% | 13.15 |
 | minimind-no-instruction | 1.0% | 80.0% | 99.0% | 13.15 |
+| **minimind-learned (proposed)** | 12.0% | 97.0% | 88.0% | 7.37 |
 | minimind-verified | 12.0% | 92.0% | 88.0% | 8.47 |
+| *Non-language upper references* |  |  |  |  |
 | numeric-learned | 38.0% | 100.0% | 62.0% | 2.66 |
 | numeric-verified | 35.0% | 100.0% | 65.0% | 3.13 |
-| p1-rule | 14.0% | 79.0% | 86.0% | 11.20 |
-| random | 0.0% | 3.0% | 100.0% | 65.19 |
 
 ## 5. Main OOD results
 
-| Condition | Clean success | Task success | Capture rate |
-| --- | ---: | ---: | ---: |
-| faster_020 | 34.0% | 100.0% | 66.0% |
-| faster_025 | 35.0% | 100.0% | 65.0% |
-| shorter_los | 42.0% | 100.0% | 58.0% |
-| unseen_language | 38.0% | 100.0% | 62.0% |
+| Condition | Proposed clean | Proposed task | Upper-reference clean | Upper-reference task |
+| --- | ---: | ---: | ---: | ---: |
+| faster_020 | 5.0% | 97.0% | 34.0% | 100.0% |
+| faster_025 | 11.0% | 95.0% | 35.0% | 100.0% |
+| shorter_los | 17.0% | 95.0% | 42.0% | 100.0% |
+| unseen_language | 4.0% | 71.0% | 38.0% | 100.0% |
 
 ## 6. Risk-model calibration
 
@@ -47,20 +50,24 @@ Validation AUROC: 0.9585904005019346; AUPRC: 0.9087351404424037; Brier: 0.0753; 
 
 ## 7. Ablation conclusions
 
-Numeric planner validation accuracy / macro F1: 0.839 / 0.767. MiniMind unseen-paraphrase accuracy / macro F1: 0.622 / 0.565. Full MiniMind no-history and instruction-removed ablations are stored in the offline planner report.
+MiniMind unseen-paraphrase accuracy / macro F1: 0.622 / 0.565. Full MiniMind no-history and instruction-removed ablations are stored in the offline planner report. The numeric upper reference reaches 0.839 / 0.767.
 
 ## 8. Failure modes that remain
 
-Selected-policy aggregate taxonomy: `{"capture_near_occlusion": 32, "capture_other": 22, "open_space_capture": 8}`.
+Proposed-policy aggregate taxonomy: `{"capture_near_occlusion": 40, "capture_other": 37, "open_space_capture": 11}`.
 
-## 9. Does P2 beat P1?
+## 9. Proposed hierarchy evidence
 
-For `numeric-learned`, candidate minus P1 is +0.240 clean success (95% CI +0.120 to +0.360), +0.210 task success (+0.130 to +0.290), and -0.240 capture rate (-0.360 to -0.120). Interpret improvement under the metric named; do not call the policy safe from task success alone.
+Against direct MiniMind LoRA, `minimind-learned` changes task success by +0.710 (95% CI +0.620 to +0.800), clean success by +0.110 (+0.040 to +0.180), and captures per episode by -91.23 (-100.99 to -81.18). Removing history changes task success by -0.170; removing instruction changes it by -0.170.
+
+## 10. Oracle and upper-reference gap
+
+The non-language `numeric-learned` upper reference reaches 100.0% task / 38.0% clean success. Proposed MiniMind reaches 97.0% / 12.0%; its paired clean-success gap is -0.260 (95% CI -0.370 to -0.150). This is reported as remaining headroom, not hidden or relabeled as the proposed method.
 
 ## P2.1 corrective-data iteration
 
 Using 14 development failures, P2.1 added 56 anchors and 168 verified branches. Clean success changed from 52.5% to 45.0%, capture rate from 47.5% to 55.0%, and captures/episode from 1.90 to 2.55. The iteration was rejected for final.
 
-## 10. Strongest supported resume bullet
+## 11. Strongest supported resume bullet
 
-Built a counterfactual learned control hierarchy and evaluated calibrated runtime risk overrides; on 100 untouched paired ID seeds, the selected `numeric-learned` reached 100.0% task success and 38.0% clean success (+24.0 points versus the P1 rule hierarchy), with fresh OOD evaluation across 4 shifts; verifier overrides were rejected when they worsened closed-loop clean success despite strong offline AUROC.
+Built a MiniMind-based hierarchical control policy over outcome-grounded counterfactual skills; on 100 untouched paired ID seeds, `minimind-learned` reached 97.0% task / 12.0% clean success, adding +71.0 task points and removing 91.23 captures per episode versus direct MiniMind LoRA; history and instruction ablations each lost about 17 task points, while a separately labeled non-language upper reference quantified the remaining clean-success gap.

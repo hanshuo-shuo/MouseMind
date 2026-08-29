@@ -1,0 +1,510 @@
+{
+  "alignment_contract": {
+    "bootstrap_iterations": 2000,
+    "bootstrap_seed": 20260829,
+    "direction": "lower is better; zero is identical on all profile means",
+    "feature_definitions": {
+      "action_switch_rate": "fraction of adjacent actions that differ",
+      "capture_incidence": "episode contains at least one puff/capture event",
+      "captures_per_step": "capture events divided by episode steps",
+      "clean_success": "task success with no puff/capture event",
+      "goal_progress": "(start goal distance - end goal distance + 1) / 2",
+      "net_displacement": "start-to-end displacement divided by sqrt(2)",
+      "oscillation_score": "fraction of A/B/A action triples",
+      "path_efficiency": "start goal distance / max(path length, start distance) on success",
+      "path_length_per_step": "mean step displacement divided by sqrt(2)",
+      "predator_visible_rate": "fraction of episode steps with a visible predator",
+      "task_success": "episode reaches goal distance < 0.1"
+    },
+    "features": [
+      "task_success",
+      "clean_success",
+      "capture_incidence",
+      "captures_per_step",
+      "action_switch_rate",
+      "oscillation_score",
+      "path_length_per_step",
+      "net_displacement",
+      "goal_progress",
+      "path_efficiency",
+      "predator_visible_rate"
+    ],
+    "score": "equal-weight mean absolute gap between bounded profile means"
+  },
+  "artifact": "mousemind_trajectory_profile_alignment",
+  "comparisons": {
+    "minimind-learned_minus_direct-minimind-lora": {
+      "ci_high": -0.21167401199911068,
+      "ci_low": -0.27001588819774824,
+      "mean": -0.24250020718435822,
+      "negative_favors_minimind": true
+    },
+    "minimind-learned_minus_direct-mlp": {
+      "ci_high": -0.1993373417302516,
+      "ci_low": -0.2612995601130396,
+      "mean": -0.23151711266803504,
+      "negative_favors_minimind": true
+    },
+    "minimind-learned_minus_minimind-no-history": {
+      "ci_high": -0.038488178089059175,
+      "ci_low": -0.07905988372286682,
+      "mean": -0.059159961955852436,
+      "negative_favors_minimind": true
+    },
+    "minimind-learned_minus_minimind-no-instruction": {
+      "ci_high": -0.038488178089059175,
+      "ci_low": -0.07905988372286682,
+      "mean": -0.059159961955852436,
+      "negative_favors_minimind": true
+    },
+    "minimind-learned_minus_numeric-learned": {
+      "ci_high": 0.11749901491681033,
+      "ci_low": 0.06209146610292189,
+      "mean": 0.08852738969240925,
+      "negative_favors_minimind": true
+    },
+    "minimind-learned_minus_p1-rule": {
+      "ci_high": 0.004892442530688594,
+      "ci_low": -0.05587008133156042,
+      "mean": -0.026444839177646506,
+      "negative_favors_minimind": true
+    }
+  },
+  "experiment": "held_out_source_mouse_behavioral_profile_alignment",
+  "limitations": [
+    "This is alignment to a simulator-policy trajectory export, not to biological mouse behavior.",
+    "The scalar index is a descriptive equal-weight summary; feature-level gaps remain primary evidence.",
+    "Source and final policy episodes use different seeds and are compared as behavioral distributions, not paired trajectories.",
+    "A lower offline behavioral-profile distance is not a closed-loop safety guarantee."
+  ],
+  "policies": {
+    "direct-minimind-base": {
+      "absolute_gap": {
+        "action_switch_rate": 0.8038310923486313,
+        "capture_incidence": 0.992,
+        "captures_per_step": 0.3782922837396521,
+        "clean_success": 0.952,
+        "goal_progress": 0.4035057060916205,
+        "net_displacement": 0.4499645215719177,
+        "oscillation_score": 0.001549955063838528,
+        "path_efficiency": 0.7332514398966413,
+        "path_length_per_step": 0.07656352145612638,
+        "predator_visible_rate": 0.7396282342094845,
+        "task_success": 0.96
+      },
+      "alignment_distance": {
+        "ci_high": 0.5973742004234022,
+        "ci_low": 0.5823686844626687,
+        "mean": 0.5900533413070829
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.0,
+        "capture_incidence": 1.0,
+        "captures_per_step": 0.37866666666666665,
+        "clean_success": 0.0,
+        "goal_progress": 0.5430298131041,
+        "net_displacement": 0.189505333069807,
+        "oscillation_score": 0.0,
+        "path_efficiency": 0.0,
+        "path_length_per_step": 0.0006317505571820279,
+        "predator_visible_rate": 0.7945000000000002,
+        "task_success": 0.0
+      },
+      "role": "baseline"
+    },
+    "direct-minimind-lora": {
+      "absolute_gap": {
+        "action_switch_rate": 0.7313727507488033,
+        "capture_incidence": 0.982,
+        "captures_per_step": 0.3438932378279484,
+        "clean_success": 0.942,
+        "goal_progress": 0.3161330197622938,
+        "net_displacement": 0.3990294951916293,
+        "oscillation_score": 0.015556034379517416,
+        "path_efficiency": 0.6152911031419684,
+        "path_length_per_step": 0.07272506873434284,
+        "predator_visible_rate": 0.7184060661764791,
+        "task_success": 0.7
+      },
+      "alignment_distance": {
+        "ci_high": 0.5541253974316499,
+        "ci_low": 0.5030959138030298,
+        "mean": 0.530582434178453
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.072458341599828,
+        "capture_incidence": 0.99,
+        "captures_per_step": 0.3442676207549629,
+        "clean_success": 0.01,
+        "goal_progress": 0.6304024994334267,
+        "net_displacement": 0.2404403594500954,
+        "oscillation_score": 0.017105989443355944,
+        "path_efficiency": 0.1179603367546729,
+        "path_length_per_step": 0.0044702032789655675,
+        "predator_visible_rate": 0.7732778319669947,
+        "task_success": 0.26
+      },
+      "role": "baseline"
+    },
+    "direct-mlp": {
+      "absolute_gap": {
+        "action_switch_rate": 0.5876241261738671,
+        "capture_incidence": 0.9319999999999999,
+        "captures_per_step": 0.30172674991314813,
+        "clean_success": 0.9019999999999999,
+        "goal_progress": 0.32950551895039126,
+        "net_displacement": 0.42621267294635057,
+        "oscillation_score": 0.10196862472990272,
+        "path_efficiency": 0.6418166075429054,
+        "path_length_per_step": 0.06054041368849923,
+        "predator_visible_rate": 0.6721980223383636,
+        "task_success": 0.76
+      },
+      "alignment_distance": {
+        "ci_high": 0.5473262400730227,
+        "ci_low": 0.4898992037973798,
+        "mean": 0.5195993396621298
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.21620696617476415,
+        "capture_incidence": 0.94,
+        "captures_per_step": 0.30210113284016266,
+        "clean_success": 0.05,
+        "goal_progress": 0.6170300002453293,
+        "net_displacement": 0.21325718169537414,
+        "oscillation_score": 0.10351857979374124,
+        "path_efficiency": 0.09143483235373592,
+        "path_length_per_step": 0.016654858324809178,
+        "predator_visible_rate": 0.7270697881288792,
+        "task_success": 0.2
+      },
+      "role": "specialist baseline"
+    },
+    "minimind-learned": {
+      "absolute_gap": {
+        "action_switch_rate": 0.22175742793814324,
+        "capture_incidence": 0.872,
+        "captures_per_step": 0.06570423057122492,
+        "clean_success": 0.832,
+        "goal_progress": 0.026147353380789884,
+        "net_displacement": 0.029951608839655308,
+        "oscillation_score": 0.06986002970641138,
+        "path_efficiency": 0.4354535055655782,
+        "path_length_per_step": 0.043174020493135075,
+        "predator_visible_rate": 0.5628563204401039,
+        "task_success": 0.010000000000000009
+      },
+      "alignment_distance": {
+        "ci_high": 0.3042757606960124,
+        "ci_low": 0.27159707676236916,
+        "mean": 0.28808222699409475
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.582073664410488,
+        "capture_incidence": 0.88,
+        "captures_per_step": 0.06607861349823942,
+        "clean_success": 0.12,
+        "goal_progress": 0.9203881658149307,
+        "net_displacement": 0.6095182458020694,
+        "oscillation_score": 0.0714099847702499,
+        "path_efficiency": 0.2977979343310631,
+        "path_length_per_step": 0.03402125152017333,
+        "predator_visible_rate": 0.6177280862306196,
+        "task_success": 0.97
+      },
+      "role": "proposed MiniMind hierarchy"
+    },
+    "minimind-no-history": {
+      "absolute_gap": {
+        "action_switch_rate": 0.28871435268684453,
+        "capture_incidence": 0.982,
+        "captures_per_step": 0.09801813280612061,
+        "clean_success": 0.942,
+        "goal_progress": 0.06266901447059414,
+        "net_displacement": 0.05957792901683867,
+        "oscillation_score": 0.06328569609073499,
+        "path_efficiency": 0.4761673777051747,
+        "path_length_per_step": 0.04696471449786453,
+        "predator_visible_rate": 0.6402668611752469,
+        "task_success": 0.15999999999999992
+      },
+      "alignment_distance": {
+        "ci_high": 0.36143444736540953,
+        "ci_low": 0.33237326526378563,
+        "mean": 0.3472421889499472
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.5151167396617867,
+        "capture_incidence": 0.99,
+        "captures_per_step": 0.09839251573313511,
+        "clean_success": 0.01,
+        "goal_progress": 0.8838665047251264,
+        "net_displacement": 0.579891925624886,
+        "oscillation_score": 0.06483565115457351,
+        "path_efficiency": 0.2570840621914666,
+        "path_length_per_step": 0.03023055751544387,
+        "predator_visible_rate": 0.6951386269657626,
+        "task_success": 0.8
+      },
+      "role": "proposed ablation"
+    },
+    "minimind-no-instruction": {
+      "absolute_gap": {
+        "action_switch_rate": 0.28871435268684453,
+        "capture_incidence": 0.982,
+        "captures_per_step": 0.09801813280612061,
+        "clean_success": 0.942,
+        "goal_progress": 0.06266901447059414,
+        "net_displacement": 0.05957792901683867,
+        "oscillation_score": 0.06328569609073499,
+        "path_efficiency": 0.4761673777051747,
+        "path_length_per_step": 0.04696471449786453,
+        "predator_visible_rate": 0.6402668611752469,
+        "task_success": 0.15999999999999992
+      },
+      "alignment_distance": {
+        "ci_high": 0.36143444736540953,
+        "ci_low": 0.33237326526378563,
+        "mean": 0.3472421889499472
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.5151167396617867,
+        "capture_incidence": 0.99,
+        "captures_per_step": 0.09839251573313511,
+        "clean_success": 0.01,
+        "goal_progress": 0.8838665047251264,
+        "net_displacement": 0.579891925624886,
+        "oscillation_score": 0.06483565115457351,
+        "path_efficiency": 0.2570840621914666,
+        "path_length_per_step": 0.03023055751544387,
+        "predator_visible_rate": 0.6951386269657626,
+        "task_success": 0.8
+      },
+      "role": "proposed ablation"
+    },
+    "minimind-verified": {
+      "absolute_gap": {
+        "action_switch_rate": 0.25506220737871077,
+        "capture_incidence": 0.872,
+        "captures_per_step": 0.07581777481803767,
+        "clean_success": 0.832,
+        "goal_progress": 0.04054935288439898,
+        "net_displacement": 0.04331915424833632,
+        "oscillation_score": 0.06689922522866536,
+        "path_efficiency": 0.4240226599326231,
+        "path_length_per_step": 0.04548198974885616,
+        "predator_visible_rate": 0.5710406186595283,
+        "task_success": 0.039999999999999925
+      },
+      "alignment_distance": {
+        "ci_high": 0.3160510708023558,
+        "ci_low": 0.2761475959105191,
+        "mean": 0.29692663480901427
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.5487688849699205,
+        "capture_incidence": 0.88,
+        "captures_per_step": 0.07619215774505217,
+        "clean_success": 0.12,
+        "goal_progress": 0.9059861663113216,
+        "net_displacement": 0.5961507003933884,
+        "oscillation_score": 0.06844918029250388,
+        "path_efficiency": 0.3092287799640182,
+        "path_length_per_step": 0.03171328226445225,
+        "predator_visible_rate": 0.6259123844500439,
+        "task_success": 0.92
+      },
+      "role": "proposed + rejected verifier"
+    },
+    "numeric-learned": {
+      "absolute_gap": {
+        "action_switch_rate": 0.1001295400422324,
+        "capture_incidence": 0.612,
+        "captures_per_step": 0.04761926653978743,
+        "clean_success": 0.572,
+        "goal_progress": 0.01846761291383958,
+        "net_displacement": 0.019124410864314045,
+        "oscillation_score": 0.04469418016824269,
+        "path_efficiency": 0.2442491009211838,
+        "path_length_per_step": 0.032293794364863,
+        "predator_visible_rate": 0.4645253045040775,
+        "task_success": 0.040000000000000036
+      },
+      "alignment_distance": {
+        "ci_high": 0.22487634308187263,
+        "ci_low": 0.17423397549852815,
+        "mean": 0.1995548373016855
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.7037015523063989,
+        "capture_incidence": 0.62,
+        "captures_per_step": 0.04799364946680194,
+        "clean_success": 0.38,
+        "goal_progress": 0.928067906281881,
+        "net_displacement": 0.6203454437774106,
+        "oscillation_score": 0.04624413523208122,
+        "path_efficiency": 0.48900233897545753,
+        "path_length_per_step": 0.044901477648445404,
+        "predator_visible_rate": 0.5193970702945931,
+        "task_success": 1.0
+      },
+      "role": "non-language upper reference"
+    },
+    "numeric-verified": {
+      "absolute_gap": {
+        "action_switch_rate": 0.14205031131432377,
+        "capture_incidence": 0.642,
+        "captures_per_step": 0.05750311515919091,
+        "clean_success": 0.602,
+        "goal_progress": 0.018540951258817162,
+        "net_displacement": 0.018443261204476258,
+        "oscillation_score": 0.05638230330526086,
+        "path_efficiency": 0.2457679493495537,
+        "path_length_per_step": 0.03532766904615953,
+        "predator_visible_rate": 0.5044004821308737,
+        "task_success": 0.040000000000000036
+      },
+      "alignment_distance": {
+        "ci_high": 0.240388455183461,
+        "ci_low": 0.1895979991523808,
+        "mean": 0.21476509479715053
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.6617807810343075,
+        "capture_incidence": 0.65,
+        "captures_per_step": 0.05787749808620542,
+        "clean_success": 0.35,
+        "goal_progress": 0.9279945679369034,
+        "net_displacement": 0.6210265934372484,
+        "oscillation_score": 0.05793225836909939,
+        "path_efficiency": 0.4874834905470876,
+        "path_length_per_step": 0.04186760296714888,
+        "predator_visible_rate": 0.5592722479213894,
+        "task_success": 1.0
+      },
+      "role": "upper-reference verifier variant"
+    },
+    "p1-rule": {
+      "absolute_gap": {
+        "action_switch_rate": 0.4300879270332224,
+        "capture_incidence": 0.852,
+        "captures_per_step": 0.05713027363705608,
+        "clean_success": 0.8119999999999999,
+        "goal_progress": 0.07980425992814022,
+        "net_displacement": 0.08648427979849083,
+        "oscillation_score": 0.03232233186226686,
+        "path_efficiency": 0.48615884831808864,
+        "path_length_per_step": 0.05289347060344961,
+        "predator_visible_rate": 0.40091633670843924,
+        "task_success": 0.16999999999999993
+      },
+      "alignment_distance": {
+        "ci_high": 0.33960051691038956,
+        "ci_low": 0.28788864802973735,
+        "mean": 0.31452706617174125
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.37374316531540885,
+        "capture_incidence": 0.86,
+        "captures_per_step": 0.05750465656407058,
+        "clean_success": 0.14,
+        "goal_progress": 0.8667312592675803,
+        "net_displacement": 0.5529855748432339,
+        "oscillation_score": 0.03387228692610539,
+        "path_efficiency": 0.24709259157855268,
+        "path_length_per_step": 0.024301801409858798,
+        "predator_visible_rate": 0.4557881024989549,
+        "task_success": 0.79
+      },
+      "role": "rule hierarchy baseline"
+    },
+    "random": {
+      "absolute_gap": {
+        "action_switch_rate": 0.19263250724691905,
+        "capture_incidence": 0.992,
+        "captures_per_step": 0.2202111877435807,
+        "clean_success": 0.952,
+        "goal_progress": 0.22383514426563011,
+        "net_displacement": 0.3065356025615035,
+        "oscillation_score": 0.0014615446025534006,
+        "path_efficiency": 0.730725537161568,
+        "path_length_per_step": 0.017450818136808037,
+        "predator_visible_rate": 0.7459917746447995,
+        "task_success": 0.9299999999999999
+      },
+      "alignment_distance": {
+        "ci_high": 0.49011625326904784,
+        "ci_low": 0.4748673684469342,
+        "mean": 0.4829858287603056
+      },
+      "episode_count": 100,
+      "profile_mean": {
+        "action_switch_rate": 0.9964635995955503,
+        "capture_incidence": 1.0,
+        "captures_per_step": 0.2205855706705952,
+        "clean_success": 0.0,
+        "goal_progress": 0.7227003749300904,
+        "net_displacement": 0.3329342520802212,
+        "oscillation_score": 0.0030114996663919286,
+        "path_efficiency": 0.0025259027350734114,
+        "path_length_per_step": 0.05974445387650037,
+        "predator_visible_rate": 0.8008635404353152,
+        "task_success": 0.03
+      },
+      "role": "baseline"
+    }
+  },
+  "policy_evaluation": {
+    "aggregate_report_sha256": "8f3bf8bf274fec4b75389b04d0963d23f6dd47e73cc052e12de63840e5d396d2",
+    "episode_count_per_policy": 100,
+    "episode_csv_sha256": "b74bf8c37f94fef6281baa1181e0f0e8344824aa66dba7da1833501594d45502",
+    "seed_start": 30000,
+    "seed_stop": 30099
+  },
+  "ranking": [
+    "numeric-learned",
+    "numeric-verified",
+    "minimind-learned",
+    "minimind-verified",
+    "p1-rule",
+    "minimind-no-history",
+    "minimind-no-instruction",
+    "random",
+    "direct-mlp",
+    "direct-minimind-lora",
+    "direct-minimind-base"
+  ],
+  "research_evidence": true,
+  "research_evidence_blockers": [],
+  "schema_version": 1,
+  "source": {
+    "held_out_episode_count": 500,
+    "sha256": "fdb93c5a874bf2587d9f0be5b3d1dd0739224eeb78bbacfbb410c5e912de39ea",
+    "split": "episode-isolated test",
+    "split_seed": 42
+  },
+  "source_profile_mean": {
+    "action_switch_rate": 0.8038310923486313,
+    "capture_incidence": 0.008,
+    "captures_per_step": 0.00037438292701450594,
+    "clean_success": 0.952,
+    "goal_progress": 0.9465355191957205,
+    "net_displacement": 0.6394698546417247,
+    "oscillation_score": 0.001549955063838528,
+    "path_efficiency": 0.7332514398966413,
+    "path_length_per_step": 0.0771952720133084,
+    "predator_visible_rate": 0.05487176579051569,
+    "task_success": 0.96
+  },
+  "synthetic": false
+}

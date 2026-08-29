@@ -5,6 +5,7 @@ from mouse_llm.evaluation.plot_p2 import (
     ood_generalization,
     planner_ablation,
     safety_frontier,
+    trajectory_alignment,
 )
 
 
@@ -39,3 +40,37 @@ def test_p2_figures_render_from_aggregate_json_only(tmp_path):
     for output in outputs:
         assert output.read_bytes().startswith(b"\x89PNG")
         assert output.with_suffix(".svg").read_text(encoding="utf-8").lstrip().startswith("<?xml")
+
+
+def test_trajectory_alignment_figure_uses_aggregate_report(tmp_path):
+    pytest.importorskip("matplotlib")
+    policies = {}
+    for index, name in enumerate(
+        (
+            "direct-minimind-lora",
+            "direct-mlp",
+            "p1-rule",
+            "minimind-no-history",
+            "minimind-no-instruction",
+            "minimind-learned",
+            "numeric-learned",
+        )
+    ):
+        mean = 0.5 - 0.04 * index
+        policies[name] = {
+            "alignment_distance": {
+                "mean": mean,
+                "ci_low": mean - 0.02,
+                "ci_high": mean + 0.02,
+            }
+        }
+    output = tmp_path / "trajectory.png"
+    trajectory_alignment(
+        {
+            "artifact": "mousemind_trajectory_profile_alignment",
+            "policies": policies,
+        },
+        output,
+    )
+    assert output.read_bytes().startswith(b"\x89PNG")
+    assert output.with_suffix(".svg").is_file()

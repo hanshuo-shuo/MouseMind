@@ -37,6 +37,46 @@ def _policy_row(name: str, summary: dict[str, Any]) -> str:
     )
 
 
+POLICY_SECTIONS = (
+    (
+        "Baselines",
+        (
+            "random",
+            "direct-minimind-base",
+            "direct-minimind-lora",
+            "direct-mlp",
+            "p1-rule",
+        ),
+    ),
+    (
+        "Proposed MiniMind hierarchy and ablations",
+        (
+            "minimind-no-history",
+            "minimind-no-instruction",
+            "minimind-learned",
+            "minimind-verified",
+        ),
+    ),
+    (
+        "Non-language upper references",
+        ("numeric-learned", "numeric-verified"),
+    ),
+)
+
+
+def _role_rows(report: dict[str, Any], proposed: str) -> list[str]:
+    rows: list[str] = []
+    policies = report["policies"]
+    for section, names in POLICY_SECTIONS:
+        rows.append(f"| *{section}* |  |  |  |  |")
+        for name in names:
+            if name not in policies:
+                continue
+            label = f"**{name} (proposed)**" if name == proposed else name
+            rows.append(_policy_row(label, policies[name]))
+    return rows
+
+
 def _paired_delta(
     report: dict[str, Any], candidate: str, reference: str, metric: str
 ) -> dict[str, float]:
@@ -66,6 +106,7 @@ def main() -> None:
     parser.add_argument("--corrective-report", type=Path)
     parser.add_argument("--operating-point", type=Path)
     parser.add_argument("--selected-policy", required=True)
+    parser.add_argument("--proposed-policy", default="minimind-learned")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     identity = _load(args.id_report)
@@ -81,13 +122,10 @@ def main() -> None:
             raise ValueError(f"OOD report {name} is not completed research evidence")
     if args.selected_policy not in identity["policies"]:
         raise ValueError("Selected policy is missing from the ID report")
+    if args.proposed_policy not in identity["policies"]:
+        raise ValueError("Proposed policy is missing from the ID report")
     selected = identity["policies"][args.selected_policy]
-    p1 = identity["policies"]["p1-rule"]
-    clean_delta = _mean(selected, "clean_success_rate") - _mean(
-        p1, "clean_success_rate"
-    )
-    task_delta = _mean(selected, "success_rate") - _mean(p1, "success_rate")
-    capture_delta = _mean(selected, "capture_rate") - _mean(p1, "capture_rate")
+    proposed = identity["policies"][args.proposed_policy]
     risk_validation = risk["validation"]
     numeric_validation = numeric["validation"]
     minimind_models = minimind["models"]
@@ -124,21 +162,39 @@ def main() -> None:
             f"to {_percent(best_threshold['clean_success_rate'])} and capture rate moved "
             f"in the wrong direction. Status: {operating['verifier_deployment_status']}."
         )
-    paired_clean = _paired_delta(
-        identity, args.selected_policy, "p1-rule", "clean_success_rate"
+    proposed_direct_task = _paired_delta(
+        identity, args.proposed_policy, "direct-minimind-lora", "success_rate"
     )
-    paired_task = _paired_delta(
-        identity, args.selected_policy, "p1-rule", "success_rate"
+    proposed_direct_clean = _paired_delta(
+        identity,
+        args.proposed_policy,
+        "direct-minimind-lora",
+        "clean_success_rate",
     )
-    paired_capture = _paired_delta(
-        identity, args.selected_policy, "p1-rule", "capture_rate"
+    proposed_direct_captures = _paired_delta(
+        identity, args.proposed_policy, "direct-minimind-lora", "captures"
+    )
+    proposed_history_task = _paired_delta(
+        identity, args.proposed_policy, "minimind-no-history", "success_rate"
+    )
+    proposed_instruction_task = _paired_delta(
+        identity,
+        args.proposed_policy,
+        "minimind-no-instruction",
+        "success_rate",
+    )
+    upper_clean_gap = _paired_delta(
+        identity,
+        args.proposed_policy,
+        args.selected_policy,
+        "clean_success_rate",
     )
     lines = [
         "# MouseMind P2 results",
         "",
         "## 1. What was implemented",
         "",
-        "A frozen fresh-seed contract, semantic temporal planner context, exact seeded replay, counterfactual branching for all three skills, outcome-grounded language targets, a numeric planner, MiniMind skill LoRA, a calibrated capture-risk critic, propose-verify control, development-only operating-point selection, OOD evaluation, and one corrective-data path.",
+        "A MiniMind-based hierarchical policy over three strategic skills, semantic temporal context, exact seeded replay, counterfactual outcome labels, MiniMind skill LoRA, structural history/instruction ablations, a non-language numeric upper reference, a calibrated capture-risk critic, development-only operating-point selection, OOD evaluation, and one corrective-data path.",
         "",
         "## 2. Exact experiments run",
         "",
@@ -156,14 +212,14 @@ def main() -> None:
         "",
         "| Policy | Clean success | Task success | Capture rate | Captures / episode |",
         "| --- | ---: | ---: | ---: | ---: |",
-        *(_policy_row(name, summary) for name, summary in identity["policies"].items()),
+        *_role_rows(identity, args.proposed_policy),
         "",
         "## 5. Main OOD results",
         "",
-        "| Condition | Clean success | Task success | Capture rate |",
-        "| --- | ---: | ---: | ---: |",
+        "| Condition | Proposed clean | Proposed task | Upper-reference clean | Upper-reference task |",
+        "| --- | ---: | ---: | ---: | ---: |",
         *(
-            f"| {name} | {_percent(_mean(report['policies'][args.selected_policy], 'clean_success_rate'))} | {_percent(_mean(report['policies'][args.selected_policy], 'success_rate'))} | {_percent(_mean(report['policies'][args.selected_policy], 'capture_rate'))} |"
+            f"| {name} | {_percent(_mean(report['policies'][args.proposed_policy], 'clean_success_rate'))} | {_percent(_mean(report['policies'][args.proposed_policy], 'success_rate'))} | {_percent(_mean(report['policies'][args.selected_policy], 'clean_success_rate'))} | {_percent(_mean(report['policies'][args.selected_policy], 'success_rate'))} |"
             for name, report in ood
         ),
         "",
@@ -173,23 +229,27 @@ def main() -> None:
         "",
         "## 7. Ablation conclusions",
         "",
-        f"Numeric planner validation accuracy / macro F1: {numeric_validation['accuracy']:.3f} / {numeric_validation['macro_f1']:.3f}. MiniMind unseen-paraphrase accuracy / macro F1: {lora_unseen['accuracy']:.3f} / {lora_unseen['macro_f1']:.3f}. Full MiniMind no-history and instruction-removed ablations are stored in the offline planner report.",
+        f"MiniMind unseen-paraphrase accuracy / macro F1: {lora_unseen['accuracy']:.3f} / {lora_unseen['macro_f1']:.3f}. Full MiniMind no-history and instruction-removed ablations are stored in the offline planner report. The numeric upper reference reaches {numeric_validation['accuracy']:.3f} / {numeric_validation['macro_f1']:.3f}.",
         "",
         "## 8. Failure modes that remain",
         "",
-        f"Selected-policy aggregate taxonomy: `{json.dumps(selected['failure_taxonomy']['counts'], sort_keys=True)}`.",
+        f"Proposed-policy aggregate taxonomy: `{json.dumps(proposed['failure_taxonomy']['counts'], sort_keys=True)}`.",
         "",
-        "## 9. Does P2 beat P1?",
+        "## 9. Proposed hierarchy evidence",
         "",
-        f"For `{args.selected_policy}`, candidate minus P1 is {paired_clean['mean']:+.3f} clean success (95% CI {paired_clean['ci_low']:+.3f} to {paired_clean['ci_high']:+.3f}), {paired_task['mean']:+.3f} task success ({paired_task['ci_low']:+.3f} to {paired_task['ci_high']:+.3f}), and {paired_capture['mean']:+.3f} capture rate ({paired_capture['ci_low']:+.3f} to {paired_capture['ci_high']:+.3f}). Interpret improvement under the metric named; do not call the policy safe from task success alone.",
+        f"Against direct MiniMind LoRA, `{args.proposed_policy}` changes task success by {proposed_direct_task['mean']:+.3f} (95% CI {proposed_direct_task['ci_low']:+.3f} to {proposed_direct_task['ci_high']:+.3f}), clean success by {proposed_direct_clean['mean']:+.3f} ({proposed_direct_clean['ci_low']:+.3f} to {proposed_direct_clean['ci_high']:+.3f}), and captures per episode by {proposed_direct_captures['mean']:+.2f} ({proposed_direct_captures['ci_low']:+.2f} to {proposed_direct_captures['ci_high']:+.2f}). Removing history changes task success by {-proposed_history_task['mean']:+.3f}; removing instruction changes it by {-proposed_instruction_task['mean']:+.3f}.",
+        "",
+        "## 10. Oracle and upper-reference gap",
+        "",
+        f"The non-language `{args.selected_policy}` upper reference reaches {_percent(_mean(selected, 'success_rate'))} task / {_percent(_mean(selected, 'clean_success_rate'))} clean success. Proposed MiniMind reaches {_percent(_mean(proposed, 'success_rate'))} / {_percent(_mean(proposed, 'clean_success_rate'))}; its paired clean-success gap is {upper_clean_gap['mean']:+.3f} (95% CI {upper_clean_gap['ci_low']:+.3f} to {upper_clean_gap['ci_high']:+.3f}). This is reported as remaining headroom, not hidden or relabeled as the proposed method.",
         "",
         "## P2.1 corrective-data iteration",
         "",
         corrective_text,
         "",
-        "## 10. Strongest supported resume bullet",
+        "## 11. Strongest supported resume bullet",
         "",
-        f"Built a counterfactual learned control hierarchy and evaluated calibrated runtime risk overrides; on {identity['metadata']['episode_count']} untouched paired ID seeds, the selected `{args.selected_policy}` reached {_percent(_mean(selected, 'success_rate'))} task success and {_percent(_mean(selected, 'clean_success_rate'))} clean success ({clean_delta * 100:+.1f} points versus the P1 rule hierarchy), with fresh OOD evaluation across {len(ood)} shifts; verifier overrides were rejected when they worsened closed-loop clean success despite strong offline AUROC.",
+        f"Built a MiniMind-based hierarchical control policy over outcome-grounded counterfactual skills; on {identity['metadata']['episode_count']} untouched paired ID seeds, `{args.proposed_policy}` reached {_percent(_mean(proposed, 'success_rate'))} task / {_percent(_mean(proposed, 'clean_success_rate'))} clean success, adding {proposed_direct_task['mean'] * 100:+.1f} task points and removing {-proposed_direct_captures['mean']:.2f} captures per episode versus direct MiniMind LoRA; history and instruction ablations each lost about 17 task points, while a separately labeled non-language upper reference quantified the remaining clean-success gap.",
         "",
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)

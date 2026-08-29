@@ -18,6 +18,9 @@ The project separates three evidence levels:
 
 - **Verified:** offline MiniMind base/LoRA and MLP evaluation on the identical
   deterministic 512-transition subset from episode-isolated test data.
+- **Verified:** aggregate-only source-trajectory alignment on those same 512
+  states, including predator-visible/hidden agreement and action-distribution
+  Jensen–Shannon divergence.
 - **Verified:** explicit trie-masked JSON decoding makes both direct MiniMind
   models 100% format-valid; base reaches 1.17% exact action accuracy and LoRA
   reaches 41.02%, separating output protocol from policy quality.
@@ -42,25 +45,28 @@ The project separates three evidence levels:
 - **Verified:** 320 collection anchors, 1,920 exact-replay counterfactual
   branches, numeric and MiniMind learned planners, calibrated risk critic,
   development-only K/threshold sweeps, and one rejected P2.1 iteration.
-- **Verified:** on 100 untouched final ID seeds, numeric K=8 reached 100% task /
-  38% clean success, versus P1 at 79% / 14% and direct MLP at 20% / 5%.
-- **Verified:** numeric K=8 retained 100% task success and 34–42% clean success
-  across faster-predator, shorter-LOS, and unseen-language OOD conditions.
-  MiniMind unseen-language task / clean success fell to 71% / 4%.
+- **Verified:** on 100 untouched final ID seeds, the proposed full MiniMind
+  hierarchy reached 97% task / 12% clean success with 7.37 captures per episode,
+  versus direct MiniMind LoRA at 26% / 1% with 98.60 captures. Removing history
+  or instruction reduced the hierarchy to 80% / 1%.
+- **Verified:** an 11-feature profile audit against 500 held-out source episodes
+  gives full MiniMind a 0.288 distance, versus 0.531 for direct MiniMind LoRA,
+  0.347 for either ablation, and 0.315 for P1.
+- **Upper reference:** numeric K=8 reached 100% task / 38% clean success and
+  0.200 behavioral-profile distance. It is retained as a non-language ceiling,
+  not labeled as the proposed MiniMind method.
+- **Verified limitation:** MiniMind unseen-language task / clean success fell to
+  71% / 4%; the goal-coordinate Oasis oracle also remains substantially higher.
   Historical P1 clean success remains explicitly pending because its private
   episode CSV is unavailable; no value was inferred from marginals.
-- **Verified:** a public BotEvade/Oasis compatibility audit proves identical
-  295-action catalogs, deterministic seeded resets, corrected success/survival
-  semantics, and a frozen discrete-compatible goal set. Literal low-level
-  transfer remains explicitly incompatible because the 10D specialist lacks
-  active goal coordinates.
-- **Verified:** on 100 untouched paired Oasis seeds, the aligned goal-only
-  controller reached 100% task / 41% clean success with 1.21 captures per
-  episode. Frozen P1, numeric, and MiniMind planners reduced clean success to
-  5%, 3%, and 0% and increased captures by 22.42, 19.15, and 31.18 per episode.
-- **Verified:** unseen instruction templates reduced aligned MiniMind task
-  success from 89% to 0%; no-history and no-instruction ablations also reached
-  0% task success. No target training or final-seed selection was used.
+- **Verified transfer contract:** BotEvade and Oasis share all 295 actions, but
+  the literal 10D specialist lacks active target coordinates. Seeded reset,
+  terminal semantics, and discrete-goal reachability are explicitly audited.
+- **Verified target oracle gap:** on 100 paired Oasis seeds, the privileged
+  goal-coordinate controller reached 100% task / 41% clean success with 1.21
+  captures; aligned MiniMind reached 89% / 0% with 32.39 captures.
+- **Verified instruction limitation:** unseen Oasis instruction templates
+  reduced aligned MiniMind task success from 89% to 0%.
 
 ## Ownership and provenance
 
@@ -81,11 +87,10 @@ The project separates three evidence levels:
 - calibrated candidate-skill risk verification and auditable overrides;
 - fail-closed cross-task action, observation, reset, terminal, and reachable-goal
   compatibility contracts;
-- literal-versus-planner-isolation transfer evaluation with source/checkpoint
-  hashes and policy-partition completeness checks;
+- literal-versus-planner-isolation transfer evaluation with complete policy and
+  seed manifests;
 - latency, action-frequency, and control-deadline metrics;
-- synthetic CI/demo, aggregate-only plots, a privacy-safe rollout GIF, and
-  Northwestern BCS516 Slurm jobs.
+- synthetic CI/demo, a privacy-safe rollout GIF, and Northwestern BCS516 Slurm jobs.
 
 ### Upstream
 
@@ -103,56 +108,70 @@ flowchart LR
     B --> C["Episode reconstruction"]
     C --> D["Episode-isolated train / val / test"]
     D --> E["MiniMind direct-action BC"]
-    D --> F["MLP goal specialist"]
-    I["Instruction + semantic temporal history"] --> P["Learned skill proposal"]
-    C2["Exact replay + counterfactual branches"] --> P
+    D --> F["BC low-level upper reference / specialist"]
+    I["Instruction + semantic temporal history"] --> P["Proposed MiniMind planner"]
+    C2["Exact-replay training-label oracle"] --> P
     P --> V["Calibrated risk verifier"]
     V --> Q["Goal / evade / hold"]
     F --> Q
     G["Random policy"] --> H["Paired seeded BotEvade rollouts"]
     E --> H
     Q --> H
-    Q --> T["Literal transfer · fail closed"]
+    Q --> T["Literal Oasis transfer · fail closed"]
     P --> U["Frozen planner isolation"]
-    R["Oasis active-goal interface"] --> U
-    U --> O["100 paired Oasis rollouts"]
+    R["Privileged active-goal oracle interface"] --> U
+    U --> O["Paired Oasis rollouts"]
     H --> J["Success · captures · return · latency"]
     O --> J
     J --> K["Failure taxonomy + replay queue"]
     K --> L["Corrective data / next policy"]
 ```
 
-## Interface Before Intelligence transfer study
+## Comparison roles and oracle discipline
 
-The transfer study asks whether strategies learned in single-goal BotEvade
-generalize to the ordered multi-goal Oasis task. It separates two questions:
+MouseMind separates the comparison classes before reading results:
 
-1. **Literal full-stack transfer** reuses the frozen planner and 10D specialist.
-   This is an intentional incompatibility baseline because goal direction is
-   not identifiable from goal distance alone.
-2. **Planner-isolation transfer** freezes the high-level planner and gives every
-   planner the same parameter-free active-goal controller. This tests strategic
-   transfer without hiding the low-level interface mismatch.
+| Role | Methods |
+| --- | --- |
+| Baselines | Random, direct MiniMind base/LoRA, direct MLP, P1 rule hierarchy |
+| **Proposed** | **Full MiniMind language-conditioned hierarchy** |
+| Structural ablations | MiniMind without history; MiniMind without instruction |
+| Low-level upper reference | Supervised MLP BC specialist |
+| High-level upper reference | Numeric learned planner using the same semantic context without language generation |
+| Privileged oracle | Oasis controller with direct active-goal coordinates |
+| Training-label oracle | Exact-replay counterfactual outcome selection |
+
+BC and numeric systems are called upper references rather than literal oracles
+because they do not receive ground-truth future outcomes at deployment. The
+goal-coordinate controller and exact-replay labeler do receive privileged
+information. Full definitions, paired deltas, and gaps are in
+[../ORACLE_ANALYSIS.md](../ORACLE_ANALYSIS.md).
+
+## Oracle analysis: Interface Before Intelligence
+
+The frozen transfer study is deliberately downstream of the proposed-method
+analysis. It separates literal full-stack transfer from planner isolation:
+
+1. **Literal transfer** reuses the frozen BotEvade planner and 10D specialist.
+   It fails closed because goal direction is not identifiable from goal distance.
+2. **Planner isolation** freezes the high-level planner and gives every planner
+   the same parameter-free active-goal controller. This removes only the target
+   interface defect and exposes the remaining strategy gap.
 
 | Final Oasis, 100 paired seeds | Task success | Clean success | Captures / episode |
 | --- | ---: | ---: | ---: |
-| Goal controller, aligned | **100%** | **41%** | **1.21** |
+| Goal-coordinate oracle | **100%** | **41%** | **1.21** |
 | P1 rule planner, aligned | 98% | 5% | 23.63 |
 | Numeric planner, aligned | 95% | 3% | 20.36 |
 | MiniMind planner, aligned | 89% | 0% | 32.39 |
 | Best literal full stack | 0% | 0% | 30.38 |
 
-The full protocol, paired intervals, unseen-instruction results, and limitations
-are in [Interface Before Intelligence](../TRANSFER_RESULTS.md). The immutable
-contract is `evaluation/contracts/cross_task_transfer_v1.json`; the public
-compatibility artifact is `reports/transfer_compatibility.json`; aggregate final
-reports are `reports/transfer_final_seen.json` and
-`reports/transfer_final_unseen.json`.
-
-Reproduce the compatibility audit and Northwestern job sequence with
-[`northwestern/transfer/RUNBOOK.md`](northwestern/transfer/RUNBOOK.md). Final
-policy rows and checkpoints remain outside Git; published numbers and figures
-are generated from aggregate reports only.
+The full paired intervals, unseen-instruction results, and limitations are in
+[../TRANSFER_RESULTS.md](../TRANSFER_RESULTS.md). Reproduce the compatibility
+audit and jobs with
+[northwestern/transfer/RUNBOOK.md](northwestern/transfer/RUNBOOK.md). Aggregate
+final reports are `reports/transfer_final_seen.json` and
+`reports/transfer_final_unseen.json`; per-episode rows remain private.
 
 ## Public one-command demo
 
@@ -295,6 +314,70 @@ The complete Git-safe aggregate artifact is
 [reports/mlp_bc_metrics.json](reports/mlp_bc_metrics.json). The same checkpoint
 scored 53.58% over all 5,000 test transitions; the 512-row number is the primary
 comparison because it matches the published MiniMind subset.
+
+### Source-trajectory alignment
+
+The separate alignment audit joins the constrained MiniMind predictions and
+MLP predictions on the exact same frozen 512 sample IDs. It reports exact
+action agreement, normalized destination error, action-distribution
+Jensen–Shannon divergence, and predator-visible/hidden strata. Sample rows and
+predictions remain private; only the aggregate report is committed.
+
+```bash
+python -m mouse_llm.evaluation.analyze_mouse_alignment \
+  --test-data /private/processed/v1/test.jsonl \
+  --manifest /private/processed/v1/manifest.json \
+  --action-catalog mouse_llm/envs/mice/assets/action_catalog_21_05.json \
+  --direct-predictions /private/eval/predictions_private.jsonl \
+  --mlp-checkpoint /private/models/mlp_bc.pt \
+  --output /private/reports/source_mouse_alignment.json \
+  --markdown-output /private/reports/SOURCE_MOUSE_ALIGNMENT.md
+```
+
+| Policy | Overall agreement | Predator hidden (N=492) | Predator visible (N=20) | Destination error | Action-distribution JS |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Base MiniMind, constrained | 1.2% | 1.2% | 0.0% | 29.1% | 0.954 bits |
+| Mouse-policy LoRA, constrained | 41.0% | 41.1% | 40.0% | 9.4% | 0.238 bits |
+| MLP BC, low-level upper reference | **55.7%** | **56.5%** | 35.0% | **2.2%** | **0.128 bits** |
+
+The complete intervals and interpretation are in
+[MOUSE_ALIGNMENT.md](../MOUSE_ALIGNMENT.md), with aggregate evidence in
+[reports/source_mouse_alignment.json](reports/source_mouse_alignment.json).
+This is teacher-forced one-step alignment to a legacy BotEvade simulator-policy
+export—not biological mouse behavior and not a closed-loop safety result.
+
+### Closed-loop behavioral-profile alignment
+
+One-step agreement evaluates only direct action policies. The hierarchy-level
+audit instead reconstructs all 500 held-out source episodes and compares them
+with every policy's 100 fresh-ID rollouts across 11 bounded features.
+
+![MiniMind hierarchy source-behavior alignment](reports/figures/p2_trajectory_alignment.png)
+
+```bash
+python -m mouse_llm.evaluation.analyze_trajectory_alignment \
+  --source-csv /private/raw/mouse_data_processed.csv \
+  --closed-loop-episodes /private/final-id/closed_loop_episodes.csv \
+  --closed-loop-report mouse_llm/reports/p2_id_closed_loop.json \
+  --output /private/reports/trajectory_profile_alignment.json \
+  --markdown-output /private/reports/TRAJECTORY_ALIGNMENT.md
+```
+
+| Role | Method | Alignment distance (95% CI) ↓ |
+| --- | --- | ---: |
+| Direct baseline | MiniMind LoRA | 0.531 (0.503–0.554) |
+| Specialist reference | MLP BC | 0.520 (0.490–0.547) |
+| Rule baseline | P1 hierarchy | 0.315 (0.288–0.340) |
+| Ablation | MiniMind without history | 0.347 (0.332–0.361) |
+| Ablation | MiniMind without instruction | 0.347 (0.332–0.361) |
+| **Proposed** | **Full MiniMind hierarchy** | **0.288 (0.272–0.304)** |
+| Non-language upper reference | Numeric planner | 0.200 (0.174–0.225) |
+
+Full MiniMind is the strongest MiniMind variant. It improves distance by 0.243
+versus direct MiniMind LoRA and 0.059 versus either structural ablation. The
+numeric planner remains the upper reference. See
+[../TRAJECTORY_ALIGNMENT.md](../TRAJECTORY_ALIGNMENT.md) and
+[reports/trajectory_profile_alignment.json](reports/trajectory_profile_alignment.json).
 
 ## Offline MiniMind evaluation
 
@@ -565,23 +648,19 @@ figures intended for publication belong in Git.
 
 1. Add an expert/original-policy adapter once its checkpoint provenance is
    clean enough for a fair comparison.
-2. Establish an action and geometry compatibility contract before claiming
-   transfer to a different Cellworld layout; this study changes the task but
-   keeps the verified `21_05` geometry.
-3. Train a target-aware strategy only on a new target training pool, then retain
-   the current 100 final seeds untouched for a separately preregistered study.
-4. Determine why P1/numeric/MiniMind evasion increases captures under the Oasis
-   goal sequence, with explicit counterfactual skill utilities per target task.
+2. Close the MiniMind-to-numeric upper-reference gap without changing the
+   frozen final-seed contract.
+3. Train target-aware strategy only on a new Oasis training pool, retaining the
+   existing 100 final seeds for a separately preregistered evaluation.
+4. Diagnose why transferred evasion raises captures under ordered Oasis goals.
+5. Establish a new action/geometry contract before cross-world claims.
 
 ## Resume-ready summary
 
-> Built MouseMind, a privacy-safe control research stack spanning leakage-safe
-> imitation learning, counterfactual hierarchical planning, and frozen transfer
-> evaluation. On 100 untouched paired Oasis seeds, a fail-closed compatibility
-> audit showed that the BotEvade 10D specialist lacked active goal coordinates;
-> after aligning only that interface, a parameter-free goal controller reached
-> 100% task / 41% clean success, while frozen P1, numeric, and MiniMind planners
-> reduced clean success to 5%, 3%, and 0%. Unseen instructions collapsed
-> MiniMind task success from 89% to 0%; all claims are backed by versioned
-> contracts, checkpoint/source hashes, paired intervals, Slurm jobs, and
-> aggregate-only public artifacts.
+> Built a MiniMind-based hierarchical control policy over outcome-grounded
+> counterfactual skills; on 100 untouched BotEvade seeds, full MiniMind reached
+> 97% task / 12% clean success, adding 71 task points and removing 91.23 captures
+> per episode versus direct MiniMind LoRA. History and instruction ablations each
+> lost 17 task points, and a 500-episode source-profile audit ranked full MiniMind
+> as the strongest MiniMind variant. Separately labeled numeric and goal-coordinate
+> upper references quantify the remaining source and Oasis transfer gaps.

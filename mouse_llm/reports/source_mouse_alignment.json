@@ -1,0 +1,216 @@
+{
+  "artifact": "mousemind_source_trajectory_alignment",
+  "evaluation": {
+    "action_count": 295,
+    "bootstrap_iterations": 2000,
+    "deterministic_subset_seed": 42,
+    "direct_predictions_sha256": "e204cb9177f94a93b6cfd682f81fe15cd2c56c7288b0e9b41607b7a11efac637",
+    "interpretation": "teacher-forced one-step action alignment",
+    "invalid_prediction_destination_error": 1.0,
+    "mlp_checkpoint_sha256": "b976cff874261f176cbc0cb1dba7a63d22a103ee2f141b7f916dfc70abfabb65",
+    "predator_visible_definition": "legacy predator_x or predator_y is nonzero",
+    "sample_count": 512,
+    "source_filename": "mouse_data_processed.csv",
+    "source_rows": 118861,
+    "source_sha256": "fdb93c5a874bf2587d9f0be5b3d1dd0739224eeb78bbacfbb410c5e912de39ea",
+    "split": "episode-isolated held-out source trajectories",
+    "test_data_sha256": "5f4865154ab959c78d1a116ecd26786ddc4c04aaccb13b05c84d21aa79208f82"
+  },
+  "experiment": "held_out_source_mouse_action_alignment",
+  "limitations": [
+    "The legacy export contains simulator policy transitions; this analysis does not establish alignment with biological mouse behavior.",
+    "Teacher-forced one-step agreement is an offline diagnostic and is not a closed-loop safety or task-success result.",
+    "The predator-visible stratum is reported separately and has a smaller sample count, so its interval is wider."
+  ],
+  "metrics": {
+    "action_distribution_js_divergence_bits": "lower is better; 0 identical, 1 maximally different",
+    "exact_action_agreement": "higher is better",
+    "normalized_destination_error": "lower is better; Euclidean destination distance / sqrt(2)"
+  },
+  "policies": {
+    "base-minimind-constrained": {
+      "overall": {
+        "action_distribution_js_divergence_bits": {
+          "mean": 0.9539092597487226
+        },
+        "exact_action_agreement": {
+          "ci_high": 0.021484375,
+          "ci_low": 0.00390625,
+          "mean": 0.01171875
+        },
+        "macro_action_recall": 0.012987012987012988,
+        "normalized_destination_error": {
+          "ci_high": 0.30674084762151116,
+          "ci_low": 0.27715692401177316,
+          "mean": 0.2913195228315847
+        },
+        "sample_count": 512,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      },
+      "predator_hidden": {
+        "exact_action_agreement": {
+          "ci_high": 0.022357723577235773,
+          "ci_low": 0.0040650406504065045,
+          "mean": 0.012195121951219513
+        },
+        "normalized_destination_error": {
+          "ci_high": 0.30995708788545545,
+          "ci_low": 0.2782982602992835,
+          "mean": 0.2941988901264537
+        },
+        "sample_count": 492,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      },
+      "predator_visible": {
+        "exact_action_agreement": {
+          "ci_high": 0.0,
+          "ci_low": 0.0,
+          "mean": 0.0
+        },
+        "normalized_destination_error": {
+          "ci_high": 0.2926054491874331,
+          "ci_low": 0.15990995667000737,
+          "mean": 0.22048708737780784
+        },
+        "sample_count": 20,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      }
+    },
+    "mlp-bc": {
+      "overall": {
+        "action_distribution_js_divergence_bits": {
+          "mean": 0.12822648412304335
+        },
+        "exact_action_agreement": {
+          "ci_high": 0.599609375,
+          "ci_low": 0.513671875,
+          "mean": 0.556640625
+        },
+        "macro_action_recall": 0.4150030836399068,
+        "normalized_destination_error": {
+          "ci_high": 0.024851113781182866,
+          "ci_low": 0.019854967377044477,
+          "mean": 0.022255109866506872
+        },
+        "sample_count": 512,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      },
+      "predator_hidden": {
+        "exact_action_agreement": {
+          "ci_high": 0.6077235772357723,
+          "ci_low": 0.5223577235772358,
+          "mean": 0.5650406504065041
+        },
+        "normalized_destination_error": {
+          "ci_high": 0.024016205556165147,
+          "ci_low": 0.018685788130684288,
+          "mean": 0.021337676997653158
+        },
+        "sample_count": 492,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      },
+      "predator_visible": {
+        "exact_action_agreement": {
+          "ci_high": 0.55,
+          "ci_low": 0.15,
+          "mean": 0.35
+        },
+        "normalized_destination_error": {
+          "ci_high": 0.06325233398175023,
+          "ci_low": 0.025628369805519725,
+          "mean": 0.044823958440308224
+        },
+        "sample_count": 20,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      }
+    },
+    "mouse-policy-lora-constrained": {
+      "overall": {
+        "action_distribution_js_divergence_bits": {
+          "mean": 0.23755684257639587
+        },
+        "exact_action_agreement": {
+          "ci_high": 0.45122070312499973,
+          "ci_low": 0.365234375,
+          "mean": 0.41015625
+        },
+        "macro_action_recall": 0.23682795895315428,
+        "normalized_destination_error": {
+          "ci_high": 0.10721569497458715,
+          "ci_low": 0.08169601973279057,
+          "mean": 0.09449128484606231
+        },
+        "sample_count": 512,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      },
+      "predator_hidden": {
+        "exact_action_agreement": {
+          "ci_high": 0.45121951219512196,
+          "ci_low": 0.36585365853658536,
+          "mean": 0.4105691056910569
+        },
+        "normalized_destination_error": {
+          "ci_high": 0.10697654782992896,
+          "ci_low": 0.08191725533706617,
+          "mean": 0.09412445331602967
+        },
+        "sample_count": 492,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      },
+      "predator_visible": {
+        "exact_action_agreement": {
+          "ci_high": 0.6,
+          "ci_low": 0.2,
+          "mean": 0.4
+        },
+        "normalized_destination_error": {
+          "ci_high": 0.1802047675595732,
+          "ci_low": 0.045558520930508314,
+          "mean": 0.10351534048486506
+        },
+        "sample_count": 20,
+        "valid_output_rate": {
+          "ci_high": 1.0,
+          "ci_low": 1.0,
+          "mean": 1.0
+        }
+      }
+    }
+  },
+  "research_evidence": true,
+  "research_evidence_blockers": [],
+  "schema_version": 1,
+  "synthetic": false
+}
