@@ -3,17 +3,15 @@
 from __future__ import annotations
 
 import argparse
+import gc
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-from mouse_llm.baselines.planner_mlp import NumericSkillPlanner
 from mouse_llm.data.planner_schema import Preference
 from mouse_llm.evaluation.closed_loop import (
-    LEGACY_GYM_SOURCE_INDICES,
-    MLPCheckpointPolicy,
     Policy,
     _policy_input,
 )
@@ -125,7 +123,7 @@ def _render(
 ) -> None:
     from PIL import Image, ImageDraw
 
-    width, height = 1500, 540
+    width, height = 1500, 570
     panel_width = width // len(trajectories)
     sample_stride = 3
     frame_count = max((len(states) + sample_stride - 1) // sample_stride for _, states in trajectories)
@@ -135,10 +133,17 @@ def _render(
         image = Image.new("RGB", (width, height), "white")
         draw = ImageDraw.Draw(image)
         draw.text(
-            (width // 2, 18),
-            f"Frozen BotEvade → Oasis transfer · evaluation seed {seed}",
+            (width // 2, 14),
+            f"MiniMind transfer under instruction shift · final seed {seed}",
             fill="#111827",
-            font=_font(24, bold=True),
+            font=_font(23, bold=True),
+            anchor="ma",
+        )
+        draw.text(
+            (width // 2, 43),
+            "same MiniMind weights · only the instruction split changes",
+            fill="#64748B",
+            font=_font(12),
             anchor="ma",
         )
         legend = (
@@ -147,8 +152,8 @@ def _render(
             (width // 2 + 190, "#10B981", "active goal"),
         )
         for x, color, label in legend:
-            draw.ellipse((x - 7, 44, x + 7, 58), fill=color)
-            draw.text((x + 14, 51), label, fill="#475569", font=_font(12), anchor="lm")
+            draw.ellipse((x - 7, 58, x + 7, 72), fill=color)
+            draw.text((x + 14, 65), label, fill="#475569", font=_font(12), anchor="lm")
         for panel_index, (label, states) in enumerate(trajectories):
             state_index = min(frame_index * sample_stride, len(states) - 1)
             state = states[state_index]
@@ -156,7 +161,7 @@ def _render(
                 item.prey for item in states[: state_index + 1]
             ]
             panel_left = panel_index * panel_width
-            box = (panel_left + 35, 104, panel_left + panel_width - 35, 470)
+            box = (panel_left + 35, 115, panel_left + panel_width - 35, 482)
             draw.rounded_rectangle(box, radius=12, fill="#F8FAFC", outline="#CBD5E1", width=2)
             for destination in destinations:
                 x, y = _xy((float(destination[0]), float(destination[1])), box)
@@ -181,7 +186,7 @@ def _render(
                 width=2,
             )
             draw.text(
-                (panel_left + panel_width // 2, 78),
+                (panel_left + panel_width // 2, 91),
                 label,
                 fill="#111827",
                 font=_font(18, bold=True),
@@ -195,14 +200,14 @@ def _render(
                 else f"step {state.step}"
             )
             draw.text(
-                (panel_left + panel_width // 2, 492),
+                (panel_left + panel_width // 2, 510),
                 f"{status} · goals {state.goals_completed}/3 · return {state.return_completed}/1 · captures {state.captures}",
                 fill="#334155",
                 font=_font(14),
                 anchor="ma",
             )
             draw.text(
-                (panel_left + panel_width // 2, 516),
+                (panel_left + panel_width // 2, 538),
                 f"skill: {state.skill.replace('_', ' ')}",
                 fill="#64748B",
                 font=_font(13),
@@ -225,8 +230,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--contract", type=Path, default=DEFAULT_TRANSFER_CONTRACT)
     parser.add_argument("--action-catalog", type=Path, default=Path("mouse_llm/envs/mice/assets/action_catalog_21_05.json"))
-    parser.add_argument("--mlp-checkpoint", type=Path, required=True)
-    parser.add_argument("--planner-checkpoint", type=Path, required=True)
+    parser.add_argument("--base-weight", type=Path, required=True)
+    parser.add_argument("--skill-lora-weight", type=Path, required=True)
+    parser.add_argument("--tokenizer", type=Path, default=Path("model"))
+    parser.add_argument("--hidden-size", type=int, default=768)
+    parser.add_argument("--num-hidden-layers", type=int, default=8)
+    parser.add_argument("--max-seq-len", type=int, default=1024)
+    parser.add_argument("--max-new-tokens", type=int, default=24)
     parser.add_argument("--seed", type=int, default=42000)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--output", type=Path, required=True)
@@ -250,40 +260,56 @@ def main() -> None:
             reward_function=oasis_reward(),
         )
 
-    def specialist(name: str):
-        return MLPCheckpointPolicy(
-            args.mlp_checkpoint,
+    goal_only = GoalCoordinatePolicy(destinations, name="aligned-goal-only")
+    from mouse_llm.hierarchical.minimind_planner import MiniMindSkillPlanner
+
+    def minimind_policy(*, instruction_split: str, name: str) -> ProposeVerifyPolicy:
+        planner = MiniMindSkillPlanner(
+            base_weight=args.base_weight,
+            lora_weight=args.skill_lora_weight,
+            tokenizer_path=args.tokenizer,
             device=args.device,
-            observation_indices=LEGACY_GYM_SOURCE_INDICES,
+            hidden_size=args.hidden_size,
+            num_hidden_layers=args.num_hidden_layers,
+            max_seq_len=args.max_seq_len,
+            max_new_tokens=args.max_new_tokens,
+            instruction_split=instruction_split,
+        )
+        return ProposeVerifyPolicy(
+            specialist=_PlannerIsolationSpecialist(),
+            destinations=destinations,
+            planner=planner,
+            preference=Preference.SURVIVAL_FIRST,
+            planner_horizon=contract["selection"]["planner_horizon"],
+            evade_distance=contract["selection"]["evade_distance"],
             name=name,
+            observation_mode="transfer",
+            goal_destination_indices=(15, 16),
         )
 
-    literal = ProposeVerifyPolicy(
-        specialist=specialist("literal-numeric-specialist"),
-        destinations=destinations,
-        planner=NumericSkillPlanner(args.planner_checkpoint, device=args.device),
-        preference=Preference.SURVIVAL_FIRST,
-        planner_horizon=contract["selection"]["planner_horizon"],
-        evade_distance=contract["selection"]["evade_distance"],
-        name="literal-numeric",
-        observation_mode="transfer",
+    goal_states = _record(env_factory, goal_only, seed=args.seed)
+    seen_states = _record(
+        env_factory,
+        minimind_policy(instruction_split="train", name="minimind-seen"),
+        seed=args.seed,
     )
-    goal_only = GoalCoordinatePolicy(destinations, name="aligned-goal-only")
-    aligned = ProposeVerifyPolicy(
-        specialist=_PlannerIsolationSpecialist(),
-        destinations=destinations,
-        planner=NumericSkillPlanner(args.planner_checkpoint, device=args.device),
-        preference=Preference.SURVIVAL_FIRST,
-        planner_horizon=contract["selection"]["planner_horizon"],
-        evade_distance=contract["selection"]["evade_distance"],
-        name="aligned-numeric",
-        observation_mode="transfer",
-        goal_destination_indices=(15, 16),
+    gc.collect()
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except ImportError:
+        pass
+    unseen_states = _record(
+        env_factory,
+        minimind_policy(instruction_split="unseen_test", name="minimind-unseen"),
+        seed=args.seed,
     )
     trajectories = [
-        ("Literal frozen stack", _record(env_factory, literal, seed=args.seed)),
-        ("Aligned goal controller", _record(env_factory, goal_only, seed=args.seed)),
-        ("Frozen numeric planner", _record(env_factory, aligned, seed=args.seed)),
+        ("Goal-only interface", goal_states),
+        ("MiniMind · seen instruction", seen_states),
+        ("MiniMind · unseen instruction", unseen_states),
     ]
     _render(
         trajectories,

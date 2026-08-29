@@ -3,8 +3,9 @@
 #SBATCH --partition=job
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=24G
+#SBATCH --mem=64G
 #SBATCH --time=02:00:00
 #SBATCH --output=mouse-transfer-%x-%j.out
 #SBATCH --error=mouse-transfer-%x-%j.err
@@ -23,9 +24,10 @@ cd "$repo_root"
 
 python -m mouse_llm.evaluation.render_transfer_rollout \
   --seed "${MOUSE_TRANSFER_GIF_SEED:-42000}" \
-  --mlp-checkpoint "${MOUSE_LLM_MLP_CHECKPOINT:-$HOME/minimind_mouse_data/formal_stage/20260822_p1/mlp_bc.pt}" \
-  --planner-checkpoint "${MOUSE_P2_PLANNER_CHECKPOINT:-/shares/bcs516/sh/minimind_mouse_p2/models/p2-v1/numeric/planner_mlp.pt}" \
-  --device cpu \
+  --base-weight "${MOUSE_LLM_BASE_WEIGHT:-$HOME/minimind/out/full_sft_768.pth}" \
+  --skill-lora-weight "${MOUSE_P2_SKILL_LORA_WEIGHT:-/shares/bcs516/sh/minimind_mouse_p2/models/p2-v1/minimind/lora_mousemind_skill_planner_768.pth}" \
+  --tokenizer "$repo_root/model" \
+  --device cuda \
   --output "$output"
 
 echo "TRANSFER_GIF=$output"

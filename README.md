@@ -20,10 +20,15 @@ MiniMind collapsed from 89% to 0% task success.
 
 [Transfer study](TRANSFER_RESULTS.md) · [Technical guide](mouse_llm/README.md) · [Earlier learned-control result](P2_RESULTS.md) · [Public smoke demo](#run-the-public-demo)
 
-![Predetermined final-seed transfer rollout](mouse_llm/reports/figures/transfer_rollout.gif)
+![MiniMind instruction-shift transfer rollout](mouse_llm/reports/figures/transfer_rollout.gif)
 
-The animation uses the predetermined first final seed (`42000`) for qualitative
-inspection; the claims below come from the full paired 100-seed aggregate.
+The animation uses the predetermined first final seed (`42000`). The left panel
+is the goal-only interface; the middle and right panels use identical MiniMind
+weights with seen versus unseen instruction templates. Goal-only completes with
+one capture; seen-instruction MiniMind visits all three goals but times out
+before returning with 33 captures; unseen-instruction MiniMind completes no
+goals and records 50 captures. This is a qualitative illustration—the claims
+below come from the full paired 100-seed aggregate.
 
 ![Frozen cross-task transfer result](mouse_llm/reports/figures/transfer_boundary.png)
 
