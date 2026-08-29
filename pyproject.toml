@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mousemind"
-version = "0.1.0"
-description = "A hierarchical language-conditioned Cellworld policy stack"
+version = "0.2.0"
+description = "A fail-closed Cellworld policy and transfer evaluation stack"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
@@ -31,6 +31,8 @@ test = ["pytest>=8"]
 [project.scripts]
 mousemind-demo = "mouse_llm.demo:main"
 mousemind-benchmark = "mouse_llm.evaluation.closed_loop:main"
+mousemind-transfer = "mouse_llm.evaluation.transfer_benchmark:main"
+mousemind-transfer-audit = "mouse_llm.evaluation.audit_transfer_compatibility:main"
 
 [tool.setuptools.packages.find]
 include = ["mouse_llm*", "model*", "trainer*", "dataset*"]
@@ -41,6 +43,7 @@ mouse_llm = [
   "reports/*.json",
   "reports/figures/*.png",
   "reports/figures/*.svg",
+  "reports/figures/*.gif",
 ]
 "mouse_llm.data" = ["*.json"]
 "mouse_llm.evaluation" = ["contracts/*.json"]

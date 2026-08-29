@@ -63,9 +63,12 @@ def _number(summary: dict[str, Any], metric: str) -> str:
     return f"{_mean(summary, metric):.2f}"
 
 
-def _delta(report: dict[str, Any], candidate: str, reference: str, metric: str) -> float:
+def _delta_interval(
+    report: dict[str, Any], candidate: str, reference: str, metric: str
+) -> tuple[float, float, float]:
     key = f"{candidate}_minus_{reference}"
-    return float(report["within_mode_paired_comparisons"][key][metric]["mean"])
+    value = report["within_mode_paired_comparisons"][key][metric]
+    return float(value["mean"]), float(value["ci_low"]), float(value["ci_high"])
 
 
 def _best_aligned(report: dict[str, Any]) -> str:
@@ -129,10 +132,17 @@ def main() -> None:
     for name in ("aligned-p1-rule", "aligned-numeric", "aligned-minimind"):
         if name not in seen["policies"]:
             continue
+        clean_mean, clean_low, clean_high = _delta_interval(
+            seen, name, "aligned-goal-only", "clean_success_rate"
+        )
+        capture_mean, capture_low, capture_high = _delta_interval(
+            seen, name, "aligned-goal-only", "captures"
+        )
         learned_lines.append(
             f"- {LABELS[name]} changed clean success by "
-            f"{100 * _delta(seen, name, 'aligned-goal-only', 'clean_success_rate'):+.1f} points "
-            f"and captures by {_delta(seen, name, 'aligned-goal-only', 'captures'):+.2f} per episode "
+            f"{100 * clean_mean:+.1f} points (95% CI {100 * clean_low:+.1f} to {100 * clean_high:+.1f}) "
+            f"and captures by {capture_mean:+.2f} per episode "
+            f"({capture_low:+.2f} to {capture_high:+.2f}) "
             "relative to the aligned goal-only controller."
         )
 
@@ -186,6 +196,11 @@ def main() -> None:
         decision,
         "",
         "![Frozen cross-task transfer](mouse_llm/reports/figures/transfer_boundary.png)",
+        "",
+        "![Predetermined final-seed rollout](mouse_llm/reports/figures/transfer_rollout.gif)",
+        "",
+        "The animation uses the predetermined first final seed (`42000`) as a qualitative "
+        "illustration; all claims and confidence intervals come from the 100-seed aggregate.",
         "",
         *table,
         "",

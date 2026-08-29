@@ -49,6 +49,18 @@ The project separates three evidence levels:
   MiniMind unseen-language task / clean success fell to 71% / 4%.
   Historical P1 clean success remains explicitly pending because its private
   episode CSV is unavailable; no value was inferred from marginals.
+- **Verified:** a public BotEvade/Oasis compatibility audit proves identical
+  295-action catalogs, deterministic seeded resets, corrected success/survival
+  semantics, and a frozen discrete-compatible goal set. Literal low-level
+  transfer remains explicitly incompatible because the 10D specialist lacks
+  active goal coordinates.
+- **Verified:** on 100 untouched paired Oasis seeds, the aligned goal-only
+  controller reached 100% task / 41% clean success with 1.21 captures per
+  episode. Frozen P1, numeric, and MiniMind planners reduced clean success to
+  5%, 3%, and 0% and increased captures by 22.42, 19.15, and 31.18 per episode.
+- **Verified:** unseen instruction templates reduced aligned MiniMind task
+  success from 89% to 0%; no-history and no-instruction ablations also reached
+  0% task success. No target training or final-seed selection was used.
 
 ## Ownership and provenance
 
@@ -67,8 +79,13 @@ The project separates three evidence levels:
 - hierarchical skill planner/controller and instruction paraphrase contracts;
 - outcome-grounded counterfactual skill labeling and compact learned planners;
 - calibrated candidate-skill risk verification and auditable overrides;
+- fail-closed cross-task action, observation, reset, terminal, and reachable-goal
+  compatibility contracts;
+- literal-versus-planner-isolation transfer evaluation with source/checkpoint
+  hashes and policy-partition completeness checks;
 - latency, action-frequency, and control-deadline metrics;
-- synthetic CI/demo and Northwestern BCS516 Slurm jobs.
+- synthetic CI/demo, aggregate-only plots, a privacy-safe rollout GIF, and
+  Northwestern BCS516 Slurm jobs.
 
 ### Upstream
 
@@ -95,10 +112,47 @@ flowchart LR
     G["Random policy"] --> H["Paired seeded BotEvade rollouts"]
     E --> H
     Q --> H
+    Q --> T["Literal transfer · fail closed"]
+    P --> U["Frozen planner isolation"]
+    R["Oasis active-goal interface"] --> U
+    U --> O["100 paired Oasis rollouts"]
     H --> J["Success · captures · return · latency"]
+    O --> J
     J --> K["Failure taxonomy + replay queue"]
     K --> L["Corrective data / next policy"]
 ```
+
+## Interface Before Intelligence transfer study
+
+The transfer study asks whether strategies learned in single-goal BotEvade
+generalize to the ordered multi-goal Oasis task. It separates two questions:
+
+1. **Literal full-stack transfer** reuses the frozen planner and 10D specialist.
+   This is an intentional incompatibility baseline because goal direction is
+   not identifiable from goal distance alone.
+2. **Planner-isolation transfer** freezes the high-level planner and gives every
+   planner the same parameter-free active-goal controller. This tests strategic
+   transfer without hiding the low-level interface mismatch.
+
+| Final Oasis, 100 paired seeds | Task success | Clean success | Captures / episode |
+| --- | ---: | ---: | ---: |
+| Goal controller, aligned | **100%** | **41%** | **1.21** |
+| P1 rule planner, aligned | 98% | 5% | 23.63 |
+| Numeric planner, aligned | 95% | 3% | 20.36 |
+| MiniMind planner, aligned | 89% | 0% | 32.39 |
+| Best literal full stack | 0% | 0% | 30.38 |
+
+The full protocol, paired intervals, unseen-instruction results, and limitations
+are in [Interface Before Intelligence](../TRANSFER_RESULTS.md). The immutable
+contract is `evaluation/contracts/cross_task_transfer_v1.json`; the public
+compatibility artifact is `reports/transfer_compatibility.json`; aggregate final
+reports are `reports/transfer_final_seen.json` and
+`reports/transfer_final_unseen.json`.
+
+Reproduce the compatibility audit and Northwestern job sequence with
+[`northwestern/transfer/RUNBOOK.md`](northwestern/transfer/RUNBOOK.md). Final
+policy rows and checkpoints remain outside Git; published numbers and figures
+are generated from aggregate reports only.
 
 ## Public one-command demo
 
@@ -511,16 +565,23 @@ figures intended for publication belong in Git.
 
 1. Add an expert/original-policy adapter once its checkpoint provenance is
    clean enough for a fair comparison.
-2. Extend instruction/history conditioning across BotEvade and Oasis.
-3. Establish an action/geometry compatibility contract before cross-world use.
-4. Record a real 20–30 second side-by-side rollout from the frozen policies.
+2. Establish an action and geometry compatibility contract before claiming
+   transfer to a different Cellworld layout; this study changes the task but
+   keeps the verified `21_05` geometry.
+3. Train a target-aware strategy only on a new target training pool, then retain
+   the current 100 final seeds untouched for a separately preregistered study.
+4. Determine why P1/numeric/MiniMind evasion increases captures under the Oasis
+   goal sequence, with explicit counterfactual skill utilities per target task.
 
 ## Resume-ready summary
 
-> Built MouseMind, a privacy-safe Cellworld policy stack: reconstructed 4.9K
-> episodes from 118K legacy transitions with leakage controls; LoRA-adapted a
-> 64M MiniMind model; showed that a 145K MLP wins offline yet fails closed-loop
-> safety metrics; recovered and replay-verified the legacy observation contract;
-> then redesigned control hierarchically, improving paired 100-seed success from
-> 17% to 74% and reducing captures from 90.95 to 9.96 per episode with unchanged
-> p95 latency, plus failure mining, Slurm automation, and privacy CI.
+> Built MouseMind, a privacy-safe control research stack spanning leakage-safe
+> imitation learning, counterfactual hierarchical planning, and frozen transfer
+> evaluation. On 100 untouched paired Oasis seeds, a fail-closed compatibility
+> audit showed that the BotEvade 10D specialist lacked active goal coordinates;
+> after aligning only that interface, a parameter-free goal controller reached
+> 100% task / 41% clean success, while frozen P1, numeric, and MiniMind planners
+> reduced clean success to 5%, 3%, and 0%. Unseen instructions collapsed
+> MiniMind task success from 89% to 0%; all claims are backed by versioned
+> contracts, checkpoint/source hashes, paired intervals, Slurm jobs, and
+> aggregate-only public artifacts.

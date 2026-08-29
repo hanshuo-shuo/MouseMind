@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use MouseMind, please cite this software and its MiniMind upstream dependency."
-title: "MouseMind: A Hierarchical Language-Conditioned Cellworld Policy Stack"
+title: "MouseMind: Interface Before Intelligence"
 type: software
 authors:
   - family-names: "Shuo"
@@ -8,8 +8,8 @@ authors:
 repository-code: "https://github.com/hanshuo-shuo/MouseMind"
 url: "https://github.com/hanshuo-shuo/MouseMind"
 license: Apache-2.0
-version: 0.1.0
-date-released: 2026-08-23
+version: 0.2.0
+date-released: 2026-08-29
 references:
   - type: software
     title: "MiniMind: Train a Tiny LLM from Scratch"

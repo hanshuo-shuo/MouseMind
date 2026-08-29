@@ -167,7 +167,7 @@ def main() -> None:
         {
             "episode_count": len(expected_seeds),
             "full_pool_episode_count": len(expected_seeds),
-            "merged_policy_runs": [str(path) for path in args.runs],
+            "merged_policy_runs": [path.name for path in args.runs],
             "policy_partition_completeness_verified": True,
             "duplicate_policy_runs_verified_absent": True,
             "research_evidence": True,
