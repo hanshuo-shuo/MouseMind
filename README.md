@@ -308,30 +308,6 @@ mouse_llm/
 The detailed commands, storage layout, metric definitions, and limitations are
 in [mouse_llm/README.md](mouse_llm/README.md).
 
-## 中文摘要
-
-MouseMind 是一个完整的 Cellworld policy 工程项目，而不只是一次 LoRA
-微调。它覆盖私有轨迹审计、episode 防泄漏切分、MiniMind LoRA、MLP 公平
-基线、受约束动作解码、seeded closed-loop 评估、延迟/控制周期分析、Slurm
-和隐私 CI。
-
-项目的核心贡献是把 MiniMind 从直接生成 295-way 动作，改造成使用 instruction
-和 temporal history 选择三种高层 skill 的层级策略。Fresh BotEvade 中，direct
-MiniMind LoRA 为 26% task / 1% clean success；完整 MiniMind hierarchy 达到
-97% / 12%，每局 captures 从 98.60 降到 7.37。移除 history 或 instruction 后
-都下降为 80% / 1%，直接支持层级结构中的两个设计组件。
-
-比较角色被明确分层：Random、direct policies 和 P1 是 baselines；MLP BC 是
-low-level specialist upper reference；Numeric planner 是 non-language high-level
-upper reference；直接读取 Oasis active-goal coordinates 的 controller 才是
-privileged target oracle。它们放在 proposed-method 分析之后，用来量化剩余上界，
-而不冒充 MiniMind 方法。500 个 held-out source episodes 的 11-feature behavioral
-alignment distance 中，完整 MiniMind 为 0.288，优于 direct MiniMind LoRA 的
-0.531、两个 ablation 的 0.347 和 P1 的 0.315；Numeric upper reference 为
-0.200。后置的 Oasis oracle analysis 进一步显示：literal transfer 因缺少 active
-goal coordinates 而全部失败；goal-coordinate oracle 达到 100% task / 41% clean，
-用于量化 MiniMind 的跨任务剩余差距。该数据来自 BotEvade simulator policy，
-不是生物老鼠实验数据。
 
 ## License
 
