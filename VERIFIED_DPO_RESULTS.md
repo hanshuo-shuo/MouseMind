@@ -1,5 +1,7 @@
 # Verified DPO results
 
+Verified DPO is an adaptation of the same hierarchical MouseMind skill planner, **not a replacement for LoRA or the specialist**. Its trainable policy starts from the seed-clean SFT skill-planner LoRA; a frozen copy of that SFT LoRA serves as the DPO reference. The MiniMind backbone stays frozen, and inference retains the same constrained three-skill JSON output and low-level specialist.
+
 ## Configuration
 
 - Source: 320 verified exact-state P2 collection anchors, horizon 8; one best-versus-worst pair per anchor and preference when utility margin is positive.

@@ -1,56 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 390" role="img" aria-labelledby="title desc">
-  <title id="title">MouseMind hierarchical control</title>
-  <desc id="desc">Instruction, semantic current state, and eight-step temporal history feed MiniMind with task-specific LoRA. MiniMind selects one of three high-level skills: go_to_goal, evade_predator, or hold_position. A specialist turns the selected skill into a low-level action.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" role="img" aria-labelledby="title desc">
+  <title id="title">MouseMind hierarchy and Verified DPO LoRA adaptation</title>
+  <desc id="desc">Inference: instruction, semantic state, and eight-step history feed a MiniMind skill planner with a task LoRA. The planner emits one of three skill JSON responses, a specialist executes it, and the environment receives a low-level action. Training: verified exact-state counterfactual outcomes provide SFT labels and DPO preference pairs. Verified DPO continues training the SFT LoRA while a frozen copy serves as reference. The MiniMind backbone and execution hierarchy do not change.</desc>
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748b"/>
-    </marker>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#73849a"/></marker>
+    <marker id="teal-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#0b8c79"/></marker>
   </defs>
-  <rect width="1280" height="390" rx="20" fill="#f8fafc"/>
-  <text x="36" y="48" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700">MouseMind architecture</text>
-  <text x="36" y="76" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="16">Strategy from language and history · execution through a specialist</text>
+  <rect width="1400" height="620" rx="24" fill="#f7f9fc"/>
+  <text x="44" y="55" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#14253b">MouseMind: one hierarchy, two LoRA training stages</text>
+  <text x="44" y="88" font-family="Arial,sans-serif" font-size="18" fill="#52647b">Verified DPO updates the skill planner adapter; the three-skill interface and specialist stay the same.</text>
 
-  <text x="40" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">INPUT</text>
-  <rect x="30" y="128" width="235" height="190" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-  <circle cx="53" cy="169" r="5" fill="#3b82f6"/>
-  <text x="68" y="176" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="600">Instruction</text>
-  <line x1="49" y1="194" x2="246" y2="194" stroke="#e2e8f0"/>
-  <circle cx="53" cy="225" r="5" fill="#3b82f6"/>
-  <text x="68" y="232" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">Semantic state</text>
-  <line x1="49" y1="250" x2="246" y2="250" stroke="#e2e8f0"/>
-  <circle cx="53" cy="282" r="5" fill="#3b82f6"/>
-  <text x="68" y="289" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">8-step history</text>
+  <text x="44" y="133" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#596b80">INFERENCE · UNCHANGED CONTROL PATH</text>
+  <rect x="35" y="152" width="260" height="178" rx="16" fill="#fff" stroke="#d4deea" stroke-width="2"/>
+  <text x="57" y="191" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#213047">Planner input</text>
+  <text x="57" y="227" font-family="Arial,sans-serif" font-size="17" fill="#43546b">Instruction</text>
+  <text x="57" y="260" font-family="Arial,sans-serif" font-size="17" fill="#43546b">Semantic state</text>
+  <text x="57" y="293" font-family="Arial,sans-serif" font-size="17" fill="#43546b">8-step history</text>
+  <line x1="303" y1="242" x2="329" y2="242" stroke="#73849a" stroke-width="3" marker-end="url(#arrow)"/>
 
-  <line x1="275" y1="223" x2="309" y2="223" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <rect x="340" y="152" width="264" height="178" rx="16" fill="#173657"/>
+  <text x="472" y="205" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#fff">MiniMind planner</text>
+  <text x="472" y="239" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#cde2fa">frozen backbone</text>
+  <rect x="377" y="263" width="190" height="41" rx="9" fill="#0b8c79"/>
+  <text x="472" y="290" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#fff">skill-planner LoRA</text>
+  <line x1="612" y1="242" x2="638" y2="242" stroke="#73849a" stroke-width="3" marker-end="url(#arrow)"/>
 
-  <text x="330" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">STRATEGY</text>
-  <rect x="320" y="128" width="205" height="190" rx="16" fill="#183153"/>
-  <text x="422.5" y="203" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700">MiniMind</text>
-  <text x="422.5" y="238" text-anchor="middle" fill="#bfdbfe" font-family="Arial, Helvetica, sans-serif" font-size="17">task-specific LoRA</text>
-  <text x="422.5" y="278" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="15">selects a skill</text>
+  <rect x="649" y="152" width="291" height="178" rx="16" fill="#eaf2fc" stroke="#b5d0ed" stroke-width="2"/>
+  <text x="671" y="187" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#213047">One JSON skill</text>
+  <text x="671" y="226" font-family="Arial,sans-serif" font-size="17" fill="#335572">go_to_goal</text>
+  <text x="671" y="259" font-family="Arial,sans-serif" font-size="17" fill="#335572">evade_predator</text>
+  <text x="671" y="292" font-family="Arial,sans-serif" font-size="17" fill="#335572">hold_position</text>
+  <line x1="948" y1="242" x2="974" y2="242" stroke="#73849a" stroke-width="3" marker-end="url(#arrow)"/>
 
-  <line x1="535" y1="223" x2="569" y2="223" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <rect x="985" y="152" width="174" height="178" rx="16" fill="#d8e9fc" stroke="#9fc1e5" stroke-width="2"/>
+  <text x="1072" y="223" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#173657">Specialist</text>
+  <text x="1072" y="257" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#335572">executes skill</text>
+  <line x1="1167" y1="242" x2="1193" y2="242" stroke="#73849a" stroke-width="3" marker-end="url(#arrow)"/>
 
-  <text x="590" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">HIGH-LEVEL SKILL</text>
-  <rect x="580" y="128" width="250" height="190" rx="16" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
-  <rect x="597" y="147" width="216" height="44" rx="10" fill="#ffffff"/>
-  <text x="705" y="175" text-anchor="middle" fill="#1e3a5f" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">go_to_goal</text>
-  <rect x="597" y="201" width="216" height="44" rx="10" fill="#ffffff"/>
-  <text x="705" y="229" text-anchor="middle" fill="#1e3a5f" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">evade_predator</text>
-  <rect x="597" y="255" width="216" height="44" rx="10" fill="#ffffff"/>
-  <text x="705" y="283" text-anchor="middle" fill="#1e3a5f" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">hold_position</text>
+  <rect x="1204" y="152" width="160" height="178" rx="16" fill="#176c72"/>
+  <text x="1284" y="223" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#fff">Low-level</text>
+  <text x="1284" y="255" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#fff">action</text>
 
-  <line x1="840" y1="223" x2="874" y2="223" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="44" y="379" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#596b80">TRAINING · VERIFIED ADAPTER UPDATE</text>
+  <rect x="35" y="399" width="296" height="164" rx="16" fill="#fff" stroke="#d4deea" stroke-width="2"/>
+  <text x="55" y="443" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#213047">Exact-state rollouts</text>
+  <text x="55" y="476" font-family="Arial,sans-serif" font-size="16" fill="#43546b">Shared counterfactual utility</text>
+  <text x="55" y="507" font-family="Arial,sans-serif" font-size="16" fill="#43546b">Skill labels + preference pairs</text>
+  <line x1="339" y1="481" x2="372" y2="481" stroke="#73849a" stroke-width="3" marker-end="url(#arrow)"/>
 
-  <text x="895" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">EXECUTION</text>
-  <rect x="885" y="128" width="165" height="190" rx="16" fill="#dbeafe" stroke="#60a5fa" stroke-width="2"/>
-  <text x="967.5" y="217" text-anchor="middle" fill="#0f2f55" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700">Specialist</text>
-  <text x="967.5" y="247" text-anchor="middle" fill="#335b85" font-family="Arial, Helvetica, sans-serif" font-size="15">executes skill</text>
+  <rect x="383" y="399" width="270" height="164" rx="16" fill="#eaf2fc" stroke="#b5d0ed" stroke-width="2"/>
+  <text x="518" y="451" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#173657">Seed-clean SFT LoRA</text>
+  <text x="518" y="485" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#43546b">initial policy adapter</text>
+  <text x="518" y="518" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#43546b">copied as frozen reference</text>
+  <line x1="661" y1="481" x2="694" y2="481" stroke="#0b8c79" stroke-width="3" marker-end="url(#teal-arrow)"/>
 
-  <line x1="1060" y1="223" x2="1094" y2="223" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
-
-  <text x="1115" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">OUTPUT</text>
-  <rect x="1105" y="128" width="145" height="190" rx="16" fill="#0f766e"/>
-  <text x="1177.5" y="213" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700">Low-level</text>
-  <text x="1177.5" y="242" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700">action</text>
+  <rect x="705" y="399" width="309" height="164" rx="16" fill="#e4f5ef" stroke="#79c7ad" stroke-width="2"/>
+  <text x="859" y="451" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#087e6d">Verified DPO LoRA</text>
+  <text x="859" y="485" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#31564e">trainable adapter · β = 0.1</text>
+  <text x="859" y="518" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#31564e">same MiniMind skill planner</text>
+  <path d="M 859 399 V 360 H 472 V 338" fill="none" stroke="#0b8c79" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#teal-arrow)"/>
+  <text x="44" y="595" font-family="Arial,sans-serif" font-size="15" fill="#64748b">DPO optimizes LoRA weights from verified preference pairs; it does not train a replacement controller.</text>
 </svg>

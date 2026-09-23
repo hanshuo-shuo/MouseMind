@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="795" viewBox="0 0 1400 795" role="img" aria-labelledby="title desc">
+<title id="title">Verified DPO improves the MiniMind skill-planner LoRA</title>
+<desc id="desc">Four metrics on the same 100 final-ID seeds compare the published and seed-clean SFT LoRAs, the Verified DPO LoRA, and a separate numeric upper reference.</desc>
+<rect width="1400" height="795" rx="24" fill="#f7f9fc"/>
+<text x="48" y="60" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#13233b">Same hierarchy, stronger skill-planner LoRA</text>
+<text x="48" y="94" font-family="Arial,sans-serif" font-size="18" fill="#46566c">Verified DPO fine-tunes the MiniMind LoRA; the three-skill policy and specialist are unchanged.</text>
+<text x="48" y="125" font-family="Arial,sans-serif" font-size="15" fill="#64748b">100 paired final-ID seeds · survival-first preference · fixed evaluation protocol</text>
+<rect x="40" y="155" width="650" height="280" rx="17" fill="#ffffff" stroke="#dbe3ec" stroke-width="1.5"/>
+<text x="64" y="193" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#13233b">Task success</text>
+<text x="665" y="192" text-anchor="end" font-family="Arial,sans-serif" font-size="14" fill="#64748b">Higher is better</text>
+<line x1="64" y1="209" x2="666" y2="209" stroke="#e9eef4"/>
+<text x="67" y="248" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Published SFT LoRA</text>
+<rect x="297" y="233" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="297" y="233" width="261.9" height="20" rx="7" fill="#315a93"/>
+<text x="665" y="248" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#315a93">97%</text>
+<text x="67" y="297" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Seed-clean SFT LoRA</text>
+<rect x="297" y="282" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="297" y="282" width="248.4" height="20" rx="7" fill="#8a9aad"/>
+<text x="665" y="297" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#8a9aad">92%</text>
+<rect x="53" y="319" width="624" height="42" rx="9" fill="#eaf7f3"/>
+<text x="67" y="346" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#213047">Verified DPO LoRA</text>
+<rect x="297" y="331" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="297" y="331" width="270.0" height="20" rx="7" fill="#0b8c79"/>
+<text x="665" y="346" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#0b8c79">100%</text>
+<text x="67" y="395" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Numeric upper reference</text>
+<rect x="297" y="380" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="297" y="380" width="270.0" height="20" rx="7" fill="#b77932"/>
+<text x="665" y="395" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#b77932">100%</text>
+<text x="297" y="422" font-family="Arial,sans-serif" font-size="12" fill="#7a8898">0</text>
+<text x="567" y="422" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#7a8898">100%</text>
+<rect x="710" y="155" width="650" height="280" rx="17" fill="#ffffff" stroke="#dbe3ec" stroke-width="1.5"/>
+<text x="734" y="193" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#13233b">Clean success</text>
+<text x="1335" y="192" text-anchor="end" font-family="Arial,sans-serif" font-size="14" fill="#64748b">Higher is better</text>
+<line x1="734" y1="209" x2="1336" y2="209" stroke="#e9eef4"/>
+<text x="737" y="248" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Published SFT LoRA</text>
+<rect x="967" y="233" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="967" y="233" width="81.0" height="20" rx="7" fill="#315a93"/>
+<text x="1335" y="248" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#315a93">12%</text>
+<text x="737" y="297" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Seed-clean SFT LoRA</text>
+<rect x="967" y="282" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="967" y="282" width="54.0" height="20" rx="7" fill="#8a9aad"/>
+<text x="1335" y="297" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#8a9aad">8%</text>
+<rect x="723" y="319" width="624" height="42" rx="9" fill="#eaf7f3"/>
+<text x="737" y="346" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#213047">Verified DPO LoRA</text>
+<rect x="967" y="331" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="967" y="331" width="148.5" height="20" rx="7" fill="#0b8c79"/>
+<text x="1335" y="346" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#0b8c79">22%</text>
+<text x="737" y="395" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Numeric upper reference</text>
+<rect x="967" y="380" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="967" y="380" width="256.5" height="20" rx="7" fill="#b77932"/>
+<text x="1335" y="395" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#b77932">38%</text>
+<text x="967" y="422" font-family="Arial,sans-serif" font-size="12" fill="#7a8898">0</text>
+<text x="1237" y="422" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#7a8898">40%</text>
+<rect x="40" y="455" width="650" height="280" rx="17" fill="#ffffff" stroke="#dbe3ec" stroke-width="1.5"/>
+<text x="64" y="493" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#13233b">Capture rate</text>
+<text x="665" y="492" text-anchor="end" font-family="Arial,sans-serif" font-size="14" fill="#64748b">Lower is better</text>
+<line x1="64" y1="509" x2="666" y2="509" stroke="#e9eef4"/>
+<text x="67" y="548" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Published SFT LoRA</text>
+<rect x="297" y="533" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="297" y="533" width="237.6" height="20" rx="7" fill="#315a93"/>
+<text x="665" y="548" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#315a93">88%</text>
+<text x="67" y="597" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Seed-clean SFT LoRA</text>
+<rect x="297" y="582" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="297" y="582" width="248.4" height="20" rx="7" fill="#8a9aad"/>
+<text x="665" y="597" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#8a9aad">92%</text>
+<rect x="53" y="619" width="624" height="42" rx="9" fill="#eaf7f3"/>
+<text x="67" y="646" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#213047">Verified DPO LoRA</text>
+<rect x="297" y="631" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="297" y="631" width="210.6" height="20" rx="7" fill="#0b8c79"/>
+<text x="665" y="646" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#0b8c79">78%</text>
+<text x="67" y="695" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Numeric upper reference</text>
+<rect x="297" y="680" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="297" y="680" width="167.4" height="20" rx="7" fill="#b77932"/>
+<text x="665" y="695" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#b77932">62%</text>
+<text x="297" y="722" font-family="Arial,sans-serif" font-size="12" fill="#7a8898">0</text>
+<text x="567" y="722" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#7a8898">100%</text>
+<rect x="710" y="455" width="650" height="280" rx="17" fill="#ffffff" stroke="#dbe3ec" stroke-width="1.5"/>
+<text x="734" y="493" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#13233b">Captures / episode</text>
+<text x="1335" y="492" text-anchor="end" font-family="Arial,sans-serif" font-size="14" fill="#64748b">Lower is better</text>
+<line x1="734" y1="509" x2="1336" y2="509" stroke="#e9eef4"/>
+<text x="737" y="548" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Published SFT LoRA</text>
+<rect x="967" y="533" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="967" y="533" width="165.8" height="20" rx="7" fill="#315a93"/>
+<text x="1335" y="548" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#315a93">7.37</text>
+<text x="737" y="597" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Seed-clean SFT LoRA</text>
+<rect x="967" y="582" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="967" y="582" width="201.2" height="20" rx="7" fill="#8a9aad"/>
+<text x="1335" y="597" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#8a9aad">8.94</text>
+<rect x="723" y="619" width="624" height="42" rx="9" fill="#eaf7f3"/>
+<text x="737" y="646" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#213047">Verified DPO LoRA</text>
+<rect x="967" y="631" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="967" y="631" width="111.2" height="20" rx="7" fill="#0b8c79"/>
+<text x="1335" y="646" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#0b8c79">4.94</text>
+<text x="737" y="695" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="#213047">Numeric upper reference</text>
+<rect x="967" y="680" width="270" height="20" rx="7" fill="#edf1f5"/>
+<rect x="967" y="680" width="59.9" height="20" rx="7" fill="#b77932"/>
+<text x="1335" y="695" text-anchor="end" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#b77932">2.66</text>
+<text x="967" y="722" font-family="Arial,sans-serif" font-size="12" fill="#7a8898">0</text>
+<text x="1237" y="722" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#7a8898">12</text>
+<text x="48" y="766" font-family="Arial,sans-serif" font-size="14" fill="#526279">The numeric planner is a separate non-language upper reference. Bars show means; paired uncertainty and training-split caveats are in the results report.</text>
+</svg>
