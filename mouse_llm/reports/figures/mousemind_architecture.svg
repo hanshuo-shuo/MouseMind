@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 390" role="img" aria-labelledby="title desc">
+  <title id="title">MouseMind hierarchical control</title>
+  <desc id="desc">Instruction, semantic current state, and eight-step temporal history feed MiniMind with task-specific LoRA. MiniMind selects one of three high-level skills: go_to_goal, evade_predator, or hold_position. A specialist turns the selected skill into a low-level action.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="390" rx="20" fill="#f8fafc"/>
+  <text x="36" y="48" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700">MouseMind architecture</text>
+  <text x="36" y="76" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="16">Strategy from language and history · execution through a specialist</text>
+
+  <text x="40" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">INPUT</text>
+  <rect x="30" y="128" width="235" height="190" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <circle cx="53" cy="169" r="5" fill="#3b82f6"/>
+  <text x="68" y="176" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="600">Instruction</text>
+  <line x1="49" y1="194" x2="246" y2="194" stroke="#e2e8f0"/>
+  <circle cx="53" cy="225" r="5" fill="#3b82f6"/>
+  <text x="68" y="232" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">Semantic state</text>
+  <line x1="49" y1="250" x2="246" y2="250" stroke="#e2e8f0"/>
+  <circle cx="53" cy="282" r="5" fill="#3b82f6"/>
+  <text x="68" y="289" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">8-step history</text>
+
+  <line x1="275" y1="223" x2="309" y2="223" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text x="330" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">STRATEGY</text>
+  <rect x="320" y="128" width="205" height="190" rx="16" fill="#183153"/>
+  <text x="422.5" y="203" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700">MiniMind</text>
+  <text x="422.5" y="238" text-anchor="middle" fill="#bfdbfe" font-family="Arial, Helvetica, sans-serif" font-size="17">task-specific LoRA</text>
+  <text x="422.5" y="278" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="15">selects a skill</text>
+
+  <line x1="535" y1="223" x2="569" y2="223" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text x="590" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">HIGH-LEVEL SKILL</text>
+  <rect x="580" y="128" width="250" height="190" rx="16" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <rect x="597" y="147" width="216" height="44" rx="10" fill="#ffffff"/>
+  <text x="705" y="175" text-anchor="middle" fill="#1e3a5f" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">go_to_goal</text>
+  <rect x="597" y="201" width="216" height="44" rx="10" fill="#ffffff"/>
+  <text x="705" y="229" text-anchor="middle" fill="#1e3a5f" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">evade_predator</text>
+  <rect x="597" y="255" width="216" height="44" rx="10" fill="#ffffff"/>
+  <text x="705" y="283" text-anchor="middle" fill="#1e3a5f" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="600">hold_position</text>
+
+  <line x1="840" y1="223" x2="874" y2="223" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text x="895" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">EXECUTION</text>
+  <rect x="885" y="128" width="165" height="190" rx="16" fill="#dbeafe" stroke="#60a5fa" stroke-width="2"/>
+  <text x="967.5" y="217" text-anchor="middle" fill="#0f2f55" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700">Specialist</text>
+  <text x="967.5" y="247" text-anchor="middle" fill="#335b85" font-family="Arial, Helvetica, sans-serif" font-size="15">executes skill</text>
+
+  <line x1="1060" y1="223" x2="1094" y2="223" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text x="1115" y="113" fill="#64748b" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">OUTPUT</text>
+  <rect x="1105" y="128" width="145" height="190" rx="16" fill="#0f766e"/>
+  <text x="1177.5" y="213" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700">Low-level</text>
+  <text x="1177.5" y="242" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700">action</text>
+</svg>

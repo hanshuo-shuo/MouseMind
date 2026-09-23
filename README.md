@@ -1,25 +1,12 @@
 # MouseMind
 
-MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Directly imitating low-level actions with MiniMind works poorly in closed loop: direct MiniMind LoRA succeeds on 26% of fresh paired test seeds. MouseMind instead separates strategic skill selection from low-level execution. A task-specific LoRA adapts MiniMind to read an instruction, the current semantic state, and eight steps of temporal history, then choose `go_to_goal`, `evade_predator`, or `hold_position`. Its training labels come from verified exact-state counterfactual rollouts of those skills, rather than copying historical actions. A specialist or geometric controller executes the chosen skill through the 295 discrete destination actions. The full MiniMind hierarchy reaches **97% task success** and **7.37 captures per episode**, versus **26%** and **98.60** for direct MiniMind LoRA on the same 100 fresh paired seeds.
+MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Directly imitating low-level actions with MiniMind works poorly in closed loop: direct MiniMind LoRA succeeds on 26% of fresh paired test seeds. MouseMind instead separates strategic skill selection from low-level execution. A task-specific LoRA adapts MiniMind to read an instruction, the current semantic state, and eight steps of temporal history, then choose `go_to_goal`, `evade_predator`, or `hold_position`. Its training labels come from verified exact-state counterfactual rollouts of those skills, rather than copying historical actions. A specialist executes the chosen skill as a low-level action. The full MiniMind hierarchy reaches **97% task success** and **7.37 captures per episode**, versus **26%** and **98.60** for direct MiniMind LoRA on the same 100 fresh paired seeds.
 
 ## Core idea
 
-```text
-instruction + semantic current state + 8-step temporal history
-                           ↓
-              MiniMind + task-specific LoRA
-                           ↓
-                     high-level skill
-          ├─ go_to_goal
-          ├─ evade_predator
-          └─ hold_position
-                           ↓
-             specialist / geometric controller
-                           ↓
-              295 discrete destination actions
-```
+![MouseMind architecture: instruction, semantic state, and history feed MiniMind; its chosen skill goes through a specialist to a low-level action](mouse_llm/reports/figures/mousemind_architecture.svg)
 
-MiniMind decides what to do; the controller decides how to execute it. The goal-progress specialist is an MLP behavior-cloning policy. Other skills use geometric control. The P1 rule hierarchy is a separate rule baseline, not a learned MiniMind policy.
+MiniMind decides what to do; the specialist decides how to execute it. The goal-progress specialist is an MLP behavior-cloning policy. The P1 rule hierarchy is a separate rule baseline, not a learned MiniMind policy.
 
 ## Why hierarchy?
 
@@ -116,7 +103,7 @@ Set `CELLWORLD_CACHE` to the local environment cache before the full evaluation.
 - The full MiniMind hierarchy still trails the numeric planner on clean success and captures.
 - Performance degrades on unseen-language conditions.
 - The three-skill vocabulary is hand-designed and small.
-- Some low-level skills use geometric controllers.
+- Execution depends on task-specific specialists.
 - Behavioral alignment is to simulator source trajectories, not biological mice.
 
 A corrective hard-example iteration was tested and rejected because it worsened closed-loop performance; details are in [P2 results](P2_RESULTS.md).
