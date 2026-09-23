@@ -21,7 +21,7 @@ jobs:
           python -m pip install torch
           --index-url https://download.pytorch.org/whl/cpu
       - name: Install remaining test dependencies
-        run: python -m pip install matplotlib numpy pillow pytest
+        run: python -m pip install -e '.[test]' matplotlib
       - name: Run synthetic unit tests
         run: python -m pytest mouse_llm/tests -q
       - name: Verify package build
