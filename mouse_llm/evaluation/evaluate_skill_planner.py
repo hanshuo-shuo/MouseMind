@@ -173,6 +173,8 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--research-evidence", action="store_true")
+    parser.add_argument("--only-lora", action="store_true")
+    parser.add_argument("--no-ablations", action="store_true")
     args = parser.parse_args()
     datasets = {
         "seen_instruction": load_rows(args.seen_test_data, max_samples=args.max_samples, seed=args.seed),
@@ -188,7 +190,8 @@ def main() -> None:
         "decode_mode": "skill-json-constrained",
         "models": {},
     }
-    for name, lora in (("minimind_base", None), ("minimind_skill_lora", args.lora_weight)):
+    variants = (("minimind_skill_lora", args.lora_weight),) if args.only_lora else (("minimind_base", None), ("minimind_skill_lora", args.lora_weight))
+    for name, lora in variants:
         model, tokenizer = load_model(
             base_weight=args.base_weight,
             lora_weight=lora,
@@ -208,7 +211,7 @@ def main() -> None:
             )
             for split, rows in datasets.items()
         }
-        if name == "minimind_skill_lora":
+        if name == "minimind_skill_lora" and not args.no_ablations:
             report["models"][name]["ablations"] = {
                 mode: evaluate(
                     model,

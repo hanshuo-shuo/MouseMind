@@ -370,6 +370,7 @@ def rollout_episode(
     *,
     seed: int,
     control_budget_seconds: float,
+    trace_hook: Callable[..., None] | None = None,
 ) -> EpisodeResult:
     observation, _ = env.reset(seed=seed)
     policy.reset(seed)
@@ -401,6 +402,8 @@ def rollout_episode(
         policy_input = _policy_input(env, policy, observation)
         decision = policy.act(policy_input)
         latency = time.perf_counter() - start
+        if trace_hook is not None and decision.metadata and decision.metadata.get("replanned"):
+            trace_hook(env, policy, seed, steps, actions, observation, decision)
         latencies.append(latency)
         valid_actions += int(decision.valid)
         if decision.metadata:
@@ -614,6 +617,7 @@ def run_policy(
     seeds: Sequence[int],
     control_budget_seconds: float,
     warmup_actions: int = 0,
+    trace_hook: Callable[..., None] | None = None,
 ) -> list[EpisodeResult]:
     env = env_factory()
     try:
@@ -641,6 +645,7 @@ def run_policy(
                     policy,
                     seed=int(seed),
                     control_budget_seconds=control_budget_seconds,
+                    trace_hook=trace_hook,
                 )
             )
             print(

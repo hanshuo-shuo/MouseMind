@@ -51,6 +51,7 @@ def main() -> None:
         required=True,
     )
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--diagnostic-trace", type=Path, help="Private replan states for exact-state diagnostic")
     parser.add_argument("--contract", type=Path, default=DEFAULT_P2_CONTRACT)
     parser.add_argument(
         "--seed-pool", choices=("development", "final_id_test"), required=True
@@ -246,16 +247,55 @@ def main() -> None:
                     name=name,
                 )
             )
-    results = {
-        policy.name: run_policy(
-            env_factory,
-            policy,
-            seeds=seeds,
-            control_budget_seconds=contract["time_step"],
-            warmup_actions=3,
-        )
-        for policy in policies
-    }
+    trace_handle = None
+    if args.diagnostic_trace is not None:
+        from mouse_llm.data.collect_planner_anchors import _inside_git
+        if _inside_git(args.diagnostic_trace.resolve()):
+            raise ValueError("Private decision traces must stay outside Git")
+        args.diagnostic_trace.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        trace_handle = args.diagnostic_trace.open("w", encoding="utf-8")
+
+    def trace_replan(env, policy, seed, step, prefix_actions, observation, decision):
+        if trace_handle is None or policy.name != "minimind-learned":
+            return
+        context = policy.last_context
+        values = observation.tolist()
+        tags = []
+        if context.predator_visible:
+            tags.append("predator_visible")
+        if context.near_occlusion:
+            tags.append("near_occlusion")
+        row = {
+            "schema_version": "mousemind_verified_dpo_final_trace_v1",
+            "seed": seed,
+            "step_index": step,
+            "prefix_actions": list(prefix_actions),
+            "source_policy": policy.name,
+            "tags": tags,
+            "environment_observation": values,
+            "legacy_observation": env.legacy_policy_observation().tolist(),
+            "context": context.payload(),
+            "context_vector": context.numeric().tolist(),
+            "dpo_skill": decision.metadata["proposed_skill"],
+        }
+        trace_handle.write(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n")
+
+    try:
+        results = {
+            policy.name: run_policy(
+                env_factory,
+                policy,
+                seeds=seeds,
+                control_budget_seconds=contract["time_step"],
+                warmup_actions=3,
+                trace_hook=trace_replan if trace_handle is not None else None,
+            )
+            for policy in policies
+        }
+    finally:
+        if trace_handle is not None:
+            trace_handle.close()
+            args.diagnostic_trace.chmod(0o600)
     reference = args.reference_policy or policies[0].name
     seed_digest = hashlib.sha256(",".join(map(str, seeds)).encode("ascii")).hexdigest()
     metadata = {

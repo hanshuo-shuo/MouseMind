@@ -144,3 +144,19 @@ def test_checked_in_observation_audit_is_verified():
     )
     assert audit["verified"] is True
     assert audit["dataset_rows"] == 118861
+
+
+def test_optional_trace_hook_sees_pre_action_state_without_changing_rollout():
+    class TracedPolicy(_FixedPolicy):
+        def act(self, observation):
+            return PolicyDecision(self.action, metadata={"replanned": True})
+
+    seen = []
+    rows = run_policy(
+        _TinyEnv, TracedPolicy("goal", 1), seeds=[10],
+        control_budget_seconds=1.0,
+        trace_hook=lambda env, policy, seed, step, actions, observation, decision:
+            seen.append((seed, step, len(actions), float(observation[0]))),
+    )
+    assert [(step, prefix) for _, step, prefix, _ in seen] == [(0, 0), (1, 1)]
+    assert rows[0].success == 1

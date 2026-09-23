@@ -158,6 +158,7 @@ class ProposeVerifyPolicy:
 
     def act(self, observation: np.ndarray) -> PolicyDecision:
         context = self.context_builder.observe(observation)
+        self.last_context = context
         replan_reason = "horizon"
         replan = self.current_skill is None or self.steps_until_replan <= 0
         if (
