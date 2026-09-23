@@ -13,6 +13,7 @@ NORTHWESTERN_REMOTE_SETUP.md
 
 # Private mouse-policy inputs and derived artifacts. Keep aggregate figures only.
 /mouse_data*.csv
+/dataset/mouse_data_processed.csv
 /dataset/mouse_*.jsonl
 /mouse_llm/.local/
 /mouse_llm/artifacts/

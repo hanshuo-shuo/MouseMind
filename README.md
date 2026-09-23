@@ -1,6 +1,6 @@
 # MouseMind
 
-MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Directly imitating low-level actions with MiniMind works poorly in closed loop: direct MiniMind LoRA succeeds on 26% of fresh paired test seeds. MouseMind instead separates strategic skill selection from low-level execution. A task-specific LoRA adapts MiniMind to read an instruction, the current semantic state, and eight steps of temporal history, then choose `go_to_goal`, `evade_predator`, or `hold_position`. Its training labels come from verified exact-state counterfactual rollouts of those skills, rather than copying historical actions. A specialist executes the chosen skill as a low-level action. The full MiniMind hierarchy reaches **97% task success** and **7.37 captures per episode**, versus **26%** and **98.60** for direct MiniMind LoRA on the same 100 fresh paired seeds.
+MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Directly imitating low-level actions with MiniMind works poorly in closed loop: direct MiniMind LoRA succeeds on 26% of fresh paired test seeds. MouseMind instead separates strategic skill selection from low-level execution. A task-specific LoRA adapts MiniMind to read an instruction, the current semantic state, and eight steps of temporal history, then choose `go_to_goal`, `evade_predator`, or `hold_position`. Its training labels come from verified exact-state counterfactual rollouts of those skills, rather than copying historical actions. A specialist executes the chosen skill as a low-level action. The original hierarchy reaches **97% task success** and **7.37 captures per episode**, versus **26%** and **98.60** for direct MiniMind LoRA on the same 100 fresh paired seeds. A later seed-clean Verified DPO adaptation reaches **100% task success**, **22% clean success**, and **4.94 captures per episode** on that fixed evaluation pool; the tested GRPO variants were not promoted.
 
 ## Core idea
 
@@ -24,7 +24,7 @@ Planner supervision starts from exactly replayable anchor states. For each reque
 
 ## Main results
 
-All rows below use the same 100 fresh, paired BotEvade final-test seeds. Task success means reaching the task goal; clean success additionally requires no capture. The numeric planner is a **non-language upper reference**.
+All rows below use the same 100 paired BotEvade final-test seeds, excluded from training. Multiple variants were evaluated on this fixed pool, so the comparison is exploratory rather than a one-shot blind test. Task success means reaching the task goal; clean success additionally requires no capture. The numeric planner is a **non-language upper reference**.
 
 | Policy | Task success | Clean success | Captures / episode |
 | --- | ---: | ---: | ---: |
@@ -34,13 +34,15 @@ All rows below use the same 100 fresh, paired BotEvade final-test seeds. Task su
 | MiniMind without history | 80% | 1% | 13.15 |
 | MiniMind without instruction | 80% | 1% | 13.15 |
 | **Full MiniMind hierarchy** | **97%** | **12%** | **7.37** |
+| **Verified DPO skill planner, β=0.1** | **100%** | **22%** | **4.94** |
 | Numeric planner (non-language upper reference) | 100% | 38% | 2.66 |
 
 - Hierarchy provides the largest structural gain over the flat policies.
 - Instruction and temporal history provide an additional gain over the rule and ablated variants in task success.
 - The task-specific numeric planner remains a stronger upper reference, especially on clean success.
+- Verified DPO improves the skill-planner LoRA under the fixed ID evaluation. It starts from a separately retrained seed-clean SFT planner, so the controlled training comparison is against that seed-clean baseline; the original LoRA is a matched-evaluation historical reference.
 
-See [P2 results](P2_RESULTS.md) for the paired comparison, ablations, and OOD results.
+See [P2 results](P2_RESULTS.md) for the original hierarchy, ablations, and OOD results; [Verified DPO results](VERIFIED_DPO_RESULTS.md) for paired safety estimates; and the [Verified RLVR summary](VERIFIED_ALIGNMENT_RESULTS.md) for the GRPO and longer-training experiments that did not pass development selection.
 
 ## Behavioral-profile alignment
 
@@ -59,6 +61,7 @@ General-purpose MiniMind does not know the three mouse-skill semantics on its ow
 - Constrained JSON decoding over the three skills.
 - MLP BC specialist for goal progress.
 - Exact-state replay for counterfactual training labels.
+- Seed-clean Verified DPO and modular exact-replay GRPO experiments over the same three-skill policy.
 - Paired seeded closed-loop evaluation.
 
 ## Quick start
@@ -95,6 +98,7 @@ Set `CELLWORLD_CACHE` to the local environment cache before the full evaluation.
 | `mouse_llm/baselines` | Direct action and numeric planner baselines. |
 | `mouse_llm/evaluation` | Offline, alignment, and seeded closed-loop evaluation. |
 | `mouse_llm/training` | Task-specific planner and specialist training. |
+| `mouse_llm/verified_rl` | Shared utility reward, exact-state branching, and constrained skill sampling for GRPO. |
 | `model` | MiniMind architecture and tokenizer assets. |
 | `trainer` | MiniMind training utilities. |
 
@@ -103,6 +107,7 @@ Set `CELLWORLD_CACHE` to the local environment cache before the full evaluation.
 - The full MiniMind hierarchy still trails the numeric planner on clean success and captures.
 - Performance degrades on unseen-language conditions.
 - The three-skill vocabulary is hand-designed and small.
+- Short-horizon verified reward did not translate into a better closed-loop GRPO policy in these runs; the policy shifted toward `evade_predator` and lost task success. The longer DPO configuration also degraded on development seeds.
 - Execution depends on task-specific specialists.
 - Behavioral alignment is to simulator source trajectories, not biological mice.
 
