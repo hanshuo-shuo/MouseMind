@@ -160,7 +160,8 @@ def ablate_rows(rows: list[dict[str, Any]], mode: str) -> list[dict[str, Any]]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate MiniMind skill planners")
     parser.add_argument("--base-weight", type=Path, required=True)
-    parser.add_argument("--lora-weight", type=Path, required=True)
+    parser.add_argument("--lora-weight", type=Path)
+    parser.add_argument("--full-weight", type=Path, help="Full skill-planner checkpoint, without LoRA")
     parser.add_argument("--tokenizer", type=Path, required=True)
     parser.add_argument("--seen-test-data", type=Path, required=True)
     parser.add_argument("--unseen-test-data", type=Path, required=True)
@@ -176,6 +177,8 @@ def main() -> None:
     parser.add_argument("--only-lora", action="store_true")
     parser.add_argument("--no-ablations", action="store_true")
     args = parser.parse_args()
+    if (args.lora_weight is None) == (args.full_weight is None):
+        parser.error("Select exactly one of --lora-weight and --full-weight")
     datasets = {
         "seen_instruction": load_rows(args.seen_test_data, max_samples=args.max_samples, seed=args.seed),
         "unseen_paraphrase": load_rows(args.unseen_test_data, max_samples=args.max_samples, seed=args.seed),
@@ -190,10 +193,10 @@ def main() -> None:
         "decode_mode": "skill-json-constrained",
         "models": {},
     }
-    variants = (("minimind_skill_lora", args.lora_weight),) if args.only_lora else (("minimind_base", None), ("minimind_skill_lora", args.lora_weight))
+    variants = (("minimind_skill_full", None),) if args.full_weight is not None else ((("minimind_skill_lora", args.lora_weight),) if args.only_lora else (("minimind_base", None), ("minimind_skill_lora", args.lora_weight)))
     for name, lora in variants:
         model, tokenizer = load_model(
-            base_weight=args.base_weight,
+            base_weight=args.full_weight or args.base_weight,
             lora_weight=lora,
             tokenizer_path=args.tokenizer,
             device=args.device,

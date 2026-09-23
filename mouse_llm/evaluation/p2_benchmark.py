@@ -78,6 +78,7 @@ def main() -> None:
     )
     parser.add_argument("--base-weight", type=Path)
     parser.add_argument("--skill-lora-weight", type=Path)
+    parser.add_argument("--skill-full-weight", type=Path, help="Full skill-planner checkpoint, without LoRA")
     parser.add_argument("--direct-lora-weight", type=Path)
     parser.add_argument("--tokenizer", type=Path, default=Path("model"))
     parser.add_argument("--device", default="cpu")
@@ -209,13 +210,15 @@ def main() -> None:
                 )
             )
         else:
-            if args.base_weight is None or args.skill_lora_weight is None:
-                parser.error("MiniMind hierarchy requires base and skill LoRA weights")
+            if args.skill_full_weight is not None and args.skill_lora_weight is not None:
+                parser.error("Select either --skill-full-weight or --skill-lora-weight")
+            if args.skill_full_weight is None and (args.base_weight is None or args.skill_lora_weight is None):
+                parser.error("MiniMind hierarchy requires base and skill LoRA weights, or --skill-full-weight")
             from mouse_llm.hierarchical.minimind_planner import MiniMindSkillPlanner
 
             learned_planner = MiniMindSkillPlanner(
-                base_weight=args.base_weight,
-                lora_weight=args.skill_lora_weight,
+                base_weight=args.skill_full_weight or args.base_weight,
+                lora_weight=None if args.skill_full_weight is not None else args.skill_lora_weight,
                 tokenizer_path=args.tokenizer,
                 device=args.device,
                 hidden_size=args.hidden_size,
