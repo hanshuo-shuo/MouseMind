@@ -1,0 +1,27 @@
+{
+  "description": "Aggregate final-ID metrics for seed-clean SFT and one-epoch Verified DPO skill-planner LoRAs",
+  "evaluation": {
+    "contract_sha256": "9572230201a1c2a8afb764012237df8c43d155c4941bd2f7282282889af2ed75",
+    "episode_count": 100,
+    "ood_condition": "id",
+    "planner_horizon": 8,
+    "preference": "survival_first",
+    "seed_pool": "final_id_test",
+    "seed_sha256": "89727fc394044af79b18eb2bf77f9bf95c4925494621c90ca9e1cbc8e0a391ba"
+  },
+  "policies": {
+    "seed_clean_sft": {
+      "capture_rate": {"ci_high": 0.97, "ci_low": 0.86, "mean": 0.92},
+      "captures_per_episode": {"ci_high": 10.8905, "ci_low": 7.2695, "mean": 8.94},
+      "clean_success_rate": {"ci_high": 0.14, "ci_low": 0.03, "mean": 0.08},
+      "success_rate": {"ci_high": 0.97, "ci_low": 0.86, "mean": 0.92}
+    },
+    "verified_dpo_beta_0_1": {
+      "capture_rate": {"ci_high": 0.86, "ci_low": 0.70, "mean": 0.78},
+      "captures_per_episode": {"ci_high": 6.2705, "ci_low": 3.84, "mean": 4.94},
+      "clean_success_rate": {"ci_high": 0.30, "ci_low": 0.14, "mean": 0.22},
+      "success_rate": {"ci_high": 1.0, "ci_low": 1.0, "mean": 1.0}
+    }
+  },
+  "schema_version": 1
+}

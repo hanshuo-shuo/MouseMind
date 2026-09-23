@@ -6,7 +6,7 @@ MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Dir
 
 ![MouseMind architecture: instruction, semantic state, and history feed MiniMind; its chosen skill goes through a specialist to a low-level action](mouse_llm/reports/figures/mousemind_architecture.svg)
 
-MiniMind decides what to do; the specialist decides how to execute it. The goal-progress specialist is an MLP behavior-cloning policy. The P1 rule hierarchy is a separate rule baseline, not a learned MiniMind policy.
+MiniMind decides what to do; the specialist decides how to execute it. The goal-progress specialist is an MLP behavior-cloning policy. **Verified DPO is still this same hierarchical method and still uses LoRA**: it starts from the seed-clean SFT skill-planner LoRA, updates that adapter with verified preference pairs, and uses a frozen copy of the SFT adapter as its reference. The MiniMind backbone, three-skill JSON interface, and specialist are unchanged. The P1 rule hierarchy is a separate rule baseline, not a learned MiniMind policy.
 
 ## Why hierarchy?
 
@@ -24,18 +24,23 @@ Planner supervision starts from exactly replayable anchor states. For each reque
 
 ## Main results
 
-All rows below use the same 100 paired BotEvade final-test seeds, excluded from training. Multiple variants were evaluated on this fixed pool, so the comparison is exploratory rather than a one-shot blind test. Task success means reaching the task goal; clean success additionally requires no capture. The numeric planner is a **non-language upper reference**.
+All rows below use the same 100 paired BotEvade final-test seeds, excluded from training. Multiple variants were evaluated on this fixed pool, so the comparison is exploratory rather than a one-shot blind test. Task success means reaching the task goal; clean success additionally requires no capture. Capture rate is the share of episodes with at least one capture. The numeric planner is a **non-language upper reference**.
 
-| Policy | Task success | Clean success | Captures / episode |
-| --- | ---: | ---: | ---: |
-| Direct MiniMind LoRA | 26% | 1% | 98.60 |
-| Direct MLP BC | 20% | 5% | 87.90 |
-| P1 rule hierarchy (rule baseline) | 79% | 14% | 11.20 |
-| MiniMind without history | 80% | 1% | 13.15 |
-| MiniMind without instruction | 80% | 1% | 13.15 |
-| **Full MiniMind hierarchy** | **97%** | **12%** | **7.37** |
-| **Verified DPO skill planner, β=0.1** | **100%** | **22%** | **4.94** |
-| Numeric planner (non-language upper reference) | 100% | 38% | 2.66 |
+![Four closed-loop metrics for published SFT, seed-clean SFT, Verified DPO LoRA, and the numeric upper reference](mouse_llm/reports/figures/verified_dpo_closed_loop.svg)
+
+The controlled adaptation comparison is **seed-clean SFT LoRA → Verified DPO LoRA (β=0.1)**. The published SFT LoRA is a matched-evaluation historical reference. Bars show means; paired uncertainty is in the [Verified DPO results](VERIFIED_DPO_RESULTS.md).
+
+| Policy | Task success | Clean success | Capture rate | Captures / episode |
+| --- | ---: | ---: | ---: | ---: |
+| Direct MiniMind LoRA | 26% | 1% | 99% | 98.60 |
+| Direct MLP BC | 20% | 5% | 94% | 87.90 |
+| P1 rule hierarchy (rule baseline) | 79% | 14% | 86% | 11.20 |
+| MiniMind without history | 80% | 1% | 99% | 13.15 |
+| MiniMind without instruction | 80% | 1% | 99% | 13.15 |
+| **Full MiniMind hierarchy (published SFT LoRA)** | **97%** | **12%** | **88%** | **7.37** |
+| Seed-clean SFT skill-planner LoRA | 92% | 8% | 92% | 8.94 |
+| **Verified DPO skill-planner LoRA, β=0.1** | **100%** | **22%** | **78%** | **4.94** |
+| Numeric planner (non-language upper reference) | 100% | 38% | 62% | 2.66 |
 
 - Hierarchy provides the largest structural gain over the flat policies.
 - Instruction and temporal history provide an additional gain over the rule and ablated variants in task success.
