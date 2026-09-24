@@ -1,6 +1,6 @@
 # MouseMind
 
-MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Directly imitating low-level actions with MiniMind works poorly in closed loop: direct MiniMind LoRA succeeds on 26% of fresh paired test seeds. MouseMind instead separates strategic skill selection from low-level execution. A task-specific LoRA adapts MiniMind to read an instruction, the current semantic state, and eight steps of temporal history, then choose `go_to_goal`, `evade_predator`, or `hold_position`. Its training labels come from verified exact-state counterfactual rollouts of those skills, rather than copying historical actions. A specialist executes the chosen skill as a low-level action. The original hierarchy reaches **97% task success** and **7.37 captures per episode**, versus **26%** and **98.60** for direct MiniMind LoRA on the same 100 fresh paired seeds. A later seed-clean Verified DPO adaptation reaches **100% task success**, **22% clean success**, and **4.94 captures per episode** on that fixed evaluation pool; the tested GRPO variants were not promoted.
+MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Directly imitating low-level actions with MiniMind works poorly in closed loop: direct MiniMind LoRA succeeds on 26% of fresh paired test seeds. MouseMind instead separates strategic skill selection from low-level execution. A task-specific LoRA adapts MiniMind to read an instruction, the current semantic state, and eight steps of temporal history, then choose `go_to_goal`, `evade_predator`, or `hold_position`. Its training labels come from verified exact-state counterfactual rollouts of those skills, rather than copying historical actions. A specialist executes the chosen skill as a low-level action. **Verified DPO on the seed-clean SFT LoRA is the best tested language planner:** 100% task success, 22% clean success, and 4.94 captures per episode on the fixed 100-seed final-ID pool. **LoRA SFT is the lower-resource option** when that extra safety gain is not required. Full-parameter DPO and GRPO did not improve the closed-loop result.
 
 ## Core idea
 
@@ -24,30 +24,29 @@ Planner supervision starts from exactly replayable anchor states. For each reque
 
 ## Main results
 
-All rows below use the same 100 paired BotEvade final-test seeds, excluded from training. Multiple variants were evaluated on this fixed pool, so the comparison is exploratory rather than a one-shot blind test. Task success means reaching the task goal; clean success additionally requires no capture. Capture rate is the share of episodes with at least one capture. The numeric planner is a **non-language upper reference**.
+All rows use the same 100 paired BotEvade final-ID seeds, excluded from training. Multiple variants were evaluated on this fixed pool, so the comparison is exploratory rather than a one-shot blind test. Task success means reaching the goal; clean success additionally requires no capture; capture rate is the share of episodes with at least one capture. The numeric planner is a **non-language upper reference**. “Published SFT LoRA” used an earlier anchor-ID split; the seed-clean rows form the controlled training comparison.
 
-![Four closed-loop metrics for published SFT, seed-clean SFT, Verified DPO LoRA, and the numeric upper reference](mouse_llm/reports/figures/verified_dpo_closed_loop.svg)
+| Policy | Planner training | Task success ↑ | Clean success ↑ | Capture rate ↓ | Captures / episode ↓ |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Direct MiniMind | Flat action LoRA | 26% | 1% | 99% | 98.60 |
+| Direct MLP BC | Flat action imitation | 20% | 5% | 94% | 87.90 |
+| P1 rule hierarchy | Rule baseline | 79% | 14% | 86% | 11.20 |
+| MiniMind without history | Hierarchical LoRA ablation | 80% | 1% | 99% | 13.15 |
+| MiniMind without instruction | Hierarchical LoRA ablation | 80% | 1% | 99% | 13.15 |
+| Published MiniMind hierarchy | SFT LoRA, earlier split | 97% | 12% | 88% | 7.37 |
+| **Seed-clean MiniMind hierarchy** | **SFT LoRA · lower resource** | **92%** | **8%** | **92%** | **8.94** |
+| Seed-clean MiniMind hierarchy | Full-parameter SFT | 95% | 18% | 82% | 5.41 |
+| **Verified DPO skill planner, β=0.1** | **SFT LoRA → DPO LoRA · best language planner** | **100%** | **22%** | **78%** | **4.94** |
+| Verified DPO skill planner, β=0.1 | Full SFT → full DPO | 80% | 1% | 99% | 13.09 |
+| Verified GRPO skill planner | SFT LoRA → GRPO LoRA | 80% | 1% | 99% | 13.15 |
+| Verified GRPO skill planner | Full SFT → full GRPO | 85% | 1% | 99% | 11.62 |
+| Numeric planner | Non-language upper reference | 100% | 38% | 62% | 2.66 |
 
-The controlled adaptation comparison is **seed-clean SFT LoRA → Verified DPO LoRA (β=0.1)**. The published SFT LoRA is a matched-evaluation historical reference. Bars show means; paired uncertainty is in the [Verified DPO results](VERIFIED_DPO_RESULTS.md).
+**Why use LoRA DPO for the main result?** It keeps the same MiniMind → skill → specialist hierarchy and continues training the seed-clean SFT adapter with exact-state verified preference pairs. Against that SFT initialization on paired seeds, task success improves by 8 percentage points, clean success by 14 points, capture rate falls by 14 points, and captures per episode fall by 4.00. The paired 95% confidence intervals for all four changes exclude zero. It reaches the best tested combination of task completion and capture reduction among the language planners; the numeric reference remains stronger on clean success and captures.
 
-| Policy | Task success | Clean success | Capture rate | Captures / episode |
-| --- | ---: | ---: | ---: | ---: |
-| Direct MiniMind LoRA | 26% | 1% | 99% | 98.60 |
-| Direct MLP BC | 20% | 5% | 94% | 87.90 |
-| P1 rule hierarchy (rule baseline) | 79% | 14% | 86% | 11.20 |
-| MiniMind without history | 80% | 1% | 99% | 13.15 |
-| MiniMind without instruction | 80% | 1% | 99% | 13.15 |
-| **Full MiniMind hierarchy (published SFT LoRA)** | **97%** | **12%** | **88%** | **7.37** |
-| Seed-clean SFT skill-planner LoRA | 92% | 8% | 92% | 8.94 |
-| **Verified DPO skill-planner LoRA, β=0.1** | **100%** | **22%** | **78%** | **4.94** |
-| Numeric planner (non-language upper reference) | 100% | 38% | 62% | 2.66 |
+**Why keep LoRA SFT as the resource-conscious option?** The skill-planner LoRA trains 393,216 parameters (0.62% of MiniMind's 63,912,192), and its adapter checkpoint is about 0.8 MB versus about 275 MB for a full checkpoint. Fewer trainable parameters also reduce optimizer-state storage. The seed-clean LoRA SFT still reaches 92% task success, though its 8% clean success and 8.94 captures per episode make the safety trade-off explicit. Full SFT improves those safety metrics, but updates the entire model and still trails LoRA DPO on this fixed pool.
 
-- Hierarchy provides the largest structural gain over the flat policies.
-- Instruction and temporal history provide an additional gain over the rule and ablated variants in task success.
-- The task-specific numeric planner remains a stronger upper reference, especially on clean success.
-- Verified DPO improves the skill-planner LoRA under the fixed ID evaluation. It starts from a separately retrained seed-clean SFT planner, so the controlled training comparison is against that seed-clean baseline; the original LoRA is a matched-evaluation historical reference.
-
-See [P2 results](P2_RESULTS.md) for the original hierarchy, ablations, and OOD results; [Verified DPO results](VERIFIED_DPO_RESULTS.md) for paired safety estimates; and the [Verified RLVR summary](VERIFIED_ALIGNMENT_RESULTS.md) for the GRPO and longer-training experiments that did not pass development selection.
+Full-parameter DPO and GRPO both drift toward `evade_predator`: it occupies 99.8% and 97.4% of final-ID executed skill steps, respectively, versus 86.7% for full SFT and 68.0% for LoRA DPO. That observed shift accompanies lower task success and more captures; it is a plausible explanation, not proof of a unique cause. See [Verified DPO results](VERIFIED_DPO_RESULTS.md) for paired LoRA estimates, [full-parameter experiment](FULL_FINETUNE_EXPERIMENT.md) for the new run, [P2 results](P2_RESULTS.md) for original ablations and OOD, and [Verified RLVR summary](VERIFIED_ALIGNMENT_RESULTS.md) for the earlier GRPO and longer-training runs.
 
 ## Behavioral-profile alignment
 
@@ -92,7 +91,7 @@ python -m mouse_llm.evaluation.p2_benchmark \
   --tokenizer model --device cuda --output-dir "$MOUSE_P2_OUTPUT_ROOT/final_id"
 ```
 
-Set `CELLWORLD_CACHE` to the local environment cache before the full evaluation. The [P2 runbook](mouse_llm/northwestern/p2/RUNBOOK.md) gives the full cluster setup and checkpoint workflow.
+Set `CELLWORLD_CACHE` to the local environment cache before the full evaluation. Point `MOUSE_P2_SKILL_LORA_WEIGHT` at the seed-clean Verified DPO β=0.1 adapter for the recommended result, or at the SFT adapter for the lower-resource baseline. The [P2 runbook](mouse_llm/northwestern/p2/RUNBOOK.md) gives the full cluster setup and checkpoint workflow.
 
 ## Repository structure
 
@@ -112,7 +111,7 @@ Set `CELLWORLD_CACHE` to the local environment cache before the full evaluation.
 - The full MiniMind hierarchy still trails the numeric planner on clean success and captures.
 - Performance degrades on unseen-language conditions.
 - The three-skill vocabulary is hand-designed and small.
-- Short-horizon verified reward did not translate into a better closed-loop GRPO policy in these runs; the policy shifted toward `evade_predator` and lost task success. The longer DPO configuration also degraded on development seeds.
+- Short-horizon verified reward did not translate into a better closed-loop GRPO policy in these runs; the policy shifted toward `evade_predator` and lost task success. Full-parameter DPO and GRPO also degraded relative to their full SFT initialization. The longer LoRA DPO configuration degraded on development seeds.
 - Execution depends on task-specific specialists.
 - Behavioral alignment is to simulator source trajectories, not biological mice.
 
