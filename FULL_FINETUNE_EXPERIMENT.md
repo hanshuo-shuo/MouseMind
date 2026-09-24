@@ -35,7 +35,7 @@ The observed closed-loop failure mode is EVADE-heavy behavior. On final-ID episo
 
 ## Selection
 
-**Main language-planner result: seed-clean Verified DPO LoRA, β=0.1.** It has the strongest measured task/safety combination, and its paired improvements over its SFT LoRA initialization exclude zero for all four primary metrics. **Lower-resource baseline: seed-clean SFT LoRA.** Only 393,216 of 63,912,192 model parameters are trainable (0.62%), and the private adapter checkpoint is about 0.8 MB rather than about 275 MB for the full checkpoint. This saves trainable optimizer state and checkpoint storage, while its safety metrics remain weaker than LoRA DPO. The present single full-parameter configuration does not prove that every full-finetuning setting would fail.
+**Main language-planner result: Verified DPO LoRA, β=0.1.** It has the strongest measured task/safety combination, and its paired improvements over its separately retrained seed-isolated SFT LoRA initialization exclude zero for all four primary metrics. **Public-facing lower-resource SFT result: the published MiniMind hierarchy LoRA.** It reaches 97% task success, 12% clean success, 88% capture rate, and 7.37 captures per episode on the same final-ID pool. That published checkpoint used an earlier anchor-ID split, so the seed-isolated SFT LoRA above remains the controlled baseline for DPO claims. A skill-planner LoRA trains only 393,216 of 63,912,192 model parameters (0.62%), and the private adapter checkpoint is about 0.8 MB rather than about 275 MB for the full checkpoint. This saves trainable optimizer state and checkpoint storage. The present single full-parameter configuration does not prove that every full-finetuning setting would fail.
 
 ## Cluster submission
 
