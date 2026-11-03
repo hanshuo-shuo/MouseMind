@@ -23,6 +23,7 @@ import numpy as np
 from .contracts import ACTION_SCHEMA, ContinuousDecision, validate_xy
 from .policy import (ContinuousHierarchicalPolicy, DirectContinuousPolicy,
                      DiscreteDestinationAdapter, legacy_observation)
+from .pool import environment_pool
 
 
 EVALUATION_SCHEMA = "mousemind_continuous_evaluation_v1"
@@ -64,6 +65,7 @@ def run_episode(env, policy, *, seed: int, max_steps: int | None = None,
     latency: list[float] = []
     skills: Counter = Counter()
     valid, replans, destination_rejections = 0, 0, 0
+    requested_invalid, projections, projection_distance_total = 0, 0, 0.0
     info: dict = {}
     terminated = truncated = False
     trace_builder = None
@@ -100,6 +102,12 @@ def run_episode(env, policy, *, seed: int, max_steps: int | None = None,
         before_captures = captured
         observation, reward, terminated, truncated, info = env.step(action)
         destination_rejections += int(bool(info.get("invalid_destination", False)))
+        requested_invalid += int(bool(info.get("requested_invalid_destination", info.get("invalid_destination", False))))
+        projections += int(bool(info.get("was_projected", False)))
+        projection_distance = float(info.get("projection_distance", 0.0))
+        if not math.isfinite(projection_distance) or projection_distance < 0:
+            raise ValueError("Environment emitted an invalid projection distance")
+        projection_distance_total += projection_distance
         next_values = np.asarray(observation, dtype=np.float64)
         if next_values.ndim != 1 or len(next_values) not in (10, 15) or not np.isfinite(next_values).all():
             raise ValueError("Environment emitted an invalid public observation")
@@ -131,6 +139,12 @@ def run_episode(env, policy, *, seed: int, max_steps: int | None = None,
                 "context": context.payload(),
                 "controller_memory_before": memory_before,
                 "action_xy": list(action), "skill": skill, "metadata": metadata,
+                "requested_xy": list(info.get("requested_xy", action)),
+                "executed_xy": list(info.get("executed_xy", action)),
+                "requested_invalid_destination": bool(info.get("requested_invalid_destination", info.get("invalid_destination", False))),
+                "was_projected": bool(info.get("was_projected", False)),
+                "projection_distance": projection_distance,
+                "original_invalid_reason": info.get("original_invalid_reason"),
                 "next_environment_observation": next_values.tolist(),
                 "reward": float(reward), "captures_before": before_captures,
                 "captures_after": captured,
@@ -153,6 +167,9 @@ def run_episode(env, policy, *, seed: int, max_steps: int | None = None,
         "time_to_first_capture": first_capture,
         "valid_action_rate": valid / steps, "planner_calls": replans,
         "destination_rejection_rate": destination_rejections / steps,
+        "requested_invalid_rate": requested_invalid / steps,
+        "projection_rate": projections / steps,
+        "mean_projection_distance": projection_distance_total / steps,
         "skill_counts": dict(skills),
         "latency_mean_seconds": float(np.mean(latency)),
         "latency_p95_seconds": float(np.quantile(latency, 0.95)),
@@ -163,10 +180,25 @@ def run_episode(env, policy, *, seed: int, max_steps: int | None = None,
 
 
 def run_policy(env_factory: Callable[[], Any], policy, *, seeds: Sequence[int],
-               trace_hook=None, control_budget_seconds: float = 0.25) -> list[dict[str, Any]]:
+               trace_hook=None, control_budget_seconds: float = 0.25,
+               reuse_environment: bool = False) -> list[dict[str, Any]]:
+    """Evaluate paired seeds; optional reuse retains a single owned instance.
+
+    ``run_episode`` still resets the environment and policy for every seed.
+    Reuse must pass fresh/reused determinism checks on the execution backend
+    before its results are compared with the default fresh-instance path.
+    """
     if not seeds or len(set(seeds)) != len(seeds):
         raise ValueError("Evaluation seeds must be nonempty and unique")
+    if not isinstance(reuse_environment, bool):
+        raise ValueError("reuse_environment must be boolean")
     rows = []
+    if reuse_environment:
+        with environment_pool(env_factory, 1) as (env,):
+            for seed in seeds:
+                rows.append(run_episode(env, policy, seed=seed, trace_hook=trace_hook,
+                                        control_budget_seconds=control_budget_seconds))
+        return rows
     for seed in seeds:
         env = env_factory()
         try:
@@ -191,6 +223,9 @@ def summarize(rows: Sequence[dict[str, Any]], *, research_evidence: bool = False
         "mean_path_length": "path_length", "valid_action_rate": "valid_action_rate",
         "mean_latency_seconds": "latency_mean_seconds", "deadline_miss_rate": "deadline_miss_rate",
         "destination_rejection_rate": "destination_rejection_rate",
+        "requested_invalid_rate": "requested_invalid_rate",
+        "projection_rate": "projection_rate",
+        "mean_projection_distance": "mean_projection_distance",
     }
     return {
         "schema_version": EVALUATION_SCHEMA, "action_schema": ACTION_SCHEMA,
@@ -244,8 +279,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--world", default="21_05")
     parser.add_argument("--predator-speed-ratio", type=float, default=0.15)
     parser.add_argument("--max-line-of-sight-distance", type=float, default=1.0)
+    parser.add_argument("--destination-mode", choices=("project", "reject"), default="project")
+    parser.add_argument("--projection-epsilon", type=float, default=1e-5,
+                        help="Numerical free-space inset for invalid-destination projection; contract-bound")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--trace", action="store_true")
+    parser.add_argument("--reuse-environment", action="store_true",
+                        help="Reuse one environment across seeded episodes; default constructs a fresh instance per episode")
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--action-catalog", type=Path, default=Path(__file__).parents[1] / "envs/mice/assets/action_catalog_21_05.json")
     return parser
@@ -253,6 +293,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    if not math.isfinite(args.projection_epsilon) or not 0.0 < args.projection_epsilon <= 0.01:
+        raise ValueError("projection_epsilon must be finite and in (0, 0.01]")
     if args.allow_legacy_planner and args.policy != "minimind":
         raise ValueError("--allow-legacy-planner applies only to the new MiniMind interface diagnostic")
     if args.policy == "sac-teacher":
@@ -346,11 +388,13 @@ def main() -> None:
                     }
                     if manifest.get("execution_contract") != expected_execution:
                         raise ValueError("Planner skill execution differs from its training-label contract; regenerate labels before changing it")
-                    from .navigation import NAVIGATION_CONTRACT
+                    from .navigation import navigation_contract
                     from .environment import RESET_CONTRACT
                     training_environment = manifest.get("training_environment", {})
-                    if (training_environment.get("navigation_contract") != NAVIGATION_CONTRACT
-                            or training_environment.get("reset_contract") != RESET_CONTRACT):
+                    if (training_environment.get("navigation_contract") != navigation_contract(args.destination_mode)
+                            or training_environment.get("reset_contract") != RESET_CONTRACT
+                            or training_environment.get("destination_mode") != args.destination_mode
+                            or training_environment.get("projection_epsilon") != args.projection_epsilon):
                         raise ValueError("Planner training used a different navigation/reset contract")
                 from mouse_llm.hierarchical.minimind_planner import MiniMindSkillPlanner
 
@@ -364,7 +408,7 @@ def main() -> None:
                 evade_distance=args.evade_distance,
                 name="continuous-" + args.policy + ("-legacy-planner-diagnostic" if args.allow_legacy_planner else ""))
     from .environment import ContinuousBotEvadeEnv, RESET_CONTRACT
-    from .navigation import NAVIGATION_CONTRACT
+    from .navigation import navigation_contract
 
     config = {
         "world": args.world, "max_steps": args.max_steps, "time_step": args.time_step,
@@ -382,8 +426,12 @@ def main() -> None:
         "planner_manifest_sha256": None if args.planner_manifest is None else _sha256(args.planner_manifest),
         "legacy_planner_diagnostic": args.allow_legacy_planner,
         "catalog_constrained_reference": args.policy in {"discrete-reference", "legacy-minimind"},
-        "navigation_contract": NAVIGATION_CONTRACT,
+        "navigation_contract": navigation_contract(args.destination_mode),
         "reset_contract": RESET_CONTRACT,
+        "destination_mode": args.destination_mode,
+        "projection_epsilon": args.projection_epsilon,
+        "reuse_environment": args.reuse_environment,
+        "device": str(args.device),
     }
     if args.seed_pool is not None:
         config["contract_sha256"] = _sha256(args.contract)
@@ -391,7 +439,9 @@ def main() -> None:
         return ContinuousBotEvadeEnv(world_name=args.world, max_step=args.max_steps,
                                     time_step=args.time_step,
                                     predator_prey_forward_speed_ratio=args.predator_speed_ratio,
-                                    max_line_of_sight_distance=args.max_line_of_sight_distance)
+                                    max_line_of_sight_distance=args.max_line_of_sight_distance,
+                                    destination_mode=args.destination_mode,
+                                    projection_epsilon=args.projection_epsilon)
     trace = os.fdopen(os.open(args.output_dir / "trace_private.jsonl", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "w") if args.trace else None
     try:
         def write_trace(row):
@@ -399,12 +449,14 @@ def main() -> None:
                 key: config[key] for key in (
                     "world", "max_steps", "time_step", "predator_speed_ratio",
                     "max_line_of_sight_distance", "navigation_contract", "reset_contract",
+                    "destination_mode", "projection_epsilon",
                 )
-            }}
+            }, "reuse_environment": args.reuse_environment, "device": str(args.device)}
             trace.write(json.dumps(row, sort_keys=True, allow_nan=False) + "\n")
         rows = run_policy(env_factory, policy, seeds=seeds,
                           control_budget_seconds=args.time_step,
-                          trace_hook=write_trace if trace else None)
+                          trace_hook=write_trace if trace else None,
+                          reuse_environment=args.reuse_environment)
     finally:
         if trace:
             trace.close()

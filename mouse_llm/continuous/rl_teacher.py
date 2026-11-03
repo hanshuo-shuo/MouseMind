@@ -106,13 +106,15 @@ def wrap_legacy_observation(env):
 
 
 def make_training_env(*, world: str = "21_05", max_steps: int = 300,
-                      time_step: float = 0.25, predator_speed_ratio: float = 0.15):
+                      time_step: float = 0.25, predator_speed_ratio: float = 0.15,
+                      destination_mode: str = "project", projection_epsilon: float = 1e-5):
     from .environment import ContinuousBotEvadeEnv
 
     # ContinuousBotEvadeEnv supplies the original custom_reward and simulator.
     return wrap_legacy_observation(ContinuousBotEvadeEnv(
         world_name=world, max_step=max_steps, time_step=time_step,
         predator_prey_forward_speed_ratio=predator_speed_ratio,
+        destination_mode=destination_mode, projection_epsilon=projection_epsilon,
         render=False, real_time=False,
     ))
 
@@ -288,7 +290,8 @@ def train_teacher(args: argparse.Namespace, *, env_factory: Callable | None = No
         bc_source["label_mode"] = getattr(teacher, "label_mode", None)
     injected = sac_class is not None or env_factory is not None
     SAC = sac_class or _load_sac_class()
-    environment_config = {"world": args.world, "max_steps": args.max_steps, "time_step": args.time_step, "predator_speed_ratio": args.predator_speed_ratio}
+    environment_config = {"world": args.world, "max_steps": args.max_steps, "time_step": args.time_step, "predator_speed_ratio": args.predator_speed_ratio,
+                          "destination_mode": args.destination_mode, "projection_epsilon": args.projection_epsilon}
     env = (env_factory or make_training_env)(**environment_config)
     try:
         _validate_spaces(env)
@@ -324,6 +327,8 @@ def train_teacher(args: argparse.Namespace, *, env_factory: Callable | None = No
             "action_dim": 2, "action_bounds": [0.0, 1.0], "policy_role": POLICY_ROLE,
             "observation_permissions": "public_legacy_10d_only; hidden_predator_coordinates_remain_masked",
             "reward": "unchanged_environment_custom_reward", "environment": environment_config,
+            "navigation_contract": getattr(env, "navigation_contract", "injected_test_environment"),
+            "reset_contract": getattr(env, "reset_contract", "injected_test_environment"),
             "seed": args.seed, "requested_timesteps": args.total_timesteps,
             "completed_timesteps": int(model.num_timesteps),
             "training_completed": True, "closed_loop_evaluated": False,
@@ -397,6 +402,8 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--max-steps", type=int, default=300)
     train.add_argument("--time-step", type=float, default=0.25)
     train.add_argument("--predator-speed-ratio", type=float, default=0.15)
+    train.add_argument("--destination-mode", choices=("project", "reject"), default="project")
+    train.add_argument("--projection-epsilon", type=float, default=1e-5)
     train.add_argument("--learning-rate", type=float, default=3e-4)
     train.add_argument("--learning-starts", type=int, default=1000)
     train.add_argument("--buffer-size", type=int, default=100000)

@@ -11,6 +11,7 @@ import hashlib
 import json
 import math
 import os
+from contextlib import nullcontext
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Callable
@@ -22,6 +23,7 @@ from mouse_llm.hierarchical.policy import Skill
 from .context import CONTEXT_SCHEMA
 from .contracts import ACTION_SCHEMA, validate_xy
 from .replay import replay_fingerprint
+from .pool import environment_pool
 
 DATASET_SCHEMA = "mousemind_continuous_preferences_v1"
 EXPERIMENT = Path(__file__).with_name("experiment.json")
@@ -80,14 +82,21 @@ def outcome_utility(outcome: dict, preference: Preference, skill: Skill) -> floa
 
 def evaluate_branch(env_factory: Callable, anchor: dict, specialist: Any, skill: Skill,
                     *, horizon: int, candidate_steps: int, replay_tolerance: float = 1e-7,
-                    memory_steps: int = 8, evade_distance: float = 0.35) -> dict:
+                    memory_steps: int = 8, evade_distance: float = 0.35,
+                    environment: Any | None = None) -> dict:
+    """Replay and verify one branch, optionally borrowing an owned environment.
+
+    A supplied environment remains the caller's responsibility to close. It
+    is reset at the start of every branch, and the same replay checks apply.
+    """
     from .policy import ContinuousSkillController
     if not 1 <= candidate_steps <= horizon:
         raise ValueError("candidate_steps must be within the positive rollout horizon")
     if not anchor.get("replay_fingerprint"):
         raise ValueError("Anchor lacks a simulator/control fingerprint; recollect the trace")
-    env = env_factory()
     controller = ContinuousSkillController(specialist, memory_steps=memory_steps, evade_distance=evade_distance)
+    owns_environment = environment is None
+    env = env_factory() if owns_environment else environment
     try:
         controller.reset(int(anchor["seed"]))
         observation, info = env.reset(seed=int(anchor["seed"]))
@@ -129,7 +138,27 @@ def evaluate_branch(env_factory: Callable, anchor: dict, specialist: Any, skill:
             "final_replay_fingerprint": replay_fingerprint(env),
         }
     finally:
-        env.close()
+        if owns_environment:
+            env.close()
+
+
+def evaluate_repeated_branch(env_factory: Callable, anchor: dict, specialist: Any, skill: Skill,
+                             *, horizon: int, candidate_steps: int,
+                             environments: tuple[Any, Any] | None = None) -> dict:
+    """Require identical outcomes from two independently reset instances."""
+    if environments is not None:
+        if len(environments) != 2 or environments[0] is environments[1]:
+            raise ValueError("Repeated branch verification requires two independent environments")
+        first_env, second_env = environments
+    else:
+        first_env = second_env = None
+    first = evaluate_branch(env_factory, anchor, specialist, skill, horizon=horizon,
+                            candidate_steps=candidate_steps, environment=first_env)
+    second = evaluate_branch(env_factory, anchor, specialist, skill, horizon=horizon,
+                             candidate_steps=candidate_steps, environment=second_env)
+    if first != second:
+        raise ValueError("Repeated branch outcomes differ; refusing a label")
+    return first
 
 
 def build_rows(record: dict, *, minimum_margin: float) -> list[dict]:
@@ -180,6 +209,8 @@ def main() -> None:
     parser.add_argument("--max-anchors", type=int, default=320)
     parser.add_argument("--minimum-margin", type=float, default=0.01)
     parser.add_argument("--device", default="cpu")
+    parser.add_argument("--reuse-environments", action="store_true",
+                        help="Reuse two independent environments for repeated branch verification; default uses fresh instances")
     args = parser.parse_args()
     if args.anchor_stride < 1 or args.max_anchors < 1 or not 1 <= args.candidate_steps <= args.horizon or not math.isfinite(args.minimum_margin) or args.minimum_margin < 0:
         parser.error("Invalid horizon, sampling limit or preference margin")
@@ -230,8 +261,14 @@ def main() -> None:
                 anchors.append(by_seed[seed][offset])
     if not anchors:
         raise ValueError("No eligible training anchors")
-    from .navigation import NAVIGATION_CONTRACT
-    if environment_config.get("navigation_contract") != NAVIGATION_CONTRACT:
+    from .navigation import navigation_contract
+    destination_mode = environment_config.get("destination_mode")
+    projection_epsilon = environment_config.get("projection_epsilon")
+    if (destination_mode not in {"project", "reject"}
+            or isinstance(projection_epsilon, bool) or not isinstance(projection_epsilon, (int, float))
+            or not math.isfinite(projection_epsilon) or not 0.0 < projection_epsilon <= 0.01):
+        raise ValueError("Trace lacks a valid destination mode and projection epsilon; recollect it")
+    if environment_config.get("navigation_contract") != navigation_contract(destination_mode):
         raise ValueError("Trace navigation semantics differ from this continuous implementation")
     if environment_config.get("reset_contract") != "fresh_navigation_episode_reset_v1":
         raise ValueError("Trace reset semantics differ from this continuous implementation")
@@ -239,26 +276,27 @@ def main() -> None:
         world_name=environment_config["world"], max_step=environment_config["max_steps"],
         time_step=environment_config["time_step"],
         predator_prey_forward_speed_ratio=environment_config["predator_speed_ratio"],
-        max_line_of_sight_distance=environment_config["max_line_of_sight_distance"])
+        max_line_of_sight_distance=environment_config["max_line_of_sight_distance"],
+        destination_mode=destination_mode, projection_epsilon=projection_epsilon)
     outputs = {name: [] for name in ("train", "validation", "seen_test", "unseen_test")}
     failures = []
     record_path = args.output_dir / "counterfactuals_private.jsonl"
-    with os.fdopen(os.open(record_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w") as handle:
-        for anchor in anchors:
-            try:
-                branches = {}
-                for skill in Skill:
-                    first = evaluate_branch(env_factory, anchor, specialist, skill, horizon=args.horizon, candidate_steps=args.candidate_steps)
-                    second = evaluate_branch(env_factory, anchor, specialist, skill, horizon=args.horizon, candidate_steps=args.candidate_steps)
-                    if first != second:
-                        raise ValueError("Repeated branch outcomes differ; refusing a label")
-                    branches[skill.value] = first
-                record = {"anchor_id": anchor["anchor_id"], "seed": anchor["seed"], "context": anchor["context"], "branches": branches}
-                handle.write(json.dumps(record, sort_keys=True, allow_nan=False) + "\n")
-                for row in build_rows(record, minimum_margin=args.minimum_margin):
-                    outputs[row["split"]].append(row)
-            except ValueError as exc:
-                failures.append({"anchor_id": anchor["anchor_id"], "reason": str(exc)})
+    owners = environment_pool(env_factory, 2) if args.reuse_environments else nullcontext(None)
+    with owners as environments:
+        with os.fdopen(os.open(record_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w") as handle:
+            for anchor in anchors:
+                try:
+                    branches = {}
+                    for skill in Skill:
+                        branches[skill.value] = evaluate_repeated_branch(
+                            env_factory, anchor, specialist, skill, horizon=args.horizon,
+                            candidate_steps=args.candidate_steps, environments=environments)
+                    record = {"anchor_id": anchor["anchor_id"], "seed": anchor["seed"], "context": anchor["context"], "branches": branches}
+                    handle.write(json.dumps(record, sort_keys=True, allow_nan=False) + "\n")
+                    for row in build_rows(record, minimum_margin=args.minimum_margin):
+                        outputs[row["split"]].append(row)
+                except ValueError as exc:
+                    failures.append({"anchor_id": anchor["anchor_id"], "reason": str(exc)})
     # Context-exclusive evaluation partitions prevent copied public inputs from
     # appearing across seed splits. Retain different preferences within a split.
     owner = {}
@@ -281,6 +319,8 @@ def main() -> None:
         "experiment_sha256": sha256(EXPERIMENT), "horizon": args.horizon, "candidate_steps": args.candidate_steps,
         "continuation": "public_visibility_rule", "minimum_margin": args.minimum_margin,
         "environment_config": environment_config, "memory_steps": 8, "evade_distance": 0.35,
+        "reuse_environments": args.reuse_environments, "device": str(args.device),
+        "replay_environment_lifecycle": "two_independent_reused_instances" if args.reuse_environments else "fresh_instance_per_branch",
         "sampled_step_counts": dict(Counter(len(row["prefix_xy_actions"]) for row in anchors)),
         "replay_scope": "public observation + physical/controller/RNG fingerprint + repeated outcomes",
         "attempted_anchors": len(anchors), "rejected_anchors": len(failures),

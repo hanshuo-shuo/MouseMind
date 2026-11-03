@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+import math
 
 import numpy as np
 import gymnasium as gym
@@ -20,7 +21,8 @@ class ContinuousBotEvadeEnv(gym.Wrapper):
     fixes peek to zero; holding is a destination at the current position.
     A task-local prey navigation adapter retains the exact terminal waypoint;
     the native graph router otherwise replaces it with a cell center. Invalid
-    map destinations hold position and are explicitly reported in step info.
+    map destinations are explicitly projected into the current connected free
+    region by default. Reject mode holds instead. Failed projection also holds.
     An injected environment is useful for contract tests and must expose the
     same three-coordinate native action space.
     """
@@ -28,7 +30,15 @@ class ContinuousBotEvadeEnv(gym.Wrapper):
     action_schema = ACTION_SCHEMA
     reset_contract = RESET_CONTRACT
 
-    def __init__(self, env: gym.Env | None = None, **kwargs: Any):
+    def __init__(self, env: gym.Env | None = None, *, destination_mode: str = "project",
+                 projection_epsilon: float = 1e-5, **kwargs: Any):
+        if destination_mode not in {"project", "reject"}:
+            raise ValueError("destination_mode must be project or reject")
+        if (isinstance(projection_epsilon, bool) or not math.isfinite(projection_epsilon)
+                or not 0.0 < projection_epsilon <= 0.01):
+            raise ValueError("projection_epsilon must be finite and in (0, 0.01]")
+        self.destination_mode = destination_mode
+        self.projection_epsilon = float(projection_epsilon)
         if env is not None and kwargs:
             raise ValueError("Pass an existing environment or constructor settings, not both")
         if env is None:
@@ -56,7 +66,8 @@ class ContinuousBotEvadeEnv(gym.Wrapper):
         if hasattr(env, "model"):
             from .navigation import install_exact_xy_navigation
 
-            self.exact_navigation = install_exact_xy_navigation(env.model)
+            self.exact_navigation = install_exact_xy_navigation(
+                env.model, destination_mode=destination_mode, projection_epsilon=projection_epsilon)
         self.navigation_contract = (
             self.exact_navigation.contract if self.exact_navigation is not None
             else "injected_environment_unverified_navigation"
@@ -94,18 +105,26 @@ class ContinuousBotEvadeEnv(gym.Wrapper):
         observation, info = self.env.reset(seed=seed, options=options)
         info = dict(info)
         info.update({"navigation_contract": self.navigation_contract,
-                     "reset_contract": RESET_CONTRACT})
+                     "reset_contract": RESET_CONTRACT,
+                     "destination_mode": self.destination_mode,
+                     "projection_epsilon": self.projection_epsilon})
         return observation, info
 
     def step(self, action):
         x, y = validate_xy(action)
-        invalid_reason = None
         destination = (x, y)
+        resolution = {
+            "requested_xy": [x, y], "executed_xy": [x, y],
+            "requested_invalid_destination": False, "original_invalid_reason": None,
+            "was_projected": False, "projection_distance": 0.0,
+            "projection_attempted": False,
+            "invalid_destination": False, "invalid_destination_reason": None,
+        }
         if self.exact_navigation is not None:
             prey = self.env.model.prey
-            self.exact_navigation.get_path(src=prey.state.location, dst=destination)
-            invalid_reason = self.exact_navigation.last_invalid_reason
-            if invalid_reason is not None:
+            resolution = self.exact_navigation.resolve_destination(prey.state.location, destination)
+            destination = tuple(resolution["executed_xy"])
+            if resolution["invalid_destination"]:
                 # Clear queued and current navigation so an invalid request
                 # cannot leave the previous action running for another window.
                 prey.new_destination = None
@@ -119,8 +138,9 @@ class ContinuousBotEvadeEnv(gym.Wrapper):
         info = dict(info)
         info.update({"navigation_contract": self.navigation_contract,
                      "reset_contract": RESET_CONTRACT,
-                     "invalid_destination": invalid_reason is not None,
-                     "invalid_destination_reason": invalid_reason})
+                     "destination_mode": self.destination_mode,
+                     "projection_epsilon": self.projection_epsilon,
+                     **resolution})
         return observation, reward, terminated, truncated, info
 
     def legacy_policy_observation(self) -> np.ndarray:

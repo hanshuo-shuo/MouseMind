@@ -74,7 +74,7 @@ def test_xy_wrapper_preserves_native_destination_without_catalog_projection():
             return observation(), 7.0, False, False, {"native": True}
 
     native = Native()
-    env = ContinuousBotEvadeEnv(native)
+    env = ContinuousBotEvadeEnv(native, destination_mode="reject")
     assert env.action_space.shape == (2,)
     result = env.step((0.23713, 0.81127))
     np.testing.assert_array_equal(native.received, [0.23713, 0.81127, 0.0])
@@ -154,6 +154,40 @@ def test_run_policy_uses_fresh_environments_and_closes_them():
     assert len(instances) == 2 and all(env.closed for env in instances)
     with pytest.raises(ValueError):
         run_policy(factory, DirectContinuousPolicy(Specialist()), seeds=[3, 3])
+
+
+def test_run_policy_reuses_one_environment_but_resets_each_seed():
+    instances, reset_seeds, closes = [], [], []
+    class TrackedEnvironment(EpisodeEnv):
+        def reset(self, *, seed):
+            reset_seeds.append(seed)
+            return super().reset(seed=seed)
+        def close(self):
+            closes.append(self)
+            super().close()
+    def factory():
+        env = TrackedEnvironment()
+        instances.append(env)
+        return env
+    rows = run_policy(factory, DirectContinuousPolicy(Specialist()), seeds=[3, 4], reuse_environment=True)
+    assert [row["seed"] for row in rows] == [3, 4]
+    assert reset_seeds == [3, 4]
+    assert len(instances) == 1 and closes == instances
+    assert all(row["steps"] == 3 and row["clean_success"] == 1 for row in rows)
+
+
+def test_reused_evaluation_closes_its_environment_on_policy_error():
+    instances = []
+    class BrokenPolicy(DirectContinuousPolicy):
+        def act(self, observation):
+            raise RuntimeError("policy failed")
+    def factory():
+        env = EpisodeEnv()
+        instances.append(env)
+        return env
+    with pytest.raises(RuntimeError, match="policy failed"):
+        run_policy(factory, BrokenPolicy(Specialist()), seeds=[3, 4], reuse_environment=True)
+    assert len(instances) == 1 and instances[0].closed
 
 
 def test_discrete_reference_has_explicit_catalog_identity():
@@ -281,7 +315,7 @@ def test_wrapper_rejects_wall_target_and_clears_stale_navigation_on_reset():
             return observation(x=0.3), 0.0, False, False, {}
 
     native = Native()
-    env = ContinuousBotEvadeEnv(native)
+    env = ContinuousBotEvadeEnv(native, destination_mode="reject")
     original_predator_router = native.model.predator.navigation
     env.reset(seed=17)
     native.model.prey.destination = (0.8, 0.5)
@@ -299,7 +333,7 @@ def test_wrapper_rejects_wall_target_and_clears_stale_navigation_on_reset():
     native.model.prey_data.puffed = True
     native.model.prey_data.puff_count = 8
     obs, info = env.reset(seed=17)
-    fresh = ContinuousBotEvadeEnv(Native())
+    fresh = ContinuousBotEvadeEnv(Native(), destination_mode="reject")
     fresh_obs, _ = fresh.reset(seed=17)
     np.testing.assert_array_equal(obs, fresh_obs)
     assert native.model.time == 0 and native.model.paused is False

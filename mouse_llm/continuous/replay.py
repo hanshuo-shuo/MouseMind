@@ -46,7 +46,9 @@ def _fingerprint_payload(env: Any) -> dict:
     model = getattr(base, "model", None)
     payload = {"environment": _scalars(base), "model": _scalars(model), "agents": {},
                "navigation_contract": getattr(env, "navigation_contract", None),
-               "reset_contract": getattr(env, "reset_contract", None)}
+               "reset_contract": getattr(env, "reset_contract", None),
+               "destination_mode": getattr(env, "destination_mode", None),
+               "projection_epsilon": getattr(env, "projection_epsilon", None)}
     for name in ("prey", "predator"):
         agent = getattr(model, name, None)
         if agent is None:

@@ -28,6 +28,8 @@ def episode(index, *, policy, clean_count, success_count=200, captured_count=1):
         "path_length": 0.8, "valid_action_rate": 1.0,
         "latency_mean_seconds": 0.001, "deadline_miss_rate": 0.0,
         "destination_rejection_rate": 0.0,
+        "requested_invalid_rate": 0.2, "projection_rate": 0.2,
+        "mean_projection_distance": 0.01,
     }
 
 
@@ -46,8 +48,10 @@ def save_fixture(directory, *, policy, clean_count, success_count=200, captured_
         "config": {
             "world": "21_05", "max_steps": 300, "time_step": 0.25,
             "predator_speed_ratio": 0.15, "max_line_of_sight_distance": 1.0,
-            "navigation_contract": "graph_route_exact_xy_terminal_v1",
+            "navigation_contract": "graph_route_exact_xy_terminal_project_v2",
             "reset_contract": "fresh_navigation_episode_reset_v1",
+            "destination_mode": "project", "projection_epsilon": 1e-5,
+            "reuse_environment": False,
             "complete_seed_pool": True, "contract_sha256": _sha256(DEFAULT_CONTRACT),
         },
     }
@@ -138,6 +142,8 @@ def test_seed_coverage_must_match_exact_new_final_pool(pair, mutation):
     ("max_line_of_sight_distance", 0.7),
     ("navigation_contract", "different_navigation_v2"),
     ("reset_contract", "different_reset_v2"),
+    ("destination_mode", "reject"), ("projection_epsilon", 1e-4),
+    ("reuse_environment", True),
     ("contract_sha256", "old-contract-hash"),
 ])
 def test_environment_and_contract_must_be_identical_and_registered(pair, field, value):
@@ -148,7 +154,7 @@ def test_environment_and_contract_must_be_identical_and_registered(pair, field, 
         evaluate_promotion(reference, candidate, bootstrap_replicates=10)
 
 
-@pytest.mark.parametrize("mutation", ["stale_metric", "nan_metric", "infinite_row", "wrong_clean", "negative_captures", "wrong_policy"])
+@pytest.mark.parametrize("mutation", ["stale_metric", "nan_metric", "infinite_row", "wrong_clean", "negative_captures", "wrong_policy", "negative_projection", "invalid_projection_rate", "stale_projection_metric"])
 def test_stale_inconsistent_or_nonfinite_reports_are_rejected(pair, mutation):
     reference, candidate, _, (summary, rows) = pair
     if mutation == "stale_metric":
@@ -161,11 +167,55 @@ def test_stale_inconsistent_or_nonfinite_reports_are_rejected(pair, mutation):
         rows[0]["clean_success"] = 1
     elif mutation == "negative_captures":
         rows[0]["captures"] = -1
+    elif mutation == "negative_projection":
+        rows[0]["mean_projection_distance"] = -0.1
+    elif mutation == "invalid_projection_rate":
+        rows[0]["projection_rate"] = 1.1
+    elif mutation == "stale_projection_metric":
+        summary["metrics"]["requested_invalid_rate"] = 0.0
     else:
         rows[0]["policy"] = "other-checkpoint"
     rewrite(candidate, summary, rows)
     with pytest.raises(ValueError):
         evaluate_promotion(reference, candidate, bootstrap_replicates=10)
+
+
+def test_old_reject_telemetry_cannot_enter_new_project_gate(pair):
+    reference, candidate, _, (summary, rows) = pair
+    for name in ("requested_invalid_rate", "projection_rate", "mean_projection_distance"):
+        summary["metrics"].pop(name)
+        for row in rows:
+            row.pop(name)
+    rewrite(candidate, summary, rows)
+    with pytest.raises(ValueError):
+        evaluate_promotion(reference, candidate, bootstrap_replicates=10)
+
+
+def test_missing_projection_configuration_is_rejected(pair):
+    reference, candidate, _, (summary, rows) = pair
+    summary["config"].pop("destination_mode")
+    rewrite(candidate, summary, rows)
+    with pytest.raises(ValueError, match="missing"):
+        evaluate_promotion(reference, candidate, bootstrap_replicates=10)
+
+
+def test_explicit_reject_contract_requires_both_reports_to_use_reject_v2(pair, tmp_path):
+    reference, candidate, reference_data, candidate_data = pair
+    contract = json.loads(DEFAULT_CONTRACT.read_text())
+    contract.update(destination_mode="reject", navigation_contract="graph_route_exact_xy_terminal_reject_v2")
+    path = tmp_path / "reject-contract.json"
+    path.write_text(json.dumps(contract))
+    for directory, (summary, rows) in ((reference, reference_data), (candidate, candidate_data)):
+        summary["config"].update(destination_mode="reject", navigation_contract="graph_route_exact_xy_terminal_reject_v2", contract_sha256=_sha256(path))
+        for row in rows:
+            row.update(projection_rate=0.0, mean_projection_distance=0.0,
+                       destination_rejection_rate=row["requested_invalid_rate"])
+        for name, field in SUMMARY_FIELDS.items():
+            summary["metrics"][name] = math.fsum(row[field] for row in rows) / len(rows)
+        rewrite(directory, summary, rows)
+    report = evaluate_promotion(reference, candidate, contract_path=path, bootstrap_replicates=100)
+    assert report["environment"]["destination_mode"] == "reject"
+    assert report["status"] == "eligible_for_manual_review"
 
 
 def test_cli_defaults_to_readonly_aggregate_output(pair, monkeypatch, capsys):

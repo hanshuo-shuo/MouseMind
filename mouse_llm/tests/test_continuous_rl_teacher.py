@@ -164,7 +164,8 @@ def test_training_contract_and_checkpoint_roundtrip_with_offline_mocks(tmp_path)
     output = tmp_path / "sac-run"
     args = build_parser().parse_args(["train", "--output-dir", str(output), "--total-timesteps", "20", "--seed", "7"])
     metadata = train_teacher(args, env_factory=factory, sac_class=FakeSAC)
-    assert events["environment"] == {"world": "21_05", "max_steps": 300, "time_step": 0.25, "predator_speed_ratio": 0.15}
+    assert events["environment"] == {"world": "21_05", "max_steps": 300, "time_step": 0.25, "predator_speed_ratio": 0.15,
+                                    "destination_mode": "project", "projection_epsilon": 1e-5}
     assert events["closed"]
     assert metadata["completed_timesteps"] == 20
     assert metadata["policy_role"] == POLICY_ROLE

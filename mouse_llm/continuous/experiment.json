@@ -6,6 +6,10 @@
   "max_steps": 300,
   "time_step": 0.25,
   "predator_prey_forward_speed_ratio": 0.15,
+  "destination_mode": "project",
+  "projection_epsilon": 0.00001,
+  "navigation_contract": "graph_route_exact_xy_terminal_project_v2",
+  "reset_contract": "fresh_navigation_episode_reset_v1",
   "seed_pools": {
     "data_collection": {"start": 50000, "stop_exclusive": 50200, "count": 200},
     "development": {"start": 51000, "stop_exclusive": 51080, "count": 80},

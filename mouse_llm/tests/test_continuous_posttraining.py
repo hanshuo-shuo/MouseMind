@@ -14,7 +14,8 @@ pytest.importorskip("torch")
 from mouse_llm.continuous import posttraining
 from mouse_llm.continuous.context import CONTEXT_SCHEMA, ContinuousContextBuilder
 from mouse_llm.continuous.contracts import ACTION_SCHEMA, ContinuousDecision, validate_xy
-from mouse_llm.continuous.posttraining import build_rows, evaluate_branch, outcome_utility
+from mouse_llm.continuous.posttraining import build_rows, evaluate_branch, evaluate_repeated_branch, outcome_utility
+from mouse_llm.continuous.pool import environment_pool
 from mouse_llm.continuous.replay import replay_fingerprint
 from mouse_llm.data.planner_schema import Preference
 from mouse_llm.hierarchical.policy import Skill
@@ -125,8 +126,9 @@ def _anchor(*, seed=50000, prefix=(), factory=ToyEnvironment):
         "environment_config": {
             "world": "21_05", "max_steps": 300, "time_step": 0.25,
             "predator_speed_ratio": 0.15, "max_line_of_sight_distance": 1.0,
-            "navigation_contract": "graph_route_exact_xy_terminal_v1",
+            "navigation_contract": "graph_route_exact_xy_terminal_project_v2",
             "reset_contract": "fresh_navigation_episode_reset_v1",
+            "destination_mode": "project", "projection_epsilon": 1e-5,
         },
         "context": builder.observe(observation).payload(),
     }
@@ -206,6 +208,61 @@ def test_repeated_seeded_branches_match_outcomes_and_fingerprints():
     assert first == second
     assert first["steps"] == 5
     assert len(first["final_replay_fingerprint"]) == 64
+
+
+def test_reused_branch_pair_is_independent_and_owned_by_pool():
+    anchor = _anchor(prefix=((0.43, 0.61),))
+    instances = []
+    def factory():
+        env = ToyEnvironment()
+        instances.append(env)
+        return env
+    def no_construction():
+        pytest.fail("Borrowed branch must not construct another environment")
+    with environment_pool(factory, 2) as pair:
+        assert pair[0] is not pair[1]
+        for skill in (Skill.GO_TO_GOAL, Skill.HOLD_POSITION):
+            result = evaluate_repeated_branch(no_construction, anchor, ToySpecialist(), skill,
+                                              horizon=5, candidate_steps=2, environments=pair)
+            fresh = evaluate_repeated_branch(ToyEnvironment, anchor, ToySpecialist(), skill,
+                                             horizon=5, candidate_steps=2)
+            assert result == fresh
+            assert all(not env.closed for env in pair)
+        assert [env.episode_count for env in pair] == [2, 2]
+    assert len(instances) == 2 and all(env.closed for env in instances)
+
+
+def test_repeated_branch_rejects_same_borrowed_instance():
+    env = ToyEnvironment()
+    with pytest.raises(ValueError, match="independent"):
+        evaluate_repeated_branch(ToyEnvironment, _anchor(), ToySpecialist(), Skill.GO_TO_GOAL,
+                                 horizon=3, candidate_steps=1, environments=(env, env))
+    assert not env.closed  # caller still owns an invalid borrowed argument
+
+
+def test_second_reused_instance_still_checks_hidden_replay_state():
+    anchor = _anchor()
+    instances = []
+    def factory():
+        env = ToyEnvironment(hidden_predator=(0.8, 0.5) if not instances else (0.7, 0.6))
+        instances.append(env)
+        return env
+    with pytest.raises(ValueError, match="replay verification"):
+        with environment_pool(factory, 2) as pair:
+            evaluate_repeated_branch(factory, anchor, ToySpecialist(), Skill.GO_TO_GOAL,
+                                     horizon=3, candidate_steps=1, environments=pair)
+    assert len(instances) == 2 and all(env.closed for env in instances)
+
+
+def test_default_repeated_branch_constructs_and_closes_two_fresh_instances():
+    instances = []
+    def factory():
+        env = ToyEnvironment()
+        instances.append(env)
+        return env
+    evaluate_repeated_branch(factory, _anchor(), ToySpecialist(), Skill.GO_TO_GOAL,
+                             horizon=3, candidate_steps=1)
+    assert len(instances) == 2 and all(env.closed for env in instances)
 
 
 def test_replay_rejects_changed_hidden_physical_state_even_when_observations_match():

@@ -31,7 +31,9 @@ def test_real_xy_endpoint_invalid_target_and_seeded_reset():
                        for point in env.model.prey.navigation.locations)
         env.step(destination)
         _, _, _, _, info = env.step((0.0, 0.0))
-        assert info["invalid_destination"] is True
+        assert info["requested_invalid_destination"] is True
+        assert info["was_projected"] != info["invalid_destination"]
+        assert info["requested_xy"] == [0.0, 0.0]
         second, _ = env.reset(seed=50000)
         assert np.array_equal(first, second)
         assert replay_fingerprint(env) == fingerprint
@@ -68,3 +70,29 @@ def test_real_private_trace_replays_with_continuous_skill_memory():
     second = evaluate_branch(_environment, trace[1], specialist, Skill.GO_TO_GOAL,
                              horizon=2, candidate_steps=1)
     assert first == second
+
+
+def test_real_fresh_and_reused_environment_match_a_b_a_fingerprints():
+    """Run only on an allocated compute node with the existing offline cache."""
+    from mouse_llm.continuous.pool import environment_pool
+    from mouse_llm.continuous.replay import replay_fingerprint
+
+    actions = ((0.15, 0.5), (0.3, 0.5), (0.0, 0.0), (0.05, 0.5))
+
+    def record(env, seed):
+        observation, _ = env.reset(seed=seed)
+        records = [(observation.tolist(), replay_fingerprint(env))]
+        for action in actions:
+            observation, reward, terminated, truncated, info = env.step(action)
+            records.append((observation.tolist(), replay_fingerprint(env), reward,
+                            bool(terminated), bool(truncated), info.get("captures"),
+                            info.get("is_success"), info.get("invalid_destination")))
+            if terminated or truncated:
+                break
+        return records
+
+    with environment_pool(_environment, 3) as (fresh_a, fresh_b, reused):
+        expected_a, expected_b = record(fresh_a, 51000), record(fresh_b, 51001)
+        assert record(reused, 51000) == expected_a
+        assert record(reused, 51001) == expected_b
+        assert record(reused, 51000) == expected_a

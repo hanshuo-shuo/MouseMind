@@ -28,6 +28,7 @@ DEFAULT_BOOTSTRAP_SEED = 42
 ENVIRONMENT_FIELDS = (
     "world", "max_steps", "time_step", "predator_speed_ratio",
     "max_line_of_sight_distance", "navigation_contract", "reset_contract",
+    "destination_mode", "projection_epsilon", "reuse_environment",
 )
 SUMMARY_FIELDS = {
     "success_rate": "success", "clean_success_rate": "clean_success",
@@ -36,6 +37,9 @@ SUMMARY_FIELDS = {
     "mean_path_length": "path_length", "valid_action_rate": "valid_action_rate",
     "mean_latency_seconds": "latency_mean_seconds", "deadline_miss_rate": "deadline_miss_rate",
     "destination_rejection_rate": "destination_rejection_rate",
+    "requested_invalid_rate": "requested_invalid_rate",
+    "projection_rate": "projection_rate",
+    "mean_projection_distance": "mean_projection_distance",
 }
 DELTA_FIELDS = ("clean_success_rate", "success_rate", "captures_per_episode")
 
@@ -96,6 +100,15 @@ def _contract(path: Path) -> tuple[dict[str, Any], tuple[int, ...], str]:
     contract = _json(path.read_text(encoding="utf-8"))
     if contract.get("schema_version") != EXPERIMENT_SCHEMA or contract.get("action_schema") != ACTION_SCHEMA:
         raise ValueError("Wrong continuous experiment/action contract")
+    destination_mode = contract.get("destination_mode")
+    if destination_mode not in ("project", "reject"):
+        raise ValueError("Experiment must explicitly declare destination_mode project or reject")
+    if _number(contract.get("projection_epsilon"), "projection epsilon") <= 0:
+        raise ValueError("Experiment projection_epsilon must be positive")
+    if contract.get("navigation_contract") != f"graph_route_exact_xy_terminal_{destination_mode}_v2":
+        raise ValueError("Experiment navigation contract does not match its destination mode")
+    if contract.get("reset_contract") != "fresh_navigation_episode_reset_v1":
+        raise ValueError("Experiment must declare the verified reset contract")
     pools = contract.get("seed_pools", {})
     final = pools.get("final_id_test", {})
     start = _integer(final.get("start"), "final seed start")
@@ -181,10 +194,16 @@ def load_evidence(directory: Path, *, contract: dict[str, Any],
     expected = {"world": contract["world"], "max_steps": contract["max_steps"],
                 "time_step": contract["time_step"],
                 "predator_speed_ratio": contract["predator_prey_forward_speed_ratio"],
-                "max_line_of_sight_distance": contract.get("max_line_of_sight_distance", 1.0)}
+                "max_line_of_sight_distance": contract.get("max_line_of_sight_distance", 1.0),
+                "destination_mode": contract["destination_mode"],
+                "projection_epsilon": contract["projection_epsilon"],
+                "navigation_contract": contract["navigation_contract"],
+                "reset_contract": contract["reset_contract"]}
     for name, value in expected.items():
         if environment[name] != value or isinstance(environment[name], bool):
             raise ValueError(f"Final-ID environment differs from the experiment contract: {name}")
+    if not isinstance(environment["reuse_environment"], bool):
+        raise ValueError("reuse_environment must be explicitly boolean")
     for name in ("navigation_contract", "reset_contract"):
         value = environment[name]
         if not isinstance(value, str) or not value or any(marker in value.lower() for marker in ("unverified", "mock", "synthetic")):
@@ -214,8 +233,8 @@ def load_evidence(directory: Path, *, contract: dict[str, Any],
                 number = _number(row.get(field), f"episode {field}")
                 if field.endswith("_rate") and not 0.0 <= number <= 1.0:
                     raise ValueError("Episode rates must be in [0, 1]")
-                if field in ("path_length", "latency_mean_seconds") and number < 0:
-                    raise ValueError("Episode path/latency metrics must be nonnegative")
+                if field in ("path_length", "latency_mean_seconds", "mean_projection_distance") and number < 0:
+                    raise ValueError("Episode path/latency/projection-distance metrics must be nonnegative")
             episodes[seed] = row
     if len(episodes) != len(seeds) or set(episodes) != set(seeds):
         raise ValueError("Episode rows must exactly cover all 200 registered final seeds")
