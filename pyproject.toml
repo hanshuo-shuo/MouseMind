@@ -27,12 +27,17 @@ env = [
   "shapely>=2",
 ]
 test = ["pytest>=8"]
+rl = ["stable-baselines3==2.3.2"]
 
 [project.scripts]
 mousemind-demo = "mouse_llm.demo:main"
 mousemind-benchmark = "mouse_llm.evaluation.closed_loop:main"
 mousemind-transfer = "mouse_llm.evaluation.transfer_benchmark:main"
 mousemind-transfer-audit = "mouse_llm.evaluation.audit_transfer_compatibility:main"
+mousemind-xy-data = "mouse_llm.continuous.data:main"
+mousemind-xy-bc = "mouse_llm.continuous.specialist:main"
+mousemind-xy-evaluate = "mouse_llm.continuous.evaluation:main"
+mousemind-xy-posttrain = "mouse_llm.continuous.posttrain:main"
 
 [tool.setuptools.packages.find]
 include = ["mouse_llm*", "model*", "trainer*", "dataset*"]
@@ -47,6 +52,7 @@ mouse_llm = [
 ]
 "mouse_llm.data" = ["*.json"]
 "mouse_llm.evaluation" = ["contracts/*.json"]
+"mouse_llm.continuous" = ["*.json"]
 "mouse_llm.envs.mice" = [
   "assets/*.json",
   "assets/*.npy",

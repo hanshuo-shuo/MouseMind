@@ -139,7 +139,9 @@ def planner_messages(
     instruction: str,
     target_skill: Skill | None = None,
 ) -> list[dict[str, str]]:
-    payload = context.payload() if isinstance(context, PlannerContext) else dict(context)
+    # Versioned continuous contexts expose the same payload protocol without
+    # pretending their XY action history belongs to the legacy discrete schema.
+    payload = context.payload() if callable(getattr(context, "payload", None)) else dict(context)
     user = json.dumps(
         {
             "planner_schema": PLANNER_SCHEMA_VERSION,

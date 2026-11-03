@@ -1,0 +1,21 @@
+{
+  "schema_version": "mousemind_continuous_experiment_v1",
+  "action_schema": "mousemind_xy_destination_v1",
+  "context_schema": "mousemind_continuous_context_v1",
+  "world": "21_05",
+  "max_steps": 300,
+  "time_step": 0.25,
+  "predator_prey_forward_speed_ratio": 0.15,
+  "seed_pools": {
+    "data_collection": {"start": 50000, "stop_exclusive": 50200, "count": 200},
+    "development": {"start": 51000, "stop_exclusive": 51080, "count": 80},
+    "final_id_test": {"start": 52000, "stop_exclusive": 52200, "count": 200}
+  },
+  "selection": {
+    "primary_metric": "clean_success_rate",
+    "task_success_noninferiority_margin": 0.02,
+    "bootstrap_replicates": 10000,
+    "final_pool_is_never_training_or_selection_data": true,
+    "publish_automatically": false
+  }
+}

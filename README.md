@@ -1,5 +1,15 @@
 # MouseMind
 
+> **Local continuous-control candidate — not yet a new result.** The new
+> `mouse_llm.continuous` pipeline replaces 295-way low-level classification
+> with XY waypoint supervision, an optional SAC teacher, continuous skill
+> execution, and freshly generated MiniMind SFT/DPO data. Read
+> [the redesign and experiment plan](CONTINUOUS_POSTTRAINING_PLAN.md) and
+> [the runnable workflow](mouse_llm/continuous/RUNBOOK.md).
+> Historical results below remain discrete-controller results. No continuous
+> policy improvement has been established. This branch stays local pending
+> new paired evaluation and explicit publication instructions.
+
 MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Directly imitating low-level actions with MiniMind works poorly in closed loop: direct MiniMind LoRA succeeds on 26% of fresh paired test seeds. MouseMind instead separates strategic skill selection from low-level execution. A task-specific LoRA adapts MiniMind to read an instruction, the current semantic state, and eight steps of temporal history, then choose `go_to_goal`, `evade_predator`, or `hold_position`. Its training labels come from verified exact-state counterfactual rollouts of those skills, rather than copying historical actions. A specialist executes the chosen skill as a low-level action. **Verified DPO LoRA is the best tested language planner:** 100% task success, 22% clean success, and 4.94 captures per episode on the fixed 100-seed final-ID pool. **The published LoRA SFT hierarchy is the lower-resource option** when that extra safety gain is not required. Full-parameter DPO and GRPO did not improve the closed-loop result.
 
 ## Core idea

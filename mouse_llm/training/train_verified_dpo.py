@@ -11,11 +11,6 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 
-from dataset.lm_dataset import SFTDataset
-from model.model_lora import apply_lora, load_lora, save_lora
-from model.model_minimind import MiniMindConfig, MiniMindForCausalLM
-
-
 class PairDataset(Dataset):
     def __init__(self, path: Path, tokenizer, max_seq_len: int):
         self.rows = [json.loads(line) for line in path.read_text().splitlines() if line]
@@ -28,7 +23,9 @@ class PairDataset(Dataset):
         self.eos_id = tokenizer(f"{tokenizer.eos_token}\n", add_special_tokens=False).input_ids
         self.padding = tokenizer.pad_token_id or 0
 
-    generate_labels = SFTDataset.generate_labels
+    def generate_labels(self, input_ids):
+        from dataset.lm_dataset import SFTDataset
+        return SFTDataset.generate_labels(self, input_ids)
 
     def __len__(self):
         return len(self.rows)
@@ -63,6 +60,8 @@ def dpo_loss(policy_chosen, policy_rejected, ref_chosen, ref_rejected, beta):
 
 
 def make_model(config, base_weight: Path, sft_lora_weight: Path, device, *, trainable: bool):
+    from model.model_lora import apply_lora, load_lora
+    from model.model_minimind import MiniMindForCausalLM
     model = MiniMindForCausalLM(config)
     model.load_state_dict(torch.load(base_weight, map_location="cpu", weights_only=True), strict=True)
     apply_lora(model)
@@ -74,6 +73,8 @@ def make_model(config, base_weight: Path, sft_lora_weight: Path, device, *, trai
 
 
 def main():
+    from model.model_lora import save_lora
+    from model.model_minimind import MiniMindConfig
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--train-data", type=Path, required=True)
     parser.add_argument("--base-weight", type=Path, required=True)
