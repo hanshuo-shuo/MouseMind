@@ -20,6 +20,8 @@ from typing import Any, Callable, Sequence
 
 import numpy as np
 
+from mouse_llm.hierarchical.context import SCHEMA_VERSION as LEGACY_CONTEXT_SCHEMA
+
 from .contracts import ACTION_SCHEMA, ContinuousDecision, validate_xy
 from .policy import (ContinuousHierarchicalPolicy, DirectContinuousPolicy,
                      DiscreteDestinationAdapter, legacy_observation)
@@ -256,7 +258,7 @@ def _private_output(path: Path) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--policy", choices=("continuous-bc", "rule", "minimind", "discrete-reference", "legacy-minimind", "sac-teacher"), default="continuous-bc")
+    parser.add_argument("--policy", choices=("continuous-bc", "rule", "minimind", "discrete-reference", "legacy-minimind", "legacy-minimind-continuous-bc", "sac-teacher"), default="continuous-bc")
     parser.add_argument("--specialist-checkpoint", type=Path)
     parser.add_argument("--legacy-mlp-checkpoint", type=Path)
     parser.add_argument("--teacher-checkpoint", type=Path)
@@ -300,8 +302,8 @@ def main() -> None:
         raise ValueError("projection_epsilon must be finite and in (0, 0.01]")
     if args.allow_legacy_planner and args.policy != "minimind":
         raise ValueError("--allow-legacy-planner applies only to the new MiniMind interface diagnostic")
-    if args.planner_decoding != "greedy_trie" and args.policy == "legacy-minimind":
-        raise ValueError("The legacy-minimind historical baseline must retain greedy_trie decoding")
+    if args.planner_decoding != "greedy_trie" and args.policy in {"legacy-minimind", "legacy-minimind-continuous-bc"}:
+        raise ValueError("Frozen legacy MiniMind policies must retain greedy_trie decoding")
     if args.planner_decoding != "greedy_trie" and args.policy != "minimind":
         raise ValueError("Nondefault --planner-decoding applies only to --policy minimind")
     if args.policy == "sac-teacher":
@@ -310,6 +312,11 @@ def main() -> None:
     elif args.policy == "legacy-minimind":
         if args.legacy_mlp_checkpoint is None or args.base_weight is None or args.skill_lora_weight is None:
             raise ValueError("Legacy MiniMind reference requires --legacy-mlp-checkpoint, --base-weight and --skill-lora-weight")
+    elif args.policy == "legacy-minimind-continuous-bc":
+        if args.planner_manifest is not None:
+            raise ValueError("The frozen legacy planner cannot use a new continuous --planner-manifest")
+        if args.specialist_checkpoint is None or args.base_weight is None or args.skill_lora_weight is None:
+            raise ValueError("Legacy MiniMind with continuous GO requires --specialist-checkpoint, --base-weight and --skill-lora-weight; no legacy MLP is used")
     elif args.specialist_checkpoint is None:
         raise ValueError("This policy requires --specialist-checkpoint")
     if args.seed_pool is not None:
@@ -354,6 +361,30 @@ def main() -> None:
                                         planner_horizon=args.planner_horizon,
                                         evade_distance=args.evade_distance, name="legacy-minimind")
         policy = DiscreteDestinationAdapter(hierarchy, destinations, name="legacy-minimind-catalog-reference")
+    elif args.policy == "legacy-minimind-continuous-bc":
+        from mouse_llm.data.planner_schema import Preference
+        from mouse_llm.evaluation.evaluate_policy import load_action_catalog
+        from mouse_llm.hierarchical.minimind_planner import MiniMindSkillPlanner
+        from .legacy_hybrid import LegacyPlannerContinuousBCPolicy
+        from .specialist import ContinuousCheckpointPolicy
+
+        # Keep the historical planner's context, prompt budget and decoder.
+        # The hybrid adapter changes only GO execution; the catalog supplies
+        # legacy EVADE/HOLD actions and a history-only proxy for continuous GO.
+        destinations = load_action_catalog(args.action_catalog)
+        specialist = ContinuousCheckpointPolicy(args.specialist_checkpoint, device=args.device)
+        planner = MiniMindSkillPlanner(
+            base_weight=args.base_weight, lora_weight=args.skill_lora_weight,
+            tokenizer_path=args.tokenizer, device=args.device,
+            instruction_split=args.instruction_split, max_seq_len=1024,
+            decoding_mode="greedy_trie",
+        )
+        policy = LegacyPlannerContinuousBCPolicy(
+            specialist=specialist, planner=planner, destinations=destinations,
+            preference=Preference(args.preference), planner_horizon=args.planner_horizon,
+            evade_distance=args.evade_distance, temporal_window=8,
+            name="legacy-minimind-continuous-bc",
+        )
     elif args.policy == "discrete-reference":
         from mouse_llm.evaluation.closed_loop import MLPCheckpointPolicy
         from mouse_llm.evaluation.evaluate_policy import load_action_catalog
@@ -433,11 +464,30 @@ def main() -> None:
         "skill_lora_sha256": None if args.skill_lora_weight is None else _sha256(args.skill_lora_weight),
         "base_weight_sha256": None if args.base_weight is None else _sha256(args.base_weight),
         "planner_max_seq_len": planner_max_seq_len,
-        "planner_decoding": args.planner_decoding if args.policy in {"minimind", "legacy-minimind"} else None,
+        "planner_decoding": args.planner_decoding if args.policy in {"minimind", "legacy-minimind", "legacy-minimind-continuous-bc"} else None,
         "planner_decoding_ablation": args.policy == "minimind" and args.planner_decoding != "greedy_trie",
         "planner_decoding_note": (
             "Inference setting only; checkpoint hashes identify the supplied unchanged weights. A decoder change is not a training or weight improvement."
-            if args.policy in {"minimind", "legacy-minimind"} else None
+            if args.policy in {"minimind", "legacy-minimind", "legacy-minimind-continuous-bc"} else None
+        ),
+        # The top-level context_schema is retained as the versioned evaluation
+        # envelope for backward compatibility, not a claim about every planner.
+        "planner_context_schema": (
+            LEGACY_CONTEXT_SCHEMA if args.policy in {"legacy-minimind", "legacy-minimind-continuous-bc"}
+            else CONTEXT_SCHEMA if args.policy in {"minimind", "rule"} else None
+        ),
+        "context_schema_scope": "evaluation_envelope; actual planner context is planner_context_schema",
+        "planner_temporal_window": 8 if args.policy in {"minimind", "rule", "legacy-minimind", "legacy-minimind-continuous-bc"} else None,
+        "executed_action_schema": ACTION_SCHEMA,
+        "history_action_proxy": "nearest_catalog_id_for_history_only" if args.policy == "legacy-minimind-continuous-bc" else None,
+        "only_go_replaced": args.policy == "legacy-minimind-continuous-bc",
+        "go_execution_source": "continuous_bc_exact_xy" if args.policy == "legacy-minimind-continuous-bc" else None,
+        "non_goal_execution_source": "legacy_geometric_catalog" if args.policy == "legacy-minimind-continuous-bc" else None,
+        "legacy_mlp_checkpoint_used": args.policy in {"legacy-minimind", "discrete-reference"},
+        "action_catalog_sha256": _sha256(args.action_catalog) if args.policy in {"discrete-reference", "legacy-minimind", "legacy-minimind-continuous-bc"} else None,
+        "go_replacement_note": (
+            "Only GO uses the continuous BC checkpoint. The frozen legacy planner retains its 1024-token greedy interface and legacy context; continuous GO is mapped to a nearest catalog ID only for history. EVADE/HOLD retain legacy geometric catalog execution. No planner training."
+            if args.policy == "legacy-minimind-continuous-bc" else None
         ),
         "planner_manifest_sha256": None if args.planner_manifest is None else _sha256(args.planner_manifest),
         "legacy_planner_diagnostic": args.allow_legacy_planner,
