@@ -13,6 +13,7 @@ from mouse_llm.data.planner_schema import (
     instruction_for,
     parse_skill,
     planner_messages,
+    skill_target,
 )
 from mouse_llm.evaluation.evaluate_policy import _chat_text, generate_response
 from mouse_llm.hierarchical.context import PlannerContext
@@ -63,7 +64,10 @@ class MiniMindSkillPlanner:
         max_new_tokens: int = 24,
         instruction_split: str = "train",
         ablation: str | None = None,
+        decoding_mode: str = "greedy_trie",
     ):
+        if decoding_mode not in {"greedy_trie", "sequence_logprob"}:
+            raise ValueError(f"Unknown MiniMind planner decoding mode {decoding_mode!r}")
         from transformers import AutoTokenizer
 
         from model.model_lora import apply_lora, load_lora
@@ -90,11 +94,13 @@ class MiniMindSkillPlanner:
         self.max_seq_len = max_seq_len
         self.max_new_tokens = max_new_tokens
         self.instruction_split = instruction_split
+        self.decoding_mode = decoding_mode
         if ablation not in {None, "no_temporal_history", "instruction_removed"}:
             raise ValueError(f"Unknown MiniMind planner ablation {ablation!r}")
         self.ablation = ablation
         self.last_response: str | None = None
         self.last_valid = True
+        self.last_scores: dict[str, float] | None = None
 
     def reset(self, seed: int) -> None:
         torch.manual_seed(seed)
@@ -135,6 +141,22 @@ class MiniMindSkillPlanner:
             "input_ids": encoded["input_ids"].to(self.device),
             "attention_mask": encoded["attention_mask"].to(self.device),
         }
+        self.last_scores = None
+        if self.decoding_mode == "sequence_logprob":
+            from .sequence_decoder import score_canonical_skill_sequences
+
+            self.last_response = None
+            self.last_valid = False
+            scores = score_canonical_skill_sequences(
+                self.model, self.tokenizer, inputs, prompt_text=prompt,
+                max_new_tokens=self.max_new_tokens,
+            )
+            # Python max preserves Skill declaration order for exact ties.
+            skill = max(Skill, key=lambda candidate: scores[candidate.value])
+            self.last_scores = scores
+            self.last_response = skill_target(skill)
+            self.last_valid = True
+            return PlannerDecision(skill, "minimind_complete_sequence_logprob")
         response, _ = generate_response(
             self.model,
             self.tokenizer,

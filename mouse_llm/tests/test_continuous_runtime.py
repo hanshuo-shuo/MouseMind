@@ -1,5 +1,9 @@
 """Behavioral checks for XY execution and capture-free completion."""
 
+import json
+import sys
+from types import ModuleType
+
 import numpy as np
 import pytest
 
@@ -345,3 +349,140 @@ def test_wrapper_rejects_wall_target_and_clears_stale_navigation_on_reset():
     assert native.model.predator.navigation is original_predator_router
     assert native.model.prey.navigation is env.exact_navigation
     assert info["reset_contract"] == RESET_CONTRACT
+
+
+def test_evaluation_cli_keeps_historical_greedy_decoding_default():
+    from mouse_llm.continuous.evaluation import build_parser
+
+    args = build_parser().parse_args(["--output-dir", "/tmp/unused-evaluation"])
+    assert args.planner_decoding == "greedy_trie"
+    with pytest.raises(SystemExit):
+        build_parser().parse_args(["--output-dir", "/tmp/unused-evaluation",
+                                   "--planner-decoding", "unknown-decoder"])
+
+
+@pytest.mark.parametrize("policy", ["legacy-minimind", "continuous-bc", "rule", "discrete-reference", "sac-teacher"])
+def test_evaluation_cli_rejects_decoder_ablation_for_other_policies_before_io(tmp_path, monkeypatch, policy):
+    from mouse_llm.continuous import evaluation
+
+    output = tmp_path / "evaluation"
+    monkeypatch.setattr(sys, "argv", ["evaluation", "--policy", policy,
+                                      "--planner-decoding", "sequence_logprob",
+                                      "--output-dir", str(output)])
+    monkeypatch.setattr(evaluation, "_private_output", lambda path: pytest.fail("Invalid decoder/policy combination must fail before writing output"))
+    with pytest.raises(ValueError, match="decoding"):
+        evaluation.main()
+    assert not output.exists()
+
+
+@pytest.fixture
+def minimind_cli_fixture(tmp_path, monkeypatch):
+    """Exercise CLI wiring with stub model/env constructors and no rollout."""
+    from mouse_llm.continuous import evaluation
+
+    captured = {}
+    specialist_module = ModuleType("mouse_llm.continuous.specialist")
+
+    class MockSpecialist:
+        def __init__(self, checkpoint, *, device):
+            self.name = "mock-specialist"
+
+    specialist_module.ContinuousCheckpointPolicy = MockSpecialist
+    planner_module = ModuleType("mouse_llm.hierarchical.minimind_planner")
+
+    class MockPlanner:
+        def __init__(self, **kwargs):
+            captured["planner_arguments"] = kwargs
+            self.decoding_mode = kwargs["decoding_mode"]
+
+    planner_module.MiniMindSkillPlanner = MockPlanner
+    environment_module = ModuleType("mouse_llm.continuous.environment")
+    environment_module.RESET_CONTRACT = "fresh_navigation_episode_reset_v1"
+    environment_module.ContinuousBotEvadeEnv = lambda **kwargs: pytest.fail("CLI wiring test must not create a real environment")
+    navigation_module = ModuleType("mouse_llm.continuous.navigation")
+    navigation_module.navigation_contract = lambda mode: f"graph_route_exact_xy_terminal_{mode}_v2"
+    for module in (specialist_module, planner_module, environment_module, navigation_module):
+        monkeypatch.setitem(sys.modules, module.__name__, module)
+
+    def no_rollout(env_factory, policy, *, seeds, **kwargs):
+        captured["policy_name"] = policy.name
+        return [{
+            "policy": policy.name, "seed": seeds[0], "success": 1,
+            "clean_success": 1, "captured": 0, "captures": 0, "survived": 1,
+            "steps": 1, "episode_return": 1.0, "path_length": 0.0,
+            "valid_action_rate": 1.0, "latency_mean_seconds": 0.001,
+            "deadline_miss_rate": 0.0, "destination_rejection_rate": 0.0,
+            "requested_invalid_rate": 0.0, "projection_rate": 0.0,
+            "mean_projection_distance": 0.0, "skill_counts": {},
+        }]
+
+    monkeypatch.setattr(evaluation, "run_policy", no_rollout)
+    specialist, base, lora = (tmp_path / name for name in ("specialist.pt", "base.pth", "skill_lora.pth"))
+    for path in (specialist, base, lora):
+        path.write_bytes(("test-fixture-" + path.name).encode())
+    manifest = {
+        "schema_version": "mousemind_continuous_planner_checkpoint_v1",
+        "action_schema": evaluation.ACTION_SCHEMA,
+        "context_schema": evaluation.CONTEXT_SCHEMA,
+        "skill_lora_sha256": evaluation._sha256(lora),
+        "specialist_sha256": evaluation._sha256(specialist),
+        "base_weight_sha256": evaluation._sha256(base),
+        "max_seq_len": 1536,
+        "execution_contract": {"planner_horizon": 8, "memory_steps": 8, "evade_distance": 0.35},
+        "training_environment": {"navigation_contract": "graph_route_exact_xy_terminal_project_v2",
+                                 "reset_contract": "fresh_navigation_episode_reset_v1",
+                                 "destination_mode": "project", "projection_epsilon": 1e-5},
+    }
+    manifest_path = tmp_path / "planner_manifest.json"
+    manifest_path.write_text(json.dumps(manifest))
+    output = tmp_path / "evaluation"
+    argv = ["evaluation", "--policy", "minimind", "--specialist-checkpoint", str(specialist),
+            "--base-weight", str(base), "--skill-lora-weight", str(lora),
+            "--planner-manifest", str(manifest_path), "--tokenizer", str(tmp_path / "tokenizer"),
+            "--seed-start", "51000", "--episodes", "1", "--device", "cpu",
+            "--output-dir", str(output)]
+    return {"argv": argv, "output": output, "manifest": manifest, "manifest_path": manifest_path,
+            "captured": captured, "weights": (specialist, base, lora)}
+
+
+@pytest.mark.parametrize("mode", ["greedy_trie", "sequence_logprob"])
+def test_evaluation_cli_passes_and_records_inference_decoder_without_changing_weights(minimind_cli_fixture, monkeypatch, capsys, mode):
+    from mouse_llm.continuous import evaluation
+
+    fixture = minimind_cli_fixture
+    before = {path: path.read_bytes() for path in (*fixture["weights"], fixture["manifest_path"])}
+    extra = [] if mode == "greedy_trie" else ["--planner-decoding", mode]
+    monkeypatch.setattr(sys, "argv", [*fixture["argv"], *extra])
+    evaluation.main()
+    report = json.loads(capsys.readouterr().out)
+    assert fixture["captured"]["planner_arguments"]["decoding_mode"] == mode
+    assert fixture["captured"]["planner_arguments"]["max_seq_len"] == 1536
+    assert report["config"]["planner_decoding"] == mode
+    assert report["config"]["planner_decoding_ablation"] is (mode != "greedy_trie")
+    assert report["config"]["planner_manifest_sha256"] == evaluation._sha256(fixture["manifest_path"])
+    assert report["config"]["skill_lora_sha256"] == fixture["manifest"]["skill_lora_sha256"]
+    expected_name = "continuous-minimind" + ("-sequence-logprob-ablation" if mode != "greedy_trie" else "")
+    assert report["policy"] == expected_name
+    assert "inference" in report["config"]["planner_decoding_note"].lower()
+    assert "not a training or weight improvement" in report["config"]["planner_decoding_note"]
+    assert {path: path.read_bytes() for path in before} == before
+    assert "planner_decoding" not in json.loads(fixture["manifest_path"].read_text())
+
+
+@pytest.mark.parametrize("broken_contract", ["lora_hash", "execution", "environment"])
+def test_decoder_ablation_does_not_bypass_checkpoint_or_environment_validation(minimind_cli_fixture, monkeypatch, broken_contract):
+    from mouse_llm.continuous import evaluation
+
+    fixture = minimind_cli_fixture
+    manifest = fixture["manifest"]
+    if broken_contract == "lora_hash":
+        manifest["skill_lora_sha256"] = "0" * 64
+    elif broken_contract == "execution":
+        manifest["execution_contract"]["planner_horizon"] = 4
+    else:
+        manifest["training_environment"]["projection_epsilon"] = 0.01
+    fixture["manifest_path"].write_text(json.dumps(manifest))
+    monkeypatch.setattr(sys, "argv", [*fixture["argv"], "--planner-decoding", "sequence_logprob"])
+    with pytest.raises(ValueError):
+        evaluation.main()
+    assert "planner_arguments" not in fixture["captured"]

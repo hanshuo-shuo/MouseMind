@@ -264,6 +264,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skill-lora-weight", type=Path)
     parser.add_argument("--tokenizer", type=Path, default=Path("model"))
     parser.add_argument("--planner-manifest", type=Path)
+    parser.add_argument("--planner-decoding", choices=("greedy_trie", "sequence_logprob"),
+                        default="greedy_trie",
+                        help="Continuous MiniMind inference only: historical token-greedy trie or an explicit complete-sequence scoring ablation; no retraining")
     parser.add_argument("--allow-legacy-planner", action="store_true", help="Explicit compatibility diagnostic; not a newly trained continuous planner")
     parser.add_argument("--planner-horizon", type=int, default=8)
     parser.add_argument("--memory-steps", type=int, default=8)
@@ -297,6 +300,10 @@ def main() -> None:
         raise ValueError("projection_epsilon must be finite and in (0, 0.01]")
     if args.allow_legacy_planner and args.policy != "minimind":
         raise ValueError("--allow-legacy-planner applies only to the new MiniMind interface diagnostic")
+    if args.planner_decoding != "greedy_trie" and args.policy == "legacy-minimind":
+        raise ValueError("The legacy-minimind historical baseline must retain greedy_trie decoding")
+    if args.planner_decoding != "greedy_trie" and args.policy != "minimind":
+        raise ValueError("Nondefault --planner-decoding applies only to --policy minimind")
     if args.policy == "sac-teacher":
         if args.teacher_checkpoint is None:
             raise ValueError("SAC teacher evaluation requires --teacher-checkpoint")
@@ -340,7 +347,8 @@ def main() -> None:
                                          observation_indices=tuple(range(10)), name="legacy-mlp-specialist")
         planner = MiniMindSkillPlanner(base_weight=args.base_weight, lora_weight=args.skill_lora_weight,
                                        tokenizer_path=args.tokenizer, device=args.device,
-                                       instruction_split=args.instruction_split)
+                                       instruction_split=args.instruction_split,
+                                       decoding_mode="greedy_trie")
         hierarchy = ProposeVerifyPolicy(specialist=specialist, destinations=destinations,
                                         planner=planner, preference=Preference(args.preference),
                                         planner_horizon=args.planner_horizon,
@@ -401,12 +409,14 @@ def main() -> None:
                 planner = MiniMindSkillPlanner(base_weight=args.base_weight, lora_weight=args.skill_lora_weight,
                                                tokenizer_path=args.tokenizer, device=args.device,
                                                instruction_split=args.instruction_split,
-                                               max_seq_len=planner_max_seq_len)
+                                               max_seq_len=planner_max_seq_len,
+                                               decoding_mode=args.planner_decoding)
             policy = ContinuousHierarchicalPolicy(
                 specialist=specialist, planner=planner, preference=args.preference,
                 planner_horizon=args.planner_horizon, memory_steps=args.memory_steps,
                 evade_distance=args.evade_distance,
-                name="continuous-" + args.policy + ("-legacy-planner-diagnostic" if args.allow_legacy_planner else ""))
+                name="continuous-" + args.policy + ("-legacy-planner-diagnostic" if args.allow_legacy_planner else "")
+                + ("-sequence-logprob-ablation" if args.planner_decoding == "sequence_logprob" else ""))
     from .environment import ContinuousBotEvadeEnv, RESET_CONTRACT
     from .navigation import navigation_contract
 
@@ -423,6 +433,12 @@ def main() -> None:
         "skill_lora_sha256": None if args.skill_lora_weight is None else _sha256(args.skill_lora_weight),
         "base_weight_sha256": None if args.base_weight is None else _sha256(args.base_weight),
         "planner_max_seq_len": planner_max_seq_len,
+        "planner_decoding": args.planner_decoding if args.policy in {"minimind", "legacy-minimind"} else None,
+        "planner_decoding_ablation": args.policy == "minimind" and args.planner_decoding != "greedy_trie",
+        "planner_decoding_note": (
+            "Inference setting only; checkpoint hashes identify the supplied unchanged weights. A decoder change is not a training or weight improvement."
+            if args.policy in {"minimind", "legacy-minimind"} else None
+        ),
         "planner_manifest_sha256": None if args.planner_manifest is None else _sha256(args.planner_manifest),
         "legacy_planner_diagnostic": args.allow_legacy_planner,
         "catalog_constrained_reference": args.policy in {"discrete-reference", "legacy-minimind"},
