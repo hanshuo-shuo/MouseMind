@@ -1,7 +1,10 @@
 """Generate SFT/DPO supervision by replaying continuous skill alternatives.
 
-Labels measure a candidate skill followed by the same public rule continuation.
-They are continuation-dependent outcomes, not optimal-action ground truth.
+The CLI measures a candidate skill followed by the same frozen continuous
+specialist by default; ``--continuation rule`` retains the public visibility
+rule as an explicit comparator. The Python API retains its historical rule
+default for compatibility. Outcomes depend on the chosen continuation and are
+not optimal-action ground truth.
 """
 
 from __future__ import annotations
@@ -27,6 +30,10 @@ from .pool import environment_pool
 
 DATASET_SCHEMA = "mousemind_continuous_preferences_v1"
 EXPERIMENT = Path(__file__).with_name("experiment.json")
+CONTINUATIONS = {
+    "specialist": "frozen_continuous_specialist",
+    "rule": "public_visibility_rule",
+}
 
 
 def sha256(path: Path) -> str:
@@ -83,15 +90,20 @@ def outcome_utility(outcome: dict, preference: Preference, skill: Skill) -> floa
 def evaluate_branch(env_factory: Callable, anchor: dict, specialist: Any, skill: Skill,
                     *, horizon: int, candidate_steps: int, replay_tolerance: float = 1e-7,
                     memory_steps: int = 8, evade_distance: float = 0.35,
-                    environment: Any | None = None) -> dict:
+                    environment: Any | None = None, continuation: str = "rule") -> dict:
     """Replay and verify one branch, optionally borrowing an owned environment.
 
     A supplied environment remains the caller's responsibility to close. It
     is reset at the start of every branch, and the same replay checks apply.
+    After candidate_steps, specialist always executes GO_TO_GOAL through the
+    frozen BC; rule reacts to public visibility. The API's rule default is
+    retained for old callers; the CLI explicitly selects specialist by default.
     """
     from .policy import ContinuousSkillController
     if not 1 <= candidate_steps <= horizon:
         raise ValueError("candidate_steps must be within the positive rollout horizon")
+    if continuation not in CONTINUATIONS:
+        raise ValueError("continuation must be specialist or rule")
     if not anchor.get("replay_fingerprint"):
         raise ValueError("Anchor lacks a simulator/control fingerprint; recollect the trace")
     controller = ContinuousSkillController(specialist, memory_steps=memory_steps, evade_distance=evade_distance)
@@ -119,9 +131,12 @@ def evaluate_branch(env_factory: Callable, anchor: dict, specialist: Any, skill:
         steps = 0
         for step in range(horizon):
             legacy = env.legacy_policy_observation()
-            # All candidates use identical, public-observation continuation.
-            continuation = Skill.EVADE_PREDATOR if legacy[3] != 0 or legacy[4] != 0 else Skill.GO_TO_GOAL
-            executed = skill if step < candidate_steps else continuation
+            # Every candidate receives the same continuation policy. Neither
+            # continuation may use hidden simulator state to choose an action.
+            following_skill = Skill.GO_TO_GOAL
+            if continuation == "rule" and (legacy[3] != 0 or legacy[4] != 0):
+                following_skill = Skill.EVADE_PREDATOR
+            executed = skill if step < candidate_steps else following_skill
             decision = controller.act(executed, legacy)
             observation, _, terminated, truncated, info = env.step(decision.action)
             steps += 1
@@ -136,6 +151,7 @@ def evaluate_branch(env_factory: Callable, anchor: dict, specialist: Any, skill:
             "goal_progress": start_goal - float(env.legacy_policy_observation()[6]),
             "steps": steps, "final_observation": np.asarray(observation).tolist(),
             "final_replay_fingerprint": replay_fingerprint(env),
+            "continuation": CONTINUATIONS[continuation],
         }
     finally:
         if owns_environment:
@@ -144,7 +160,8 @@ def evaluate_branch(env_factory: Callable, anchor: dict, specialist: Any, skill:
 
 def evaluate_repeated_branch(env_factory: Callable, anchor: dict, specialist: Any, skill: Skill,
                              *, horizon: int, candidate_steps: int,
-                             environments: tuple[Any, Any] | None = None) -> dict:
+                             environments: tuple[Any, Any] | None = None,
+                             continuation: str = "rule") -> dict:
     """Require identical outcomes from two independently reset instances."""
     if environments is not None:
         if len(environments) != 2 or environments[0] is environments[1]:
@@ -153,9 +170,11 @@ def evaluate_repeated_branch(env_factory: Callable, anchor: dict, specialist: An
     else:
         first_env = second_env = None
     first = evaluate_branch(env_factory, anchor, specialist, skill, horizon=horizon,
-                            candidate_steps=candidate_steps, environment=first_env)
+                            candidate_steps=candidate_steps, environment=first_env,
+                            continuation=continuation)
     second = evaluate_branch(env_factory, anchor, specialist, skill, horizon=horizon,
-                             candidate_steps=candidate_steps, environment=second_env)
+                             candidate_steps=candidate_steps, environment=second_env,
+                             continuation=continuation)
     if first != second:
         raise ValueError("Repeated branch outcomes differ; refusing a label")
     return first
@@ -203,11 +222,14 @@ def main() -> None:
     parser.add_argument("--trace", type=Path, required=True)
     parser.add_argument("--specialist-checkpoint", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--contract", type=Path, default=EXPERIMENT)
     parser.add_argument("--horizon", type=int, default=32)
     parser.add_argument("--candidate-steps", type=int, default=8)
     parser.add_argument("--anchor-stride", type=int, default=8)
     parser.add_argument("--max-anchors", type=int, default=320)
     parser.add_argument("--minimum-margin", type=float, default=0.01)
+    parser.add_argument("--continuation", choices=tuple(CONTINUATIONS), default="specialist",
+                        help="Policy after the candidate window: frozen BC specialist (default) or public visibility rule")
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--reuse-environments", action="store_true",
                         help="Reuse two independent environments for repeated branch verification; default uses fresh instances")
@@ -220,7 +242,7 @@ def main() -> None:
     from .environment import ContinuousBotEvadeEnv
     from .specialist import ContinuousCheckpointPolicy
     specialist = ContinuousCheckpointPolicy(args.specialist_checkpoint, device=args.device)
-    contract = json.loads(EXPERIMENT.read_text())
+    contract = json.loads(args.contract.read_text())
     pool = contract["seed_pools"]["data_collection"]
     anchors = []
     seen = set()
@@ -272,6 +294,16 @@ def main() -> None:
         raise ValueError("Trace navigation semantics differ from this continuous implementation")
     if environment_config.get("reset_contract") != "fresh_navigation_episode_reset_v1":
         raise ValueError("Trace reset semantics differ from this continuous implementation")
+    expected_environment = {
+        "world": contract["world"], "max_steps": contract["max_steps"],
+        "time_step": contract["time_step"],
+        "predator_speed_ratio": contract["predator_prey_forward_speed_ratio"],
+        "max_line_of_sight_distance": contract.get("max_line_of_sight_distance", 1.0),
+        "destination_mode": contract["destination_mode"],
+        "projection_epsilon": contract["projection_epsilon"],
+    }
+    if any(environment_config.get(key) != value for key, value in expected_environment.items()):
+        raise ValueError("Training trace environment differs from the selected experiment contract")
     env_factory = lambda: ContinuousBotEvadeEnv(
         world_name=environment_config["world"], max_step=environment_config["max_steps"],
         time_step=environment_config["time_step"],
@@ -290,7 +322,8 @@ def main() -> None:
                     for skill in Skill:
                         branches[skill.value] = evaluate_repeated_branch(
                             env_factory, anchor, specialist, skill, horizon=args.horizon,
-                            candidate_steps=args.candidate_steps, environments=environments)
+                            candidate_steps=args.candidate_steps, environments=environments,
+                            continuation=args.continuation)
                     record = {"anchor_id": anchor["anchor_id"], "seed": anchor["seed"], "context": anchor["context"], "branches": branches}
                     handle.write(json.dumps(record, sort_keys=True, allow_nan=False) + "\n")
                     for row in build_rows(record, minimum_margin=args.minimum_margin):
@@ -316,8 +349,8 @@ def main() -> None:
     manifest = {
         "schema_version": DATASET_SCHEMA, "action_schema": ACTION_SCHEMA, "context_schema": CONTEXT_SCHEMA,
         "specialist_sha256": sha256(args.specialist_checkpoint), "trace_sha256": sha256(args.trace),
-        "experiment_sha256": sha256(EXPERIMENT), "horizon": args.horizon, "candidate_steps": args.candidate_steps,
-        "continuation": "public_visibility_rule", "minimum_margin": args.minimum_margin,
+        "experiment_sha256": sha256(args.contract), "horizon": args.horizon, "candidate_steps": args.candidate_steps,
+        "continuation": CONTINUATIONS[args.continuation], "minimum_margin": args.minimum_margin,
         "environment_config": environment_config, "memory_steps": 8, "evade_distance": 0.35,
         "reuse_environments": args.reuse_environments, "device": str(args.device),
         "replay_environment_lifecycle": "two_independent_reused_instances" if args.reuse_environments else "fresh_instance_per_branch",

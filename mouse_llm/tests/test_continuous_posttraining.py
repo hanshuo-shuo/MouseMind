@@ -210,7 +210,8 @@ def test_repeated_seeded_branches_match_outcomes_and_fingerprints():
     assert len(first["final_replay_fingerprint"]) == 64
 
 
-def test_reused_branch_pair_is_independent_and_owned_by_pool():
+@pytest.mark.parametrize("continuation", ["rule", "specialist"])
+def test_reused_branch_pair_is_independent_and_owned_by_pool(continuation):
     anchor = _anchor(prefix=((0.43, 0.61),))
     instances = []
     def factory():
@@ -223,9 +224,10 @@ def test_reused_branch_pair_is_independent_and_owned_by_pool():
         assert pair[0] is not pair[1]
         for skill in (Skill.GO_TO_GOAL, Skill.HOLD_POSITION):
             result = evaluate_repeated_branch(no_construction, anchor, ToySpecialist(), skill,
-                                              horizon=5, candidate_steps=2, environments=pair)
+                                              horizon=5, candidate_steps=2, environments=pair,
+                                              continuation=continuation)
             fresh = evaluate_repeated_branch(ToyEnvironment, anchor, ToySpecialist(), skill,
-                                             horizon=5, candidate_steps=2)
+                                             horizon=5, candidate_steps=2, continuation=continuation)
             assert result == fresh
             assert all(not env.closed for env in pair)
         assert [env.episode_count for env in pair] == [2, 2]
@@ -321,10 +323,89 @@ def test_public_continuation_changes_to_evasion_when_predator_becomes_visible():
     specialist = ToySpecialist()
     anchor = _anchor(factory=factory)
     instances.clear()
-    evaluate_branch(factory, anchor, specialist, Skill.HOLD_POSITION, horizon=4, candidate_steps=2)
+    evaluate_branch(factory, anchor, specialist, Skill.HOLD_POSITION, horizon=4, candidate_steps=2,
+                    continuation="rule")
     assert instances[0].actions[:2] == [(0.5, 0.5)] * 2
     assert instances[0].actions[2] == pytest.approx((0.15, 0.5))
     assert specialist.calls == []
+
+
+def test_specialist_continuation_keeps_bc_when_predator_is_publicly_visible():
+    instances = []
+    def factory():
+        env = ToyEnvironment(visible_steps=(2, 3, 4))
+        instances.append(env)
+        return env
+    anchor = _anchor(factory=factory)
+    instances.clear()
+    specialist = ToySpecialist()
+    result = evaluate_branch(factory, anchor, specialist, Skill.HOLD_POSITION,
+                             horizon=5, candidate_steps=2, continuation="specialist")
+    assert instances[0].actions == [(0.5, 0.5)] * 2 + [(0.73, 0.26)] * 3
+    assert len(specialist.calls) == 3
+    assert all(call[3] != 0 for call in specialist.calls)
+    assert result["continuation"] == "frozen_continuous_specialist"
+
+
+def test_specialist_continuation_does_not_receive_hidden_predator_state():
+    observations, actions = [], []
+    for hidden_predator in ((0.8, 0.5), (0.2, 0.9)):
+        instances = []
+        def factory():
+            env = ToyEnvironment(hidden_predator=hidden_predator)
+            instances.append(env)
+            return env
+        anchor = _anchor(factory=factory)
+        instances.clear()
+        specialist = ToySpecialist()
+        evaluate_branch(factory, anchor, specialist, Skill.HOLD_POSITION,
+                        horizon=4, candidate_steps=1, continuation="specialist")
+        observations.append(np.asarray(specialist.calls))
+        actions.append(instances[0].actions)
+        assert np.all(observations[-1][:, 3:6] == 0.0)
+    np.testing.assert_array_equal(observations[0], observations[1])
+    assert actions[0] == actions[1]
+
+
+def test_unknown_continuation_is_rejected_before_environment_construction():
+    def factory():
+        pytest.fail("Invalid continuation must fail before simulator construction")
+    with pytest.raises(ValueError, match="continuation"):
+        evaluate_branch(factory, _anchor(), ToySpecialist(), Skill.GO_TO_GOAL,
+                        horizon=3, candidate_steps=1, continuation="unknown")
+
+
+@pytest.mark.parametrize("explicit,expected", [(None, "specialist"), ("rule", "rule")])
+def test_cli_passes_continuation_to_every_branch_and_records_manifest(tmp_path, monkeypatch, explicit, expected):
+    environment_module = ModuleType("mouse_llm.continuous.environment")
+    environment_module.ContinuousBotEvadeEnv = lambda **kwargs: pytest.fail("Mocked branch helper must not construct a simulator")
+    specialist_module = ModuleType("mouse_llm.continuous.specialist")
+    specialist_module.ContinuousCheckpointPolicy = lambda *args, **kwargs: ToySpecialist()
+    monkeypatch.setitem(sys.modules, environment_module.__name__, environment_module)
+    monkeypatch.setitem(sys.modules, specialist_module.__name__, specialist_module)
+    train_seed = next(seed for seed in range(50000, 50200) if posttraining.seed_split(seed) == "train")
+    validation_seed = next(seed for seed in range(50000, 50200) if posttraining.seed_split(seed) == "validation")
+    trace = tmp_path / "trace.jsonl"
+    trace.write_text("\n".join(json.dumps(anchor) for anchor in (
+        _anchor(seed=train_seed), _anchor(seed=validation_seed, prefix=((0.43, 0.61),)),
+    )) + "\n")
+    checkpoint = tmp_path / "unused.pt"
+    checkpoint.write_bytes(b"synthetic-checkpoint-placeholder")
+    calls = []
+    def branch(_factory, _anchor, _specialist, skill, **kwargs):
+        calls.append(kwargs["continuation"])
+        return _record()["branches"][skill.value]
+    monkeypatch.setattr(posttraining, "evaluate_repeated_branch", branch)
+    argv = ["posttraining", "--trace", str(trace), "--specialist-checkpoint", str(checkpoint),
+            "--output-dir", str(tmp_path / "output"), "--anchor-stride", "1"]
+    if explicit is not None:
+        argv.extend(["--continuation", explicit])
+    monkeypatch.setattr(sys, "argv", argv)
+    posttraining.main()
+    assert calls == [expected] * 6
+    manifest = json.loads((tmp_path / "output/manifest.json").read_text())
+    assert manifest["continuation"] == posttraining.CONTINUATIONS[expected]
+    assert manifest["research_evidence"] is False
 
 
 @pytest.mark.parametrize("candidate_steps,horizon", [(0, 4), (5, 4), (1, 0)])

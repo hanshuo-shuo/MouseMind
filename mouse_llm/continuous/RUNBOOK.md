@@ -93,14 +93,17 @@ python -m mouse_llm.continuous.posttraining \
   --trace "$MOUSE_XY_ROOT/collection/trace_private.jsonl" \
   --specialist-checkpoint "$MOUSE_XY_SPECIALIST" \
   --output-dir "$MOUSE_XY_ROOT/planner-data" --candidate-steps 8 --horizon 32 \
-  --max-anchors 320 --device cuda
+  --max-anchors 320 --continuation specialist --reuse-environments --device cuda
 ```
 
 The collector can also be a qualified SAC teacher or a current continuous
 MiniMind policy. Keep all collection seeds in `50000..50199`. Every candidate
 branch is replay-verified and repeated; failed anchors remain excluded and
 reported. Hidden fingerprints never enter prompts. Labels share one utility
-ordering and one public-rule continuation; they are not unrestricted oracles.
+ordering and one frozen-specialist continuation; they are not unrestricted oracles.
+Use `--continuation rule` only for its explicit ablation. Pass `--contract`
+with the frozen study JSON when using a nondefault projection inset; trace and
+contract environment settings must agree.
 Changing the specialist requires new labels and a new dataset directory.
 
 ## MiniMind post-training
