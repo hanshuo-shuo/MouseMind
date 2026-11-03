@@ -1,14 +1,17 @@
 # MouseMind
 
-> **Local continuous-control candidate — not yet a new result.** The new
+> **Local continuous-control experiment — development results only.** The new
 > `mouse_llm.continuous` pipeline replaces 295-way low-level classification
 > with XY waypoint supervision, an optional SAC teacher, continuous skill
 > execution, and freshly generated MiniMind SFT/DPO data. Read
 > [the redesign and experiment plan](CONTINUOUS_POSTTRAINING_PLAN.md) and
-> [the runnable workflow](mouse_llm/continuous/RUNBOOK.md).
-> Historical results below remain discrete-controller results. No continuous
-> policy improvement has been established. This branch stays local pending
-> new paired evaluation and explicit publication instructions.
+> [the runnable workflow](mouse_llm/continuous/RUNBOOK.md). The
+> [completed experiment report](mouse_llm/continuous/CLUSTER_PROGRESS_20261102.md)
+> records 79/80 task and 12/80 capture-free successes for continuous BC, while
+> both new SFT/DPO planners failed by always holding. Final seeds remain
+> unopened; no final-test improvement or post-training gain is established.
+> Historical results below use the discrete controller and a different test
+> pool/contract. This branch remains local and has not been pushed.
 
 MouseMind studies long-horizon mouse control in the Cellworld BotEvade task. Directly imitating low-level actions with MiniMind works poorly in closed loop: direct MiniMind LoRA succeeds on 26% of fresh paired test seeds. MouseMind instead separates strategic skill selection from low-level execution. A task-specific LoRA adapts MiniMind to read an instruction, the current semantic state, and eight steps of temporal history, then choose `go_to_goal`, `evade_predator`, or `hold_position`. Its training labels come from verified exact-state counterfactual rollouts of those skills, rather than copying historical actions. A specialist executes the chosen skill as a low-level action. **Verified DPO LoRA is the best tested language planner:** 100% task success, 22% clean success, and 4.94 captures per episode on the fixed 100-seed final-ID pool. **The published LoRA SFT hierarchy is the lower-resource option** when that extra safety gain is not required. Full-parameter DPO and GRPO did not improve the closed-loop result.
 

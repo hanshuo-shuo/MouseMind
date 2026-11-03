@@ -1,3 +1,44 @@
+# 本轮结论与完整开发对照
+
+本地分支 `local/continuous-posttraining`；没有 push，也没有经过 GitHub 传输。
+下表是相同 80 个开发种子、相同 GPU 后端与冻结执行合同的完整结果。
+它用于开发选择，不是最终测试结论。
+
+| 系统 | 到达目标 | 无捕获到达 | 每局捕获次数 |
+| --- | ---: | ---: | ---: |
+| 旧 MiniMind DPO 层级 | 75/80（93.75%） | 11/80（13.75%） | 9.2750 |
+| 连续目标坐标 BC | 79/80（98.75%） | 12/80（15.00%） | 3.6125 |
+| 新连续上下文 SFT，greedy | 0/80 | 0/80 | 133.7250 |
+| 新连续上下文 DPO，greedy | 0/80 | 0/80 | 133.7250 |
+
+连续 BC 的完成率和捕获次数点估计更好，但无捕获成功只比旧 DPO 多一局，
+不能声称安全完成率已可靠提升。新 SFT/DPO 都在整局保持 HOLD，当前不适合替换
+旧系统。数据、权重、逐局结果和失败诊断全部保留在私有目录。
+
+数据标签含义也决定效果：同预算、同架构的 CPU 对照中，`next_obs[:2]` BC
+到达率 85%、无捕获成功率 0%，原命令目标坐标 BC 为 98.75% 和 16.25%。
+二者都输出连续 XY；下一时刻的实际位置与导航器的目标位置不能混用。
+本轮数据来自仿真策略导出，不能写成已验证的生物老鼠数据实验。
+
+## 接下来值得做的工作
+
+1. **优先强化回避和脱困技能。** GO 执行器已可用，EVADE 仍是几何规则。
+   用合格 RL 教师或技能条件化在线 RL 替换，先验证单技能成功率；审查终点附近
+   持续奖励的问题，只把实际执行的在线转移放入 replay。当前尚未完成这项训练。
+2. **先验证高层标签是否有控制价值。** 用小型三类数值 planner 做同执行器对照，
+   检查其是否超越直接 BC，再决定继续扩大语言模型训练的投入。
+3. **让 post-training 的目标直接反映技能选择。** 当前平均 token loss 包含公共
+   JSON/thinking 标记，下降不代表技能判别正确。采用明确的三类决策目标或完整
+   候选似然评分，记录按偏好的混淆矩阵，并用闭环结果选择可用候选。
+4. **补足正常起步与当前策略状态。** 区分 BC 默认行为监督与反事实偏好证据；
+   没有可分辨优劣的样本不能伪造 DPO 胜负。新执行器或新策略采集后需重做分支验证。
+
+求职材料目前可以展示连续执行器、可复现的反事实数据和 SFT/DPO 流水线，以及
+离线损失与闭环表现脱节的诊断；不能把底层 BC 的收益归因于新的 LLM 后训练。
+所有训练仅使用一个训练 seed。新的 200 个最终测试种子保持封存。
+
+---
+
 # Cluster continuation — 2026-11-02
 
 Local-only candidate; no GitHub transfer or push. The original BCS516 cluster
@@ -159,12 +200,24 @@ Both scoring methods still selected HOLD on all eight initial contexts.
 
 The decoder masks later tokens to a single continuation once a skill's first
 branch token is chosen, whereas SFT/DPO optimize complete-response likelihood.
-An opt-in complete-sequence-sum inference ablation is being implemented to
-measure this mismatch. It reuses the same weights and data; it is not another
-training run and does not erase either failed greedy evaluation. A small
-development pilot must precede any claim about closed-loop behavior.
+Commit `c4311f2` adds an opt-in complete-sequence-sum inference ablation.
+It reuses the same weights and data; it is not another training run and does
+not erase either failed greedy evaluation. The default historical decoder is
+unchanged. Tests cover shifted token scores, EOS, padding, prefix contracts,
+non-finite rejection, CLI lineage checks and backward compatibility; the
+focused 23-test set passed locally and on the compute node.
 
-Not yet completed: new continuous-context MiniMind SFT/DPO, fresh 200-seed
-final comparison, or promotion. The final seed pool remains unopened. All
-weights, traces and per-episode records stay in the private run directory,
-with local backups. No GitHub transfer or push has occurred.
+Job `31815` completed in 3m06s. Each checkpoint was evaluated on development
+seeds 51000–51003 with the new scoring mode. Both still selected HOLD on all
+1,200 actions, with zero path length and zero task/clean success; captures
+averaged 124 per episode. The prespecified engineering gate required at least
+one completion before expanding this inference variant to all 80 development
+seeds. Neither passed, so no expanded scoring-variant evaluation was submitted.
+Different offline candidate rankings alone did not repair the closed-loop trap.
+
+This round's implementation, training, development comparison and bounded
+failure diagnosis are complete. The new planners are development-rejected.
+There is no validated final-test improvement or promotion, and the 200 final
+seeds remain unopened. All weights, traces, per-episode records and logs have
+private local backups. No GitHub transfer or push occurred. Further RL skill
+training and a redesigned high-level decision objective are future work.
