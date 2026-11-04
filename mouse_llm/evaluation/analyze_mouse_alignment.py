@@ -374,7 +374,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         "This is a low-level component diagnostic on the frozen, episode-isolated "
         f"held-out subset (N={overall_count}). It measures one-step agreement with "
         "the source trajectory actions. Hierarchical methods are compared separately "
-        "with complete closed-loop episodes in `TRAJECTORY_ALIGNMENT.md`.",
+        "with complete closed-loop episodes in [trajectory alignment](trajectory-alignment.md).",
         "",
         "| Policy | Overall action agreement | Predator hidden "
         f"(N={hidden_count}) | Predator visible (N={visible_count}) | "

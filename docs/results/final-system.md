@@ -9,8 +9,8 @@
 与单独连续 BC 比较时仍有取舍，不能描述成全面优势。
 
 本轮没有重新训练高层，也没有使用最终结果调参。候选由此前 80 局开发结果
-选定；[冻结协议](LEGACY_HYBRID_FINAL_PROTOCOL.md) 在开启最终种子之前以
-本地提交 `886f3b1` 保存。开发结果另见 [开发报告](LEGACY_HYBRID_EXPERIMENT.md)。
+选定；[冻结协议](final-system-protocol.md) 在开启最终种子之前以
+本地提交 `886f3b1` 保存。开发结果另见 [开发报告](continuous-development.md)。
 
 ## 同条件最终对照
 

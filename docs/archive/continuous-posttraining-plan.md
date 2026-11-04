@@ -1,13 +1,13 @@
 # MouseMind：连续控制与可验证 Post-Training 重构
 
 本文保留首轮连续上下文重构的计划与失败记录。后续成功候选保留旧 DPO 高层，
-接入连续 BC GO，已完成独立的 [200 局最终对照](mouse_llm/continuous/LEGACY_HYBRID_FINAL_RESULTS.md)。
+接入连续 BC GO，已完成独立的 [200 局最终对照](../results/final-system.md)。
 下文关于封存、未 push 和后续方向的表述均属于首轮结束时的状态，不代表当前进度。
 
 首轮结束时：连续控制实现、BC 训练、反事实数据生成及首轮 SFT/DPO 训练已完成，
 闭环开发评测和失败诊断也已完成。高层候选未通过开发门槛，最终测试保持封存，
 没有 push。
-详细结果和失败记录见 [集群进展](mouse_llm/continuous/CLUSTER_PROGRESS_20261102.md)。
+详细结果和失败记录见 [集群进展](continuous-pilot-20261102.md)。
 
 同 GPU 的 80 局开发评测中，commanded-destination 连续 BC 完成 79 局、
 无捕获完成 12 局；旧 DPO 为 75 局和 11 局。新 SFT/DPO 均始终 HOLD，完成率为零。
@@ -125,5 +125,5 @@ captures 差值区间上界不大于零。通过也只产生“可人工复核�
 两套私有连续数据已在相邻的 `MouseMind-private/continuous-v1/` 生成，
 每套 train/validation/test 为 60000/5000/5000。原 CSV 未修改。
 
-执行命令见 [RUNBOOK.md](mouse_llm/continuous/RUNBOOK.md)。正式训练、SAC teacher
+执行命令见 [RUNBOOK.md](../guides/continuous-workflow.md)。正式训练、SAC teacher
 资格评估、新 MiniMind SFT/DPO、200-seed 最终对照尚待执行。

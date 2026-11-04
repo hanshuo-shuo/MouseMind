@@ -1,4 +1,4 @@
-"""Write P2_RESULTS.md directly from completed aggregate evidence artifacts."""
+"""Write docs/results/planner-benchmarks.md from aggregate evidence artifacts."""
 
 from __future__ import annotations
 
@@ -96,7 +96,7 @@ def _paired_delta(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate evidence-backed P2_RESULTS.md")
+    parser = argparse.ArgumentParser(description="Generate the evidence-backed planner benchmark report")
     parser.add_argument("--id-report", type=Path, required=True)
     parser.add_argument("--ood-report", action="append", type=_named, default=[])
     parser.add_argument("--numeric-offline", type=Path, required=True)

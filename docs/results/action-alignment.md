@@ -1,6 +1,6 @@
 # Source mouse trajectory alignment
 
-This is a low-level component diagnostic on the frozen, episode-isolated held-out subset (N=512). It measures one-step agreement with the source trajectory actions. Hierarchical methods are compared separately over complete closed-loop episodes in [TRAJECTORY_ALIGNMENT.md](TRAJECTORY_ALIGNMENT.md).
+This is a low-level component diagnostic on the frozen, episode-isolated held-out subset (N=512). It measures one-step agreement with the source trajectory actions. Hierarchical methods are compared separately over complete closed-loop episodes in [trajectory alignment](trajectory-alignment.md).
 
 | Policy | Overall action agreement | Predator hidden (N=492) | Predator visible (N=20) | Destination error | Action-distribution JS |
 | --- | ---: | ---: | ---: | ---: | ---: |

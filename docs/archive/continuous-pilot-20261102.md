@@ -1,7 +1,7 @@
 # 本轮结论与完整开发对照
 
 本文是 2026-11-02 开始的首轮连续上下文实验记录，保留失败结果与当时的状态。
-后续保留旧 DPO 高层的组合候选已完成 [200 局最终对照](LEGACY_HYBRID_FINAL_RESULTS.md)。
+后续保留旧 DPO 高层的组合候选已完成 [200 局最终对照](../results/final-system.md)。
 下文“未 push”“最终池未开启”和待办项均为历史记录。
 
 本地分支 `local/continuous-posttraining`；没有 push，也没有经过 GitHub 传输。

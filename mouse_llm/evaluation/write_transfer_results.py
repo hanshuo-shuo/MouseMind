@@ -195,13 +195,13 @@ def main() -> None:
         "",
         decision,
         "",
-        "![Frozen cross-task transfer](mouse_llm/reports/figures/transfer_boundary.png)",
+        "![Frozen cross-task transfer](../../mouse_llm/reports/figures/transfer_boundary.png)",
         "",
         '<p align="center">',
         '  <img src="https://raw.githubusercontent.com/hanshuo-shuo/MouseMind/main/mouse_llm/reports/figures/transfer_rollout.gif" alt="MiniMind instruction-shift transfer rollout" width="100%">',
         "</p>",
         "",
-        "[Open the animation directly](mouse_llm/reports/figures/transfer_rollout.gif).",
+        "[Open the animation directly](../../mouse_llm/reports/figures/transfer_rollout.gif).",
         "",
         "The animation uses the predetermined first final seed (`42000`). The left panel "
         "is the goal-only interface; the other panels use identical MiniMind weights with "

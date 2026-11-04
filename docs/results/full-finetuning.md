@@ -39,7 +39,7 @@ The observed closed-loop failure mode is EVADE-heavy behavior. On final-ID episo
 
 ## Cluster submission
 
-The Slurm script is [`mouse_llm/northwestern/p2/full_finetune_verified.sbatch`](mouse_llm/northwestern/p2/full_finetune_verified.sbatch). It writes private checkpoints and detailed metrics under `/shares/bcs516/sh/minimind_mouse_p2/full_verified_v1/`, leaving existing LoRA runs untouched. The first submission used jobs SFT `23747`, DPO `23748`, GRPO `23749`, and final comparison `23750` with `afterok` dependencies.
+The Slurm script is [`mouse_llm/northwestern/p2/full_finetune_verified.sbatch`](../../mouse_llm/northwestern/p2/full_finetune_verified.sbatch). It writes private checkpoints and detailed metrics under `/shares/bcs516/sh/minimind_mouse_p2/full_verified_v1/`, leaving existing LoRA runs untouched. The first submission used jobs SFT `23747`, DPO `23748`, GRPO `23749`, and final comparison `23750` with `afterok` dependencies.
 
 ```bash
 script=mouse_llm/northwestern/p2/full_finetune_verified.sbatch

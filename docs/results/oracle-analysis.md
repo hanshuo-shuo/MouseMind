@@ -83,7 +83,7 @@ LoRA (95% bootstrap interval 0.212–0.270) and by 0.059 versus either structura
 ablation (0.038–0.079). Its 0.026 point-estimate improvement over P1 is not
 resolved by the bootstrap interval (−0.056 to +0.005 for MiniMind minus P1).
 The full feature-level evidence is in
-[trajectory_profile_alignment.json](mouse_llm/reports/trajectory_profile_alignment.json).
+[trajectory_profile_alignment.json](../../mouse_llm/reports/trajectory_profile_alignment.json).
 
 ## Oracle and upper-reference gap
 
