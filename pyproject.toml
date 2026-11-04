@@ -26,7 +26,7 @@ env = [
   "pygame>=2.5",
   "shapely>=2",
 ]
-test = ["pytest>=8"]
+test = ["pytest>=8", "shapely>=2"]
 rl = ["stable-baselines3==2.3.2"]
 
 [project.scripts]
