@@ -1,6 +1,10 @@
 # MouseMind：连续控制与可验证 Post-Training 重构
 
-本轮状态：连续控制实现、BC 训练、反事实数据生成及首轮 SFT/DPO 训练已完成，
+本文保留首轮连续上下文重构的计划与失败记录。后续成功候选保留旧 DPO 高层，
+接入连续 BC GO，已完成独立的 [200 局最终对照](mouse_llm/continuous/LEGACY_HYBRID_FINAL_RESULTS.md)。
+下文关于封存、未 push 和后续方向的表述均属于首轮结束时的状态，不代表当前进度。
+
+首轮结束时：连续控制实现、BC 训练、反事实数据生成及首轮 SFT/DPO 训练已完成，
 闭环开发评测和失败诊断也已完成。高层候选未通过开发门槛，最终测试保持封存，
 没有 push。
 详细结果和失败记录见 [集群进展](mouse_llm/continuous/CLUSTER_PROGRESS_20261102.md)。

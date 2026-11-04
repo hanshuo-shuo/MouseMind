@@ -1,0 +1,39 @@
+{
+  "action_schema": "mousemind_xy_destination_v1",
+  "context_schema": "mousemind_continuous_context_v1",
+  "destination_mode": "project",
+  "freeze_basis": "Four development-seed engineering probes; no final seeds read. Target inset 0.01 reduces boundary/component failures while preserving valid requests.",
+  "max_steps": 300,
+  "navigation_contract": "graph_route_exact_xy_terminal_project_v2",
+  "predator_prey_forward_speed_ratio": 0.15,
+  "projection_epsilon": 0.01,
+  "reset_contract": "fresh_navigation_episode_reset_v1",
+  "schema_version": "mousemind_continuous_experiment_v1",
+  "seed_pools": {
+    "data_collection": {
+      "count": 200,
+      "start": 50000,
+      "stop_exclusive": 50200
+    },
+    "development": {
+      "count": 80,
+      "start": 51000,
+      "stop_exclusive": 51080
+    },
+    "final_id_test": {
+      "count": 200,
+      "start": 52000,
+      "stop_exclusive": 52200
+    }
+  },
+  "selection": {
+    "bootstrap_replicates": 10000,
+    "final_pool_is_never_training_or_selection_data": true,
+    "primary_metric": "clean_success_rate",
+    "publish_automatically": false,
+    "task_success_noninferiority_margin": 0.02
+  },
+  "study_id": "continuous-v1-development-clearance01",
+  "time_step": 0.25,
+  "world": "21_05"
+}

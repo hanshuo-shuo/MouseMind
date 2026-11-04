@@ -16,6 +16,12 @@ The project separates three evidence levels:
 
 ## Current status
 
+- **Latest frozen comparison:** the existing DPO planner with a continuous BC
+  GO executor reached **97.5% task / 41.5% capture-free success** on 200 held-out
+  seeds, versus **92.5% / 18.5%** for the same planner with its original executor.
+  The planner was not retrained in this comparison. See the
+  [final200 report](continuous/LEGACY_HYBRID_FINAL_RESULTS.md); the historical
+  evaluations below retain their original contracts and seed pools.
 - **Verified:** offline MiniMind base/LoRA and MLP evaluation on the identical
   deterministic 512-transition subset from episode-isolated test data.
 - **Verified:** aggregate-only source-trajectory alignment on those same 512

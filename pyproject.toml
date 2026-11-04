@@ -52,7 +52,7 @@ mouse_llm = [
 ]
 "mouse_llm.data" = ["*.json"]
 "mouse_llm.evaluation" = ["contracts/*.json"]
-"mouse_llm.continuous" = ["*.json"]
+"mouse_llm.continuous" = ["*.json", "experiments/*.json"]
 "mouse_llm.envs.mice" = [
   "assets/*.json",
   "assets/*.npy",
