@@ -4,21 +4,21 @@
 
 MouseMind studies how a compact language model can make strategic decisions in the Cellworld BotEvade simulator. Exact-state counterfactual rollouts compare alternative skills, producing supervision for LoRA SFT and preference pairs for DPO. A 64M-class MiniMind planner reads an instruction, semantic state, and eight steps of history, then selects `go_to_goal`, `evade_predator`, or `hold_position`. Task-specific controllers turn that decision into movement.
 
-The latest system retains the trained DPO planner and refines goal execution with continuous behavior cloning. On **200 held-out final seeds**, it achieves **97.5% task success and 41.5% capture-free success**. Compared with the same planner using its original executor, capture-free success increases by **23 percentage points** and captures fall from **7.535 to 5.275 per episode**. The [final report](mouse_llm/continuous/LEGACY_HYBRID_FINAL_RESULTS.md) records the paired comparison, frozen configuration, and remaining tradeoffs.
+The complete system combines a DPO-trained skill planner with task-specific controllers, including continuous behavior cloning for goal execution. On **200 held-out final seeds**, MouseMind achieves **97.5% task success and 41.5% capture-free success**, with **5.275 captures per episode**. The [final report](mouse_llm/continuous/LEGACY_HYBRID_FINAL_RESULTS.md) documents the evaluation protocol and component comparisons.
 
 ## Core idea
 
 ![MouseMind architecture: verified counterfactual outcomes train a MiniMind skill planner; controllers execute its selected skill](mouse_llm/reports/figures/mousemind_architecture.svg)
 
-The diagram shows the planner-training path. The latest GO executor refinement is described below.
+The diagram shows how verified outcomes train the skill-planner adapter within the hierarchy.
 
 MiniMind decides which skill to use; the specialist decides how to execute it. The main planner follows the **counterfactual supervision → LoRA SFT → verified DPO** training path. DPO starts from a seed-isolated SFT skill-planner adapter and uses a frozen copy of that adapter as its reference, while the MiniMind backbone remains frozen.
 
-The latest execution refinement keeps those DPO weights, the three-skill JSON interface, context format, and planning cadence. Only GO switches from a catalog-based MLP to a continuous BC policy that requests an `(x, y)` destination. EVADE and HOLD retain their original controllers. A nearest-catalog ID supplies the legacy planner's action-history input; it does not quantize the executed GO request. The shared environment layer projects or rejects infeasible destinations.
+At inference, the planner emits one of three constrained JSON skill responses. A continuous BC specialist executes GO as an `(x, y)` destination, while task-specific controllers handle EVADE and HOLD. This interface separates strategic decisions from geometric movement.
 
 ## Why hierarchy?
 
-One-step action imitation does not directly optimize closed-loop outcomes. The hierarchy separates semantic and temporal skill selection from movement execution. Counterfactual supervision lets the planner learn from the measured consequences of alternative skills, while the modular executor can be improved without retraining the language model.
+One-step action imitation does not directly optimize closed-loop outcomes. The hierarchy separates semantic and temporal skill selection from movement execution. Counterfactual supervision lets the planner learn from the measured consequences of alternative skills, while low-level controllers handle movement execution.
 
 ## Data and supervision
 
@@ -30,27 +30,11 @@ One-step action imitation does not directly optimize closed-loop outcomes. The h
 
 The source trajectories are a legacy BotEvade simulator-policy export. The goal specialist learns from these trajectories; high-level targets come from verified, exactly replayable anchor states. For each preference, the pipeline executes candidate skills from the same state, scores their short-horizon outcomes, and builds SFT targets and chosen/rejected preference pairs.
 
-The original planner collection contains **320 anchors** and **1,920 verified counterfactual branches** at horizons **4 and 8**. The DPO study regroups anchors by collection seed and retrains its SFT initialization on the same **1,072 chosen responses** used for preference training. See the [technical guide](mouse_llm/README.md) for observation contracts and the [DPO report](VERIFIED_DPO_RESULTS.md) for the controlled training comparison.
-
-## Latest results: continuous execution with the DPO planner
-
-These three systems were evaluated on the same **200 paired final seeds**, after selecting and freezing the candidate on a separate 80-seed development pool. All ran sequentially on one H100 with the same simulator, navigation/reset contract, and software environment. Task success means reaching the goal; capture-free success also requires zero captures during the episode. Captures can occur more than once per episode.
-
-| System | Task success ↑ | Capture-free success ↑ | Captures / episode ↓ |
-| --- | ---: | ---: | ---: |
-| DPO planner + original discrete executor | 92.5% (185/200) | 18.5% (37/200) | 7.535 |
-| Continuous BC alone | 96.0% (192/200) | 11.0% (22/200) | 3.780 |
-| **DPO planner + continuous BC GO executor** | **97.5% (195/200)** | **41.5% (83/200)** | **5.275** |
-
-Against the original executor, the paired 95% bootstrap intervals are **+23 pp [14, 31.5]** for capture-free success, **+5 pp [1, 9.5]** for task success, and **−2.26 [−4.20, −0.285]** for captures per episode. The candidate passed all three predeclared acceptance criteria: improved capture-free completion, task noninferiority within 2 percentage points, and no increase in captures.
-
-The planner and its controllers also raise capture-free success relative to direct BC, but have a higher mean capture count across all episodes: **5.275 versus 3.780**. This tradeoff remains part of the result. The new comparison measures the executor refinement under a frozen DPO planner; the separate study below measures DPO against its own SFT initialization. These intervals cover environment-seed variation for fixed checkpoints, not training-run variability.
-
-[Final protocol](mouse_llm/continuous/LEGACY_HYBRID_FINAL_PROTOCOL.md) · [Final results](mouse_llm/continuous/LEGACY_HYBRID_FINAL_RESULTS.md) · [Development comparison](mouse_llm/continuous/LEGACY_HYBRID_EXPERIMENT.md)
+The planner-training collection contains **320 anchors** and **1,920 verified counterfactual branches** at horizons **4 and 8**. The DPO study regroups anchors by collection seed and retrains its SFT initialization on the same **1,072 chosen responses** used for preference training. See the [technical guide](mouse_llm/README.md) for observation contracts and the [DPO report](VERIFIED_DPO_RESULTS.md) for the controlled training comparison.
 
 ## Planner post-training results
 
-In the original controlled planner study, verified LoRA DPO improved task success from **92% to 100%** and capture-free success from **8% to 22%** relative to its own seed-isolated SFT initialization, with the same specialist. That study used a different 100-seed contract, and multiple DPO settings were evaluated on its fixed test pool. Its results are exploratory and are kept separate from the frozen 200-seed executor comparison above.
+In the original controlled planner study, verified LoRA DPO improved task success from **92% to 100%** and capture-free success from **8% to 22%** relative to its own seed-isolated SFT initialization, with the same specialist. That study used a different 100-seed contract, and multiple DPO settings were evaluated on its fixed test pool. Its results are exploratory and are kept separate from the final 200-seed system evaluation below.
 
 <details>
 <summary>Historical 100-seed benchmark, ablations, and training comparisons</summary>
@@ -80,7 +64,41 @@ Full-parameter DPO and GRPO both drift toward `evade_predator`: it occupies 99.8
 
 </details>
 
-## What MiniMind contributes
+## Final system performance
+
+The final system was selected on a separate 80-seed development pool, then frozen before evaluation on **200 held-out BotEvade seeds**. It uses the DPO-trained planner and the execution interface described above. Task success means reaching the goal; capture-free success additionally requires zero captures throughout the episode. Multiple captures can occur in one episode.
+
+| Metric | Final system · 200 seeds |
+| --- | ---: |
+| Task success ↑ | **97.5% (195/200)** |
+| Capture-free success ↑ | **41.5% (83/200)** |
+| Captures / episode ↓ | **5.275** |
+
+These results describe the complete hierarchy with fixed checkpoints in one simulator world. The SFT-to-DPO study above evaluates planner training; the ablations below evaluate execution choices under the frozen planner. Full paired intervals and checkpoint provenance are recorded in the final report.
+
+[Final protocol](mouse_llm/continuous/LEGACY_HYBRID_FINAL_PROTOCOL.md) · [Final results](mouse_llm/continuous/LEGACY_HYBRID_FINAL_RESULTS.md)
+
+## Implementation and ablations
+
+### Skill execution
+
+The goal executor maps observations to a continuous `(x, y)` request using a BC specialist. EVADE and HOLD use the existing task-specific controllers. The shared environment layer projects or rejects infeasible destinations. For compatibility with the planner's existing action-history format, the requested GO destination is mapped to its nearest catalog ID for history only; execution retains the continuous XY request.
+
+### Executor ablation with a frozen DPO planner
+
+To evaluate the execution layer, we kept the DPO weights, three-skill JSON interface, semantic context, planning cadence, and EVADE/HOLD controllers fixed, and replaced only the catalog-based GO MLP with continuous BC and its history adapter. The high-level planner was not retrained. All three systems below ran on the same 200 paired final seeds, sequentially on one H100 with a common simulator, navigation/reset contract, and software environment.
+
+| System | Task success ↑ | Capture-free success ↑ | Captures / episode ↓ |
+| --- | ---: | ---: | ---: |
+| DPO planner + original discrete executor | 92.5% (185/200) | 18.5% (37/200) | 7.535 |
+| Continuous BC alone | 96.0% (192/200) | 11.0% (22/200) | 3.780 |
+| **DPO planner + continuous BC GO executor** | **97.5% (195/200)** | **41.5% (83/200)** | **5.275** |
+
+The executor change produced paired 95% bootstrap intervals of **+23 pp [14, 31.5]** for capture-free success, **+5 pp [1, 9.5]** for task success, and **−2.26 [−4.20, −0.285]** for captures per episode relative to the original executor. The candidate passed all three predeclared criteria: improved capture-free completion, task noninferiority within 2 percentage points, and no increase in captures. These deltas describe execution refinement under fixed DPO weights, not a new DPO training gain.
+
+Compared with direct BC, the hierarchy achieves more capture-free completions but has a higher mean capture count across all episodes: **5.275 versus 3.780**. This comparison adds the planner, skill switching, and EVADE/HOLD controllers together, so it does not isolate the effect of language reasoning. The intervals cover environment-seed variation for fixed checkpoints, not training-run variability. See the [development comparison](mouse_llm/continuous/LEGACY_HYBRID_EXPERIMENT.md) for candidate selection and the [final report](mouse_llm/continuous/LEGACY_HYBRID_FINAL_RESULTS.md) for the complete evidence.
+
+### Instruction and history ablations
 
 The historical skill-planner study measured **25% offline skill accuracy** without task LoRA and **62.2% on unseen paraphrases** after task adaptation. Removing instruction or temporal history reduced the historical hierarchy's closed-loop task success from **97% to 80%**. These ablations support the role of task adaptation and temporal context under that study's contract; they have not been rerun with the latest continuous executor.
 
