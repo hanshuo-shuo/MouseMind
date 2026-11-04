@@ -62,3 +62,9 @@ Slurm 作业中顺序运行，共用一张 H100、相同 Torch 2.5.1+cu124 环�
 其中 `gpu-task/protocol.json` 与 `artifact_manifest.json` 在提交前冻结，
 `run_manifest.json` 记录实际 Job ID 和 Run ID；完成后备份逐局结果、统计、
 日志、峰值资源、运行硬件及来源哈希，再更新本地结果报告。
+
+## 执行后记录
+
+本轮已完成，作业 `7198902` 正常退出，三组完整覆盖最终 200 个种子。
+原有验收三项条件均通过；指标、BC 次对照的取舍及证据边界见
+[最终结果](LEGACY_HYBRID_FINAL_RESULTS.md)。这段完成记录不修改上述预先冻结的规则。
